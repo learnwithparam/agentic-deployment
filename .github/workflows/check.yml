@@ -8,4 +8,5 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.4
+      - uses: astral-sh/setup-uv@v6
       - run: bun run check
