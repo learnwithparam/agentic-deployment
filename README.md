@@ -98,7 +98,7 @@ Each step has one command: `bun run verify <step-name>`. It prints what passed, 
 next. `bun run verify part <part-name>` checks a whole part. `bun run verify --report` writes
 `verify-report.json` for a cohort.
 
-How the parts map onto one day, four evenings or four weeks is in [schedules.toml](schedules.toml).
+How the parts map onto a single sitting, four evenings or a longer cohort is in [schedules.toml](schedules.toml).
 
 ## The project
 

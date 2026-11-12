@@ -8,7 +8,7 @@ goes to every resident at once, and the only way back is someone noticing and re
 
 ## Why it matters
 
-A load balancing change sent some Claude requests to the wrong servers. At the worst impacted hour,
+A load balancing change sent some Claude requests to the wrong servers. At its worst point,
 16% of Sonnet 4 requests were affected. Anthropic rolled back the faulty changes, and now runs quality
 evaluations continuously on true production systems
 ([Anthropic Engineering, "A postmortem of three recent issues"](https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues)).
