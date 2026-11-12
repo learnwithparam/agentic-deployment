@@ -1,3 +1,4 @@
+// biome-ignore-all lint/style/useNamingConvention: docker inspect fields are PascalCase, like State
 // Start the learner's desk from a folder with Docker Compose, and look at what is running.
 import { existsSync } from "node:fs";
 import { join } from "node:path";

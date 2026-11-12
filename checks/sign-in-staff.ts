@@ -41,7 +41,8 @@ async function playScenario(started: ReturnType<typeof startDesk>): Promise<Scen
   return statuses;
 }
 
-// One scenario per desk: an application waits for an officer, then each caller tries to validate it.
+// One scenario per desk: an application waits for an officer, then each caller tries to
+// validate it.
 const scenarios = new WeakMap<object, Promise<Scenario | null>>();
 function scenario(dir: string): Promise<Scenario | null> {
   const started = startDesk(dir);

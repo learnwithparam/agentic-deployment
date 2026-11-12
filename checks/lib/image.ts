@@ -54,10 +54,8 @@ export async function findInImage(image: string, needles: string[]): Promise<str
   for (const entry of tarEntries(await savedImage(image))) {
     const data = unzipped(entry.data);
     if (data === null) continue;
-    for (const needle of needles) {
-      if (needle && has(data, needle))
-        found.push(`${entry.name} contains ${needle.slice(0, 12)}...`);
-    }
+    const inEntry = needles.filter((needle) => needle && has(data, needle));
+    for (const needle of inEntry) found.push(`${entry.name} contains ${needle.slice(0, 12)}...`);
   }
   const historyCommand = ["docker", "history", "--no-trunc", "--format", "{{.CreatedBy}}", image];
   const history = await runCommand(historyCommand);

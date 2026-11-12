@@ -1,4 +1,4 @@
-// biome-ignore-all lint/style/useNamingConvention: the desk's run request is JSON with application_id, and we keep that name exactly
+// biome-ignore-all lint/style/useNamingConvention: JSON fields stay snake_case, like application_id
 // Call the desk's run endpoint and read the Server-Sent Events it streams, with the time each one
 // arrived.
 import { URLS } from "../../world/cli/lib";

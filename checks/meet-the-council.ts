@@ -1,4 +1,4 @@
-// biome-ignore-all lint/style/useNamingConvention: findings.toml uses snake_case keys like fee_owed_gbp, and we keep them exactly
+// biome-ignore-all lint/style/useNamingConvention: findings.toml keys stay snake_case
 // meet-the-council: the learner ran the finished desk and read the register and the trace
 // correctly.
 

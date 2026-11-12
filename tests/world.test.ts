@@ -1,4 +1,4 @@
-// biome-ignore-all lint/style/useNamingConvention: chat messages and decisions use snake_case names like tool_calls and missing_items, and we keep them exactly
+// biome-ignore-all lint/style/useNamingConvention: JSON fields stay snake_case, like tool_calls
 // Unit tests for the world's pure parts: the council's rules and the replay model.
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";

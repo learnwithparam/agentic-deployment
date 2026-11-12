@@ -99,11 +99,13 @@ export default [
     test: mountsOwnKey,
     tryNext:
       "Declare a top-level secret gateway_key with file: " +
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: this is Compose's ${VAR:-default} syntax for the learner to copy, not a template
+      // biome-ignore lint/suspicious/noTemplateCurlyInString: Compose syntax the learner copies
       "${HDC_SECRETS:-../../../../secrets}/desk_gateway_key and list it under the desk service.",
   },
   {
-    says: "model calls from the desk are billed to its own gateway key, not the admin key (replay mode)",
+    says:
+      "model calls from the desk are billed to its own gateway key, not the admin key" +
+      " (replay mode)",
     test: billedToOwnKey,
     tryNext:
       "Read the key from /run/secrets/gateway_key in src/config.ts." +

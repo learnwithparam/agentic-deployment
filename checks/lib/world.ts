@@ -1,4 +1,4 @@
-// biome-ignore-all lint/style/useNamingConvention: the world's JSON and OAuth forms use snake_case names like run_id and grant_type, and we keep them exactly
+// biome-ignore-all lint/style/useNamingConvention: JSON and OAuth fields stay snake_case
 // Read the world's state for a check: the register, the letters, the audit log, the gateway's
 // spend log, the trace desk's spans and tokens from the sign-in service. Checks read state,
 // never the model's reply.
