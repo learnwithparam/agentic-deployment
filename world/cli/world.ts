@@ -64,8 +64,7 @@ const command = process.argv[2] ?? "start";
 try {
   const run = Object.hasOwn(COMMANDS, command) ? COMMANDS[command] : undefined;
   if (!run) {
-    const usage =
-      "bun run world, bun run world reset, bun run world status, bun run world stop";
+    const usage = "bun run world, bun run world reset, bun run world status, bun run world stop";
     console.log(`Unknown command "${command}". Use: ${usage}`);
     process.exit(1);
   }
