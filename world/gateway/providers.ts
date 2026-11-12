@@ -17,7 +17,8 @@ export async function callProvider(p: Exclude<Provider, "replay">, role: Role, m
   const names = new Map<string, string>();
   const converted: any[] = [];
   for (const m of messages) {
-    if (m.role === "system" || m.role === "user") converted.push({ role: m.role, content: m.content ?? "" });
+    if (m.role === "system") continue; // AI SDK 7 takes the system prompt as "instructions"
+    if (m.role === "user") converted.push({ role: "user", content: m.content ?? "" });
     else if (m.role === "assistant") {
       const parts: any[] = [];
       if (m.content) parts.push({ type: "text", text: m.content });
@@ -32,7 +33,8 @@ export async function callProvider(p: Exclude<Provider, "replay">, role: Role, m
   }
   const toolSet: Record<string, any> = {};
   for (const t of tools) toolSet[t.function.name] = tool({ description: t.function.description, inputSchema: jsonSchema((t.function.parameters ?? { type: "object", properties: {} }) as any) });
-  const r = await generateText({ model, messages: converted, tools: tools.length ? toolSet : undefined, maxOutputTokens: maxTokens });
+  const instructions = messages.filter((m) => m.role === "system").map((m) => m.content ?? "").join("\n") || undefined;
+  const r = await generateText({ model, instructions, messages: converted, tools: tools.length ? toolSet : undefined, maxOutputTokens: maxTokens });
   return {
     content: r.text || null,
     tool_calls: r.toolCalls.length ? r.toolCalls.map((c: any) => ({ id: c.toolCallId, type: "function" as const, function: { name: c.toolName, arguments: JSON.stringify(c.input) } })) : undefined,

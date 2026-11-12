@@ -1,0 +1,5 @@
+status = "invalid_missing_items"
+missing = ["fee"]
+fee_owed_gbp = 578
+run_cost_usd = 0.0141
+tool_calls = 5
