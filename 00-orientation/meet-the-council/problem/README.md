@@ -35,7 +35,7 @@ flowchart LR
   TD --> F
 ```
 
-![The finished desk streaming a check](../images/expected.png)
+![The register after the runs](../images/expected.png)
 
 ## Done when
 
