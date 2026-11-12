@@ -1,0 +1,5 @@
+[one-day]
+sessions = [{ parts = ["meet-the-world"], minutes = 60 }]
+
+[four-evenings]
+sessions = [{ parts = ["meet-the-world"], minutes = 60 }]
