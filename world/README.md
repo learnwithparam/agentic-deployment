@@ -10,12 +10,12 @@ council's mistake, paid for by taxpayers.
 
 ## What runs
 
-| Service | URL | What it does |
-|---|---|---|
-| Register | http://localhost:7001 | The system of record. Holds every application, its status, every letter and an audit log. |
-| Gateway | http://localhost:7002 | The only thing that holds a model key. Gives each service its own gateway key with a dollar budget, prices every call and writes a spend log. Speaks the OpenAI chat format. |
-| Sign-in | http://localhost:7003 | An OpenID Connect provider with the council's staff and residents. Tokens carry a `roles` claim. |
-| Trace desk | http://localhost:7004 | Takes OpenTelemetry spans (OTLP over HTTP, JSON), writes them to `out/spans.jsonl` and shows a waterfall. |
+| Service    | URL                   | What it does                                                                                                                                                                 |
+| ---------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Register   | http://localhost:7001 | The system of record. Holds every application, its status, every letter and an audit log.                                                                                    |
+| Gateway    | http://localhost:7002 | The only thing that holds a model key. Gives each service its own gateway key with a dollar budget, prices every call and writes a spend log. Speaks the OpenAI chat format. |
+| Sign-in    | http://localhost:7003 | An OpenID Connect provider with the council's staff and residents. Tokens carry a `roles` claim.                                                                             |
+| Trace desk | http://localhost:7004 | Takes OpenTelemetry spans (OTLP over HTTP, JSON), writes them to `out/spans.jsonl` and shows a waterfall.                                                                    |
 
 ```bash
 bun run world
@@ -44,11 +44,11 @@ Expect: `The world is running. Model provider: replay.` and four lines with the 
 
 ## Planted faults
 
-| Fault | Where | What it does to a naive agent |
-|---|---|---|
-| The runaway application | `HDC-2026-0177` | Its attachment list "continues on the next page" forever. An agent with no step limit keeps reading pages and spending. |
-| The bad prompt | `releases/v2.json` | A new prompt that tells the agent "a missing fee is fine". It passes a quick look and writes wrong letters. |
-| The held letter | `bun run chaos kill` | Holds the letter call open, then stops the desk between the register write and the letter. |
+| Fault                   | Where                | What it does to a naive agent                                                                                           |
+| ----------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| The runaway application | `HDC-2026-0177`      | Its attachment list "continues on the next page" forever. An agent with no step limit keeps reading pages and spending. |
+| The bad prompt          | `releases/v2.json`   | A new prompt that tells the agent "a missing fee is fine". It passes a quick look and writes wrong letters.             |
+| The held letter         | `bun run chaos kill` | Holds the letter call open, then stops the desk between the register write and the letter.                              |
 
 ## Models
 

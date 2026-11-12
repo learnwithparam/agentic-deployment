@@ -85,14 +85,14 @@ flowchart LR
 
 ## Parts
 
-| Part | Steps | Minutes | You leave with |
-|---|---|---|---|
-| [Orientation](00-orientation/README.md) | `meet-the-council` | 15 | the world running, and the finished system seen working |
-| [1. Ship the desk](parts/01-ship-the-desk/README.md) | `package-the-agent`, `move-secrets-out`, `sign-in-staff` | 55 | a healthy non-root container that streams, its key outside the image, staff sign-in with roles |
-| [2. See every run](parts/02-see-every-run/README.md) | `trace-every-run`, `price-each-run` | 35 | a trace for every run and its cost, reconciled with the gateway |
-| [3. Bound the runs](parts/03-bound-the-runs/README.md) | `cap-the-spend`, `rate-limit-residents`, `survive-a-restart` | 50 | a runaway run stopped, residents rate limited, runs that survive a kill with no duplicate letter |
-| [4. Release safely](parts/04-release-safely/README.md) | `gate-with-evals`, `ship-a-canary`, `roll-back-automatically`, `write-the-runbook` | 75 | a release gate, a canary, a rollback no one has to press, and a runbook |
-| [5. Go further](parts/05-go-further/README.md) (stretch) | `shadow-the-canary`, `deploy-to-the-cloud` | 55 | shadow traffic, and the same image on a container host |
+| Part                                                     | Steps                                                                              | Minutes | You leave with                                                                                   |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------ |
+| [Orientation](00-orientation/README.md)                  | `meet-the-council`                                                                 | 15      | the world running, and the finished system seen working                                          |
+| [1. Ship the desk](parts/01-ship-the-desk/README.md)     | `package-the-agent`, `move-secrets-out`, `sign-in-staff`                           | 55      | a healthy non-root container that streams, its key outside the image, staff sign-in with roles   |
+| [2. See every run](parts/02-see-every-run/README.md)     | `trace-every-run`, `price-each-run`                                                | 35      | a trace for every run and its cost, reconciled with the gateway                                  |
+| [3. Bound the runs](parts/03-bound-the-runs/README.md)   | `cap-the-spend`, `rate-limit-residents`, `survive-a-restart`                       | 50      | a runaway run stopped, residents rate limited, runs that survive a kill with no duplicate letter |
+| [4. Release safely](parts/04-release-safely/README.md)   | `gate-with-evals`, `ship-a-canary`, `roll-back-automatically`, `write-the-runbook` | 75      | a release gate, a canary, a rollback no one has to press, and a runbook                          |
+| [5. Go further](parts/05-go-further/README.md) (stretch) | `shadow-the-canary`, `deploy-to-the-cloud`                                         | 55      | shadow traffic, and the same image on a container host                                           |
 
 Each step has one command: `bun run verify <step-name>`. It prints what passed, what failed and what to try
 next. `bun run verify part <part-name>` checks a whole part. `bun run verify --report` writes

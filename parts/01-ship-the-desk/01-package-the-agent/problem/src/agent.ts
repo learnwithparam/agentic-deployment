@@ -1,7 +1,7 @@
 // The agent loop: ask the model, run the tools it asks for, repeat until it answers in words.
 import { release } from "./config";
-import { chat, GatewayError, type Message } from "./model";
-import { TOOLS, runTool } from "./tools";
+import { chat, type GatewayError, type Message } from "./model";
+import { runTool, TOOLS } from "./tools";
 
 export type Event =
   | { type: "token"; text: string }
@@ -21,7 +21,11 @@ export async function* runAgent(applicationId: string, runId: string): AsyncGene
       reply = await chat(release.role, messages, TOOLS, runId);
     } catch (e) {
       const g = e as GatewayError;
-      yield { type: "error", code: g.type === "budget_exceeded" ? "budget_exceeded" : "model_error", message: g.message };
+      yield {
+        type: "error",
+        code: g.type === "budget_exceeded" ? "budget_exceeded" : "model_error",
+        message: g.message,
+      };
       yield { type: "done", run_id: runId, status: "failed", cost_usd: cost };
       return;
     }
@@ -30,14 +34,18 @@ export async function* runAgent(applicationId: string, runId: string): AsyncGene
     const calls = reply.message.tool_calls ?? [];
     if (calls.length === 0) {
       // Send the answer in small pieces so the resident sees it arrive.
-      for (const piece of (reply.message.content ?? "").match(/\S+\s*/g) ?? []) yield { type: "token", text: piece };
+      for (const piece of (reply.message.content ?? "").match(/\S+\s*/g) ?? [])
+        yield { type: "token", text: piece };
       yield { type: "done", run_id: runId, status: "done", cost_usd: cost };
       return;
     }
     for (const c of calls) {
       let result: unknown;
-      try { result = await runTool(c.function.name, JSON.parse(c.function.arguments || "{}"), runId); }
-      catch (e) { result = { error: (e as Error).message }; }
+      try {
+        result = await runTool(c.function.name, JSON.parse(c.function.arguments || "{}"), runId);
+      } catch (e) {
+        result = { error: (e as Error).message };
+      }
       const failed = typeof result === "object" && result !== null && "error" in result;
       yield { type: "tool", name: c.function.name, status: failed ? "error" : "ok" };
       messages.push({ role: "tool", tool_call_id: c.id, content: JSON.stringify(result) });

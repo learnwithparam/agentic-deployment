@@ -27,10 +27,10 @@ flowchart LR
 
 ## Steps
 
-| Step | Minutes | You make | The check reads |
-|---|---|---|---|
-| `trace-every-run` | 20 | OpenTelemetry tracing: a root span per run, a `chat <role>` span per model call, an `execute_tool <name>` span per tool call | `out/spans.jsonl` for 5 replayed applications: one root span each with `run.id`, `application.id`, `release.id`; token counts on every model span; no email or phone in any span |
-| `price-each-run` | 15 | `app.cost_usd` on the root span and `GET /v1/runs/:id` returning it | the sum of `app.cost_usd` over the replay against the gateway's spend log (within 1 cent); a run with no price is `cost_unknown`, never 0 |
+| Step              | Minutes | You make                                                                                                                     | The check reads                                                                                                                                                                  |
+| ----------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trace-every-run` | 20      | OpenTelemetry tracing: a root span per run, a `chat <role>` span per model call, an `execute_tool <name>` span per tool call | `out/spans.jsonl` for 5 replayed applications: one root span each with `run.id`, `application.id`, `release.id`; token counts on every model span; no email or phone in any span |
+| `price-each-run`  | 15      | `app.cost_usd` on the root span and `GET /v1/runs/:id` returning it                                                          | the sum of `app.cost_usd` over the replay against the gateway's spend log (within 1 cent); a run with no price is `cost_unknown`, never 0                                        |
 
 ## Walkthrough
 

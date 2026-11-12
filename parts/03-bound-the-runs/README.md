@@ -29,11 +29,11 @@ flowchart TD
 
 ## Steps
 
-| Step | Minutes | You make | The check reads |
-|---|---|---|---|
-| `cap-the-spend` | 20 | a step limit and a dollar limit per run, and a budget on the desk's gateway key | `bun run chaos runaway`: the run ends `stopped_budget` in under 25 steps and under $0.10 (spend log); a budget refusal from the gateway reaches the resident as `event: error` |
-| `rate-limit-residents` | 10 | a limit per resident (header `x-resident-id`, else address) | 6 requests from one resident inside the window get one 429 with `Retry-After`; another resident still gets 200 |
-| `survive-a-restart` | 20 | a run journal and idempotency keys on the register writes | `bun run chaos kill --desk`: after the restart the run finishes, the register holds one decision and one letter, and no completed model step is called again (spend log rows per run) |
+| Step                   | Minutes | You make                                                                        | The check reads                                                                                                                                                                       |
+| ---------------------- | ------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cap-the-spend`        | 20      | a step limit and a dollar limit per run, and a budget on the desk's gateway key | `bun run chaos runaway`: the run ends `stopped_budget` in under 25 steps and under $0.10 (spend log); a budget refusal from the gateway reaches the resident as `event: error`        |
+| `rate-limit-residents` | 10      | a limit per resident (header `x-resident-id`, else address)                     | 6 requests from one resident inside the window get one 429 with `Retry-After`; another resident still gets 200                                                                        |
+| `survive-a-restart`    | 20      | a run journal and idempotency keys on the register writes                       | `bun run chaos kill --desk`: after the restart the run finishes, the register holds one decision and one letter, and no completed model step is called again (spend log rows per run) |
 
 ## Walkthrough
 

@@ -41,7 +41,8 @@ export const PRICES: Partial<Record<Provider, Partial<Record<Role, [number, numb
 
 export function provider(env: Record<string, string | undefined> = process.env): Provider {
   const p = (env.LLM_PROVIDER ?? "replay").trim() as Provider;
-  if (!PROVIDERS.includes(p)) throw new Error(`LLM_PROVIDER="${p}" is not one of ${PROVIDERS.join(", ")}`);
+  if (!PROVIDERS.includes(p))
+    throw new Error(`LLM_PROVIDER="${p}" is not one of ${PROVIDERS.join(", ")}`);
   return p;
 }
 
@@ -49,7 +50,12 @@ export function isRole(x: string): x is Role {
   return (ROLES as readonly string[]).includes(x);
 }
 
-export function price(p: Provider, role: Role, inputTokens: number, outputTokens: number): number | null {
+export function price(
+  p: Provider,
+  role: Role,
+  inputTokens: number,
+  outputTokens: number,
+): number | null {
   const pr = PRICES[p]?.[role];
   if (!pr) return null;
   return (inputTokens * pr[0] + outputTokens * pr[1]) / 1_000_000;

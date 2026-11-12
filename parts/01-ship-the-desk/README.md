@@ -28,11 +28,11 @@ flowchart LR
 
 ## Steps
 
-| Step | Minutes | You make | The check reads |
-|---|---|---|---|
-| `package-the-agent` | 20 | a Dockerfile, a Compose service with a healthcheck, `/healthz`, a streamed `/v1/runs` | container health and user, the event stream of 3 replay runs, the register's decisions and letters |
-| `move-secrets-out` | 15 | the desk's own key as a Compose secret, read from a file | every layer of the image, the container's environment, the gateway's spend log |
-| `sign-in-staff` | 20 | token checks and role guards on the staff routes | the redirect to sign-in, the answers to five callers, the register's status |
+| Step                | Minutes | You make                                                                              | The check reads                                                                                    |
+| ------------------- | ------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `package-the-agent` | 20      | a Dockerfile, a Compose service with a healthcheck, `/healthz`, a streamed `/v1/runs` | container health and user, the event stream of 3 replay runs, the register's decisions and letters |
+| `move-secrets-out`  | 15      | the desk's own key as a Compose secret, read from a file                              | every layer of the image, the container's environment, the gateway's spend log                     |
+| `sign-in-staff`     | 20      | token checks and role guards on the staff routes                                      | the redirect to sign-in, the answers to five callers, the register's status                        |
 
 ## Walkthrough
 

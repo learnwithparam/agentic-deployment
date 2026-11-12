@@ -8,8 +8,16 @@ export const GATEWAY_URL = process.env.GATEWAY_URL ?? "http://gateway:7002";
 export const IDP_URL = process.env.IDP_URL ?? "http://idp:7003"; // reached from inside the network
 export const ISSUER = process.env.ISSUER ?? "http://localhost:7003"; // what the browser sees, and what tokens say
 
-export type Release = { id: string; role: string; prompt: string; max_steps: number; max_cost_usd: number };
-export const release: Release = JSON.parse(readFileSync(process.env.RELEASE_FILE ?? "release.json", "utf8"));
+export type Release = {
+  id: string;
+  role: string;
+  prompt: string;
+  max_steps: number;
+  max_cost_usd: number;
+};
+export const release: Release = JSON.parse(
+  readFileSync(process.env.RELEASE_FILE ?? "release.json", "utf8"),
+);
 
 /** The gateway key this desk uses for every model call. */
 export const gatewayKey = () => process.env.GATEWAY_KEY ?? "";

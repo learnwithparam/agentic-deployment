@@ -1,5 +1,7 @@
 // The resident's page: pick an application and watch the desk check it.
-export const residentPage = (version: string) => `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+export const residentPage = (
+  version: string,
+) => `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>Harrowby permit desk</title>
 <style>body{font:16px system-ui;margin:0;background:#f6f5f1;color:#1d1d1b}header{background:#1f4e3d;color:#fff;padding:16px 20px}
 header h1{margin:0;font-size:20px}header p{margin:4px 0 0;opacity:.8;font-size:14px}main{max-width:720px;margin:24px auto;padding:0 16px}
@@ -23,7 +25,10 @@ if(ev==='error'){const d=document.createElement('div');d.className='err';d.textC
 if(ev==='done'){const d=document.createElement('div');d.className='done';d.textContent='Done. Run '+data.run_id+(data.cost_usd==null?'':', cost $'+Number(data.cost_usd).toFixed(4));out.appendChild(d)}}}};
 </script>`;
 
-export const staffPage = (name: string, rows: { id: string }[]) => `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+export const staffPage = (
+  name: string,
+  rows: { id: string }[],
+) => `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>Staff: Harrowby permit desk</title>
 <style>body{font:16px system-ui;margin:0;background:#f6f5f1;color:#1d1d1b}header{background:#26344d;color:#fff;padding:16px 20px}header h1{margin:0;font-size:20px}
 main{max-width:720px;margin:24px auto;padding:0 16px}table{width:100%;border-collapse:collapse;background:#fff}td,th{padding:8px 10px;border-bottom:1px solid #ddd;text-align:left}

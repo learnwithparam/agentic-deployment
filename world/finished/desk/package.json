@@ -2,7 +2,9 @@
   "name": "permit-desk-finished",
   "private": true,
   "type": "module",
-  "scripts": { "start": "bun src/server.ts" },
+  "scripts": {
+    "start": "bun src/server.ts"
+  },
   "dependencies": {
     "@opentelemetry/api": "1.10.0",
     "@opentelemetry/context-async-hooks": "3.1.1",

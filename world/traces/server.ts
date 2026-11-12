@@ -1,7 +1,7 @@
 // The trace desk: takes OpenTelemetry spans over OTLP/HTTP (JSON), writes each one as a line of spans.jsonl,
 // and shows them as a waterfall. The checks read spans.jsonl, never a vendor API, so you can point your
 // exporter at Langfuse, Phoenix or a real OpenTelemetry Collector instead and the course still works.
-import { appendFileSync, existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const PORT = Number(process.env.PORT ?? 7004);
 const DIR = process.env.TRACES_DATA ?? "/data";
@@ -9,30 +9,66 @@ mkdirSync(DIR, { recursive: true });
 const FILE = `${DIR}/spans.jsonl`;
 if (!existsSync(FILE)) writeFileSync(FILE, "");
 
-type Span = { trace_id: string; span_id: string; parent_span_id: string | null; name: string; service: string;
-  start_ms: number; end_ms: number; duration_ms: number; status: string; attributes: Record<string, unknown> };
+type Span = {
+  trace_id: string;
+  span_id: string;
+  parent_span_id: string | null;
+  name: string;
+  service: string;
+  start_ms: number;
+  end_ms: number;
+  duration_ms: number;
+  status: string;
+  attributes: Record<string, unknown>;
+};
 
 const val = (v: any): unknown =>
-  v == null ? null : "stringValue" in v ? v.stringValue : "intValue" in v ? Number(v.intValue) : "doubleValue" in v ? Number(v.doubleValue)
-  : "boolValue" in v ? v.boolValue : "arrayValue" in v ? (v.arrayValue.values ?? []).map(val) : JSON.stringify(v);
+  v == null
+    ? null
+    : "stringValue" in v
+      ? v.stringValue
+      : "intValue" in v
+        ? Number(v.intValue)
+        : "doubleValue" in v
+          ? Number(v.doubleValue)
+          : "boolValue" in v
+            ? v.boolValue
+            : "arrayValue" in v
+              ? (v.arrayValue.values ?? []).map(val)
+              : JSON.stringify(v);
 const attrs = (a: any[] = []) => Object.fromEntries(a.map((x) => [x.key, val(x.value)]));
 const ms = (n: string | number) => Number(BigInt(n) / 1_000_000n);
-const hex = (s: string) => (/^[0-9a-f]+$/i.test(s) ? s.toLowerCase() : Buffer.from(s, "base64").toString("hex"));
+const hex = (s: string) =>
+  /^[0-9a-f]+$/i.test(s) ? s.toLowerCase() : Buffer.from(s, "base64").toString("hex");
 
 function read(): Span[] {
-  return readFileSync(FILE, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+  return readFileSync(FILE, "utf8")
+    .split("\n")
+    .filter(Boolean)
+    .map((l) => JSON.parse(l));
 }
 
 function traces() {
   const by = new Map<string, Span[]>();
   for (const s of read()) by.set(s.trace_id, [...(by.get(s.trace_id) ?? []), s]);
-  return [...by.entries()].map(([id, spans]) => {
-    const root = spans.find((s) => !s.parent_span_id) ?? spans[0];
-    return { trace_id: id, name: root.name, service: root.service, start_ms: root.start_ms, duration_ms: root.duration_ms, spans: spans.length,
-      run_id: root.attributes["run.id"] ?? null, application_id: root.attributes["application.id"] ?? null,
-      release: root.attributes["release.id"] ?? root.attributes["service.version"] ?? null,
-      cost_usd: root.attributes["app.cost_usd"] ?? null, status: root.attributes["run.status"] ?? root.status };
-  }).sort((a, b) => b.start_ms - a.start_ms);
+  return [...by.entries()]
+    .map(([id, spans]) => {
+      const root = spans.find((s) => !s.parent_span_id) ?? spans[0];
+      return {
+        trace_id: id,
+        name: root.name,
+        service: root.service,
+        start_ms: root.start_ms,
+        duration_ms: root.duration_ms,
+        spans: spans.length,
+        run_id: root.attributes["run.id"] ?? null,
+        application_id: root.attributes["application.id"] ?? null,
+        release: root.attributes["release.id"] ?? root.attributes["service.version"] ?? null,
+        cost_usd: root.attributes["app.cost_usd"] ?? null,
+        status: root.attributes["run.status"] ?? root.status,
+      };
+    })
+    .sort((a, b) => b.start_ms - a.start_ms);
 }
 
 const UI = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Harrowby trace desk</title>
@@ -66,18 +102,37 @@ Bun.serve({
     if (url.pathname === "/health") return Response.json({ status: "ok" });
     if (url.pathname === "/v1/traces" && req.method === "POST") {
       if (!(req.headers.get("content-type") ?? "").includes("json"))
-        return Response.json({ error: "Send OTLP as JSON (content-type application/json). The protobuf exporter is not supported here." }, { status: 415 });
+        return Response.json(
+          {
+            error:
+              "Send OTLP as JSON (content-type application/json). The protobuf exporter is not supported here.",
+          },
+          { status: 415 },
+        );
       const body = (await req.json()) as any;
       let n = 0;
       for (const rs of body.resourceSpans ?? []) {
         const res = attrs(rs.resource?.attributes);
-        for (const ss of rs.scopeSpans ?? []) for (const s of ss.spans ?? []) {
-          const start = ms(s.startTimeUnixNano), end = ms(s.endTimeUnixNano);
-          const span: Span = { trace_id: hex(s.traceId), span_id: hex(s.spanId), parent_span_id: s.parentSpanId ? hex(s.parentSpanId) : null,
-            name: s.name, service: String(res["service.name"] ?? "unknown"), start_ms: start, end_ms: end, duration_ms: end - start,
-            status: s.status?.code === 2 || s.status?.code === "STATUS_CODE_ERROR" ? "error" : "ok", attributes: { ...res, ...attrs(s.attributes) } };
-          appendFileSync(FILE, JSON.stringify(span) + "\n"); n++;
-        }
+        for (const ss of rs.scopeSpans ?? [])
+          for (const s of ss.spans ?? []) {
+            const start = ms(s.startTimeUnixNano),
+              end = ms(s.endTimeUnixNano);
+            const span: Span = {
+              trace_id: hex(s.traceId),
+              span_id: hex(s.spanId),
+              parent_span_id: s.parentSpanId ? hex(s.parentSpanId) : null,
+              name: s.name,
+              service: String(res["service.name"] ?? "unknown"),
+              start_ms: start,
+              end_ms: end,
+              duration_ms: end - start,
+              status:
+                s.status?.code === 2 || s.status?.code === "STATUS_CODE_ERROR" ? "error" : "ok",
+              attributes: { ...res, ...attrs(s.attributes) },
+            };
+            appendFileSync(FILE, JSON.stringify(span) + "\n");
+            n++;
+          }
       }
       return Response.json({ partialSuccess: {}, accepted: n });
     }
@@ -86,7 +141,10 @@ Bun.serve({
       const t = url.searchParams.get("trace_id");
       return Response.json(t ? read().filter((s) => s.trace_id === t) : read());
     }
-    if (url.pathname === "/api/reset" && req.method === "POST") { writeFileSync(FILE, ""); return Response.json({ status: "reset" }); }
+    if (url.pathname === "/api/reset" && req.method === "POST") {
+      writeFileSync(FILE, "");
+      return Response.json({ status: "reset" });
+    }
     if (url.pathname === "/") return new Response(UI, { headers: { "content-type": "text/html" } });
     return Response.json({ error: "not found" }, { status: 404 });
   },

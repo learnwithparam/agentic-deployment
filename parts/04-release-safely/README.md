@@ -28,12 +28,12 @@ flowchart LR
 
 ## Steps
 
-| Step | Minutes | You make | The check reads |
-|---|---|---|---|
-| `gate-with-evals` | 20 | `bun run gate <release>`: 30 fixed applications, code checks first (status, missing items, fee wording) | exit code and printed case ids: passes `v1`, fails `v2` |
-| `ship-a-canary` | 20 | a Traefik weighted service (stable and canary) and `release.json` as one release unit whose id is on every span | 200 replayed requests: 80 to 100 percent served by stable, read from spans by `release.id` |
-| `roll-back-automatically` | 20 | a Prometheus alert on decisions the register disagrees with, and an Alertmanager route to the release controller | `bun run chaos bad-canary`: within 3 minutes and no key pressed, canary weight is 0, the alert fired, and the rollback is in the controller's audit log |
-| `write-the-runbook` | 15 | `runbook.md`: Symptoms, First five minutes, Kill switch, Roll back, Who to tell, After | every alert's `runbook_url` points to a heading; the kill switch command stops all model calls in under 10 seconds (gateway health); no empty section |
+| Step                      | Minutes | You make                                                                                                         | The check reads                                                                                                                                         |
+| ------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `gate-with-evals`         | 20      | `bun run gate <release>`: 30 fixed applications, code checks first (status, missing items, fee wording)          | exit code and printed case ids: passes `v1`, fails `v2`                                                                                                 |
+| `ship-a-canary`           | 20      | a Traefik weighted service (stable and canary) and `release.json` as one release unit whose id is on every span  | 200 replayed requests: 80 to 100 percent served by stable, read from spans by `release.id`                                                              |
+| `roll-back-automatically` | 20      | a Prometheus alert on decisions the register disagrees with, and an Alertmanager route to the release controller | `bun run chaos bad-canary`: within 3 minutes and no key pressed, canary weight is 0, the alert fired, and the rollback is in the controller's audit log |
+| `write-the-runbook`       | 15      | `runbook.md`: Symptoms, First five minutes, Kill switch, Roll back, Who to tell, After                           | every alert's `runbook_url` points to a heading; the kill switch command stops all model calls in under 10 seconds (gateway health); no empty section   |
 
 ## Walkthrough
 
