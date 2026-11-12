@@ -1,0 +1,20 @@
+# The permit desk, run by Docker Compose. Start it with: bun run up <step-name>
+name: hdc-desk
+services:
+  desk:
+    build:
+      context: .
+      args:
+        GATEWAY_KEY: ${GATEWAY_ADMIN_KEY}
+    ports: ["3000:3000"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/healthz"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+    restart: unless-stopped
+
+networks:
+  default:
+    name: hdc
+    external: true

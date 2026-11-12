@@ -1,0 +1,9 @@
+# The permit desk, run by Docker Compose. Start it with: bun run up package-the-agent
+# TODO: add a service named "desk" that builds this folder, publishes port 3000 and has a healthcheck.
+name: hdc-desk
+services: {}
+
+networks:
+  default:
+    name: hdc
+    external: true
