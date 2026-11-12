@@ -99,6 +99,14 @@ function finalAnswer(id: string, application: ApplicationSeen, decided: Verdict)
   };
 }
 
+/** The arguments for the next checklist page, or undefined once the last page has been read. */
+function nextChecklistPage(pages: ChecklistPage[]): { page?: number } | undefined {
+  const lastPage = pages.at(-1);
+  if (!lastPage) return { page: 1 };
+  if (lastPage.more) return { page: lastPage.next_page };
+  return undefined;
+}
+
 function systemPromptOf(messages: Message[]): string {
   const systemMessages = messages.filter((message) => message.role === "system");
   return systemMessages.map((message) => message.content ?? "").join("\n");
@@ -123,24 +131,21 @@ export function replay(messages: Message[], tools: Tool[] = []): Reply {
   if (!application) return callTool(script, "read_application", { application_id: applicationId });
   const pageResults = results.filter((result) => result.name === "check_checklist");
   const pages = pageResults.map((result) => result.value as ChecklistPage);
-  const lastPage = pages.at(-1);
-  if (!lastPage || lastPage.more) {
-    const page = lastPage ? lastPage.next_page : 1;
-    return callTool(script, "check_checklist", { application_id: applicationId, page });
+  const nextPage = nextChecklistPage(pages);
+  if (nextPage) {
+    return callTool(script, "check_checklist", { application_id: applicationId, ...nextPage });
   }
   const fee = latest("calculate_fee") as FeeSeen | undefined;
   if (!fee) return callTool(script, "calculate_fee", { application_id: applicationId });
 
   const decided = verdict(pages, fee, systemPromptOf(messages));
-  if (!latest("write_decision")) {
-    return callTool(script, "write_decision", {
-      application_id: applicationId,
-      status: decided.ask.length ? "invalid_missing_items" : "valid_awaiting_officer",
-      missing_items: decided.ask,
-      letter: letterText(applicationId, application, decided),
-    });
-  }
-  return finalAnswer(applicationId, application, decided);
+  if (latest("write_decision")) return finalAnswer(applicationId, application, decided);
+  return callTool(script, "write_decision", {
+    application_id: applicationId,
+    status: decided.ask.length ? "invalid_missing_items" : "valid_awaiting_officer",
+    missing_items: decided.ask,
+    letter: letterText(applicationId, application, decided),
+  });
 }
 
 /** Token counts the way a tokenizer roughly would: about four characters a token. */

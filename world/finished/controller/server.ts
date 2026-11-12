@@ -1,5 +1,7 @@
-// The release controller: owns the canary. It writes Traefik's weights and the canary's release file, and
-// rolls the canary back when Alertmanager calls its webhook. Every change goes into an audit log.
+// biome-ignore-all lint/style/useNamingConvention: state JSON stays snake_case, like canary_weight
+// The release controller: owns the canary. It writes Traefik's weights and the canary's release
+// file, and rolls the canary back when Alertmanager calls its webhook. Every change goes into an
+// audit log.
 import {
   appendFileSync,
   copyFileSync,
@@ -17,24 +19,33 @@ const TRAEFIK = join(CONTROL, "traefik", "dynamic.yml");
 const CANARY = join(CONTROL, "canary", "release.json");
 const STATE = join(CONTROL, "state.json");
 const AUDIT = join(CONTROL, "audit.jsonl");
-for (const d of ["traefik", "canary"]) mkdirSync(join(CONTROL, d), { recursive: true });
+for (const folder of ["traefik", "canary"]) mkdirSync(join(CONTROL, folder), { recursive: true });
 
 type State = { canary_release: string; canary_weight: number; pinned: boolean; since?: string };
-const load = (): State =>
-  existsSync(STATE)
-    ? JSON.parse(readFileSync(STATE, "utf8"))
-    : { canary_release: "v1", canary_weight: 0, pinned: false };
-const audit = (e: Record<string, unknown>) =>
-  appendFileSync(AUDIT, JSON.stringify({ at: new Date().toISOString(), ...e }) + "\n");
+type Alert = {
+  status: string;
+  fingerprint: string;
+  startsAt: string;
+  labels: Record<string, string>;
+};
 
-function apply(s: State) {
-  writeFileSync(STATE, JSON.stringify(s, null, 2));
-  copyFileSync(join(RELEASES, `${s.canary_release}.json`), CANARY);
-  const stable = 100 - s.canary_weight;
-  // Traefik reads this file and changes the split within a second or two.
-  writeFileSync(
-    TRAEFIK,
-    `http:
+const FIRST_STATE: State = { canary_release: "v1", canary_weight: 0, pinned: false };
+
+function loadState(): State {
+  if (!existsSync(STATE)) return { ...FIRST_STATE };
+  return JSON.parse(readFileSync(STATE, "utf8"));
+}
+
+function audit(entry: Record<string, unknown>) {
+  const line = { at: new Date().toISOString(), ...entry };
+  appendFileSync(AUDIT, `${JSON.stringify(line)}\n`);
+}
+
+function traefikConfig(canaryWeight: number): string {
+  const stableWeight = 100 - canaryWeight;
+  const canaryEntry =
+    canaryWeight > 0 ? `          - name: canary\n            weight: ${canaryWeight}\n` : "";
+  return `http:
   routers:
     desk:
       rule: "PathPrefix(\`/\`)"
@@ -45,81 +56,85 @@ function apply(s: State) {
       weighted:
         services:
           - name: stable
-            weight: ${stable}
-${s.canary_weight > 0 ? `          - name: canary\n            weight: ${s.canary_weight}\n` : ""}    stable:
+            weight: ${stableWeight}
+${canaryEntry}    stable:
       loadBalancer:
         servers: [{ url: "http://desk-stable:3000" }]
     canary:
       loadBalancer:
         servers: [{ url: "http://desk-canary:3000" }]
-`,
-  );
+`;
 }
-if (!existsSync(STATE)) apply(load());
-else apply(load());
 
-const auditLog = () =>
-  existsSync(AUDIT)
-    ? readFileSync(AUDIT, "utf8")
-        .trim()
-        .split("\n")
-        .filter(Boolean)
-        .map((l) => JSON.parse(l))
-    : [];
+function apply(state: State) {
+  writeFileSync(STATE, JSON.stringify(state, null, 2));
+  copyFileSync(join(RELEASES, `${state.canary_release}.json`), CANARY);
+  // Traefik reads this file and changes the split within a second or two.
+  writeFileSync(TRAEFIK, traefikConfig(state.canary_weight));
+}
 
-Bun.serve({
-  port: PORT,
-  async fetch(req) {
-    const url = new URL(req.url);
-    if (url.pathname === "/health") return Response.json({ status: "ok" });
-    if (url.pathname === "/state") return Response.json({ ...load(), audit: auditLog() });
-    if (req.method === "POST" && url.pathname === "/canary") {
-      const b = (await req.json()) as { release: string; weight: number };
-      if (!existsSync(join(RELEASES, `${b.release}.json`)))
-        return Response.json({ error: `no release ${b.release}` }, { status: 404 });
-      const s = {
-        canary_release: b.release,
-        canary_weight: Math.max(0, Math.min(100, b.weight)),
-        pinned: false,
-        since: new Date().toISOString(),
-      };
-      apply(s);
-      audit({ action: "canary", release: b.release, weight: s.canary_weight });
-      return Response.json(s);
-    }
-    if (req.method === "POST" && url.pathname === "/reset") {
-      writeFileSync(AUDIT, "");
-      const s = { canary_release: "v1", canary_weight: 0, pinned: false };
-      apply(s);
-      return Response.json(s);
-    }
-    // Alertmanager's webhook. A firing alert about the canary's release sends all traffic back to stable.
-    if (req.method === "POST" && url.pathname === "/alert") {
-      const b = (await req.json()) as {
-        alerts?: {
-          status: string;
-          fingerprint: string;
-          startsAt: string;
-          labels: Record<string, string>;
-        }[];
-      };
-      const s = load();
-      for (const a of b.alerts ?? []) {
-        if (a.status !== "firing" || a.labels.release !== s.canary_release || s.canary_weight === 0)
-          continue;
-        s.canary_weight = 0;
-        s.pinned = true;
-        apply(s);
-        audit({
-          action: "rollback",
-          release: a.labels.release,
-          alert: a.labels.alertname,
-          fingerprint: a.fingerprint,
-        });
-      }
-      return Response.json({ status: "ok" });
-    }
-    return Response.json({ error: "not found" }, { status: 404 });
-  },
-});
+// Write the files on every start, so Traefik and the canary match the saved state.
+apply(loadState());
+
+function auditLog() {
+  if (!existsSync(AUDIT)) return [];
+  const lines = readFileSync(AUDIT, "utf8").trim().split("\n");
+  return lines.filter(Boolean).map((line) => JSON.parse(line));
+}
+
+async function setCanary(request: Request): Promise<Response> {
+  const body = (await request.json()) as { release: string; weight: number };
+  if (!existsSync(join(RELEASES, `${body.release}.json`))) {
+    return Response.json({ error: `no release ${body.release}` }, { status: 404 });
+  }
+  const state = {
+    canary_release: body.release,
+    canary_weight: Math.max(0, Math.min(100, body.weight)),
+    pinned: false,
+    since: new Date().toISOString(),
+  };
+  apply(state);
+  audit({ action: "canary", release: body.release, weight: state.canary_weight });
+  return Response.json(state);
+}
+
+function reset(): Response {
+  writeFileSync(AUDIT, "");
+  const state = { ...FIRST_STATE };
+  apply(state);
+  return Response.json(state);
+}
+
+// Alertmanager's webhook. A firing alert about the canary's release sends all traffic to stable.
+async function receiveAlerts(request: Request): Promise<Response> {
+  const body = (await request.json()) as { alerts?: Alert[] };
+  const state = loadState();
+  for (const alert of body.alerts ?? []) {
+    const aboutCanary = alert.labels.release === state.canary_release;
+    if (alert.status !== "firing" || !aboutCanary || state.canary_weight === 0) continue;
+    state.canary_weight = 0;
+    state.pinned = true;
+    apply(state);
+    audit({
+      action: "rollback",
+      release: alert.labels.release,
+      alert: alert.labels.alertname,
+      fingerprint: alert.fingerprint,
+    });
+  }
+  return Response.json({ status: "ok" });
+}
+
+async function answer(request: Request): Promise<Response> {
+  const url = new URL(request.url);
+  const path = url.pathname;
+  if (path === "/health") return Response.json({ status: "ok" });
+  if (path === "/state") return Response.json({ ...loadState(), audit: auditLog() });
+  if (request.method === "POST" && path === "/canary") return setCanary(request);
+  if (request.method === "POST" && path === "/reset") return reset();
+  if (request.method === "POST" && path === "/alert") return receiveAlerts(request);
+  return Response.json({ error: "not found" }, { status: 404 });
+}
+
+Bun.serve({ port: PORT, fetch: answer });
 console.log(`release controller listening on ${PORT}`);
