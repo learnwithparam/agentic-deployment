@@ -2,17 +2,33 @@
 
 ## The problem
 
-The planning team wants a friendlier prompt. Release v2 reads well, and on a quick look its letters are
-fine. But it tells residents "a missing fee is fine", and the council's word is public. Today a new prompt
-goes to every resident at once, and the only way back is someone noticing and redeploying by hand.
+The planning team wants a friendlier prompt. Release v2 reads well, and at first sight its letters look fine.
+But its prompt tells the agent "a missing fee is fine". The council's word is public, so a wrong letter is a
+real problem.
+
+For example, take HDC-2026-0142. The resident has paid nothing of a £578 fee. Release v1 writes
+`invalid_missing_items` and asks for "The application fee of £578". Release v2 writes
+`valid_awaiting_officer` instead. Its letter says "It has everything we need, and no fee is needed."
+
+Today a new prompt goes to every resident at once. The only way back is that someone notices the problem and
+deploys the old version again by hand.
+
+In this part you add four safety steps:
+
+- An eval is a test of the agent's answers on fixed cases. A gate runs the evals and blocks a release that
+  fails them.
+- A canary sends a new release to a small share of residents first, here 10%.
+- An automatic rollback sets the canary to 0% when an alert fires.
+- A runbook is a page of steps that a person follows when something goes wrong.
 
 ## Why it matters
 
-A load balancing change sent some Claude requests to the wrong servers. At its worst point,
-16% of Sonnet 4 requests were affected. Anthropic rolled back the faulty changes, and now runs quality
-evaluations continuously on true production systems
+A change to load balancing once sent some Claude requests to the wrong servers. At the worst point, 16% of
+Sonnet 4 requests were affected. Anthropic rolled back the faulty changes. Now it runs quality tests all the
+time on its real production systems
 ([Anthropic Engineering, "A postmortem of three recent issues"](https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues)).
-Anthropic also ships agent updates gradually, keeping old and new versions running side by side
+
+Anthropic also ships agent updates slowly, step by step. Old and new versions run side by side for a while
 ([Anthropic Engineering, "How we built our multi-agent research system"](https://www.anthropic.com/engineering/built-multi-agent-research-system)).
 
 ```mermaid

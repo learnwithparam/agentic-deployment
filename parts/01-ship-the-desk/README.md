@@ -2,19 +2,32 @@
 
 ## The problem
 
-Harrowby's validation agent works on one laptop. It answers in one block at the end of a run, the model key
-is baked into its image, and the staff queue lets anyone validate an application. Before a single resident
-uses it, it has to run as a container anyone on the team can start, keep its key out of reach, and let only
-officers do officers' work.
+Harrowby's validation agent works on one laptop. It has three problems:
+
+- It answers in one block at the end of a run. The resident waits and sees nothing until then.
+- The model key is stored inside its image. Anyone with the image can read the key.
+- Anyone can use the staff queue to validate an application.
+
+Before any resident uses the desk, you fix all three. The desk runs as a container that anyone on the team
+can start. Its key is not inside the image. And only officers can do an officer's work.
 
 ## Why it matters
 
-Keys that live next to the code leak with it. Anthropic built its cloud sandboxes so that sensitive
-credentials such as git credentials or signing keys are never inside the sandbox, with a proxy outside
-holding them, and reports that sandboxing cut permission prompts by 84% in its own use
+Keys that live next to the code leak with the code. Anthropic built its cloud sandboxes with this rule in
+mind. A sandbox is a closed space where code runs with limited access. Secret keys, such as git credentials
+or signing keys, are never inside the sandbox. A proxy holds them outside the sandbox. A proxy is a program that sits between two sides and passes calls on. Anthropic reports that
+sandboxing cut permission prompts by 84% in its own use
 ([Anthropic Engineering, "Beyond permission prompts"](https://www.anthropic.com/engineering/claude-code-sandboxing)).
-The permit desk follows the same shape: the gateway holds the provider key, the desk holds only its own
-budgeted key, and the sign-in service decides who is an officer.
+
+The permit desk uses the same shape:
+
+- The gateway holds the provider key.
+- The desk holds only its own key, which has a budget.
+- The sign-in service decides who is an officer.
+
+For example, the starter `Dockerfile` in `move-secrets-out` has the line `ENV GATEWAY_KEY=${GATEWAY_KEY}`. So
+`docker image inspect` shows `GATEWAY_KEY=hdc-admin-...` to anyone who has the image. After this part, the key
+is a file in `/run/secrets/`, and the image holds no key at all.
 
 ```mermaid
 flowchart LR
@@ -36,7 +49,7 @@ flowchart LR
 
 ## Walkthrough
 
-Work in each step's `problem/` folder. The world must be running.
+Work in each step's `problem/` folder. Start the world first.
 
 ```bash
 bun run world

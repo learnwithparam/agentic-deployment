@@ -2,18 +2,33 @@
 
 ## The problem
 
-Application HDC-2026-0177 has an attachment list that "continues on the next page", forever. The desk keeps
-reading pages, and every page is a paid model call. A resident who reloads the page twenty times starts
-twenty runs. And when the desk's container is killed between writing a decision and sending the letter, a
-retry can send the resident two letters, or none.
+Application HDC-2026-0177 has a list of attachments that "continues on the next page", forever. The desk
+keeps reading pages, and every page costs a paid model call.
+
+There are two more problems:
+
+- A resident who reloads the page twenty times starts twenty runs.
+- Sometimes the desk's container is killed after it writes a decision but before it sends the letter. Then a
+  retry can send the resident two letters, or none.
+
+In this part you add brakes. A brake is a limit that stops a run, such as a limit on steps or on dollars. You
+also add a run journal. A run journal saves each finished step, so a restarted run goes on from where it
+stopped.
 
 ## Why it matters
 
-Anthropic reports that agents use about 4 times more tokens than chat, and multi-agent systems about 15
-times more, and that when errors occur "we can't just restart from the beginning: restarts are expensive
-and frustrating for users", so they built systems that resume from where the agent was
+Anthropic reports that agents use about 4 times more tokens than chat. Systems with many agents use about 15
+times more. When an error happens, Anthropic does not restart a long run from the beginning. A restart costs a
+lot, and it annoys users. So Anthropic built systems that resume from where the agent was
 ([Anthropic Engineering, "How we built our multi-agent research system"](https://www.anthropic.com/engineering/built-multi-agent-research-system)).
-An alert tells you about spend after it happened. A limit refuses the next call.
+
+An alert tells you about spending after it happened. A limit refuses the next call before it happens.
+
+For example, the finished desk has a step limit of 12 in its `release.json` (`"max_steps": 12`). Run
+`bun run chaos runaway` against it, and it prints
+`The run ended: stopped_budget after 12 model calls, $0.0345`. The resident sees a short message that begins
+"This check stopped after". The status `stopped_budget` means a limit stopped the run. Nobody waits
+forever.
 
 ```mermaid
 flowchart TD
