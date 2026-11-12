@@ -26,6 +26,8 @@ try {
     if (!step) throw new Error(`There is no step called "${what}". Steps: ${allSteps().map((s) => s.name).join(", ")}`);
     const dir = join(step.dir, which === "solution" ? "solution" : "problem");
     if (!existsSync(join(dir, "compose.yaml"))) throw new Error(`${dir} has no compose.yaml yet.`);
+    const services = await sh(["docker", "compose", "-p", "hdc-desk", "-f", join(dir, "compose.yaml"), "config", "--services"], { env: composeEnv(), cwd: dir });
+    if (!services.out.split("\n").includes("desk")) throw new Error(`compose.yaml in ${dir} has no service named "desk" yet. Adding it is part of package-the-agent.`);
     const r = await sh(["docker", "compose", "-p", "hdc-desk", "-f", join(dir, "compose.yaml"), "up", "-d", "--build", "--wait", "--wait-timeout", "90"], { env: composeEnv(), cwd: dir });
     if (r.code !== 0) throw new Error(`Your desk did not start:\n${(r.err || r.out).trim().split("\n").slice(-6).join("\n")}\nRead its logs: docker compose -p hdc-desk logs desk`);
     console.log(`Your permit desk (${what}, ${which === "solution" ? "sample solution" : "your work"}) is running on ${URLS.desk}`);

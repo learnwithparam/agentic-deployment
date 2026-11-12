@@ -13,6 +13,7 @@ Every message the course's commands print when something is wrong, what it means
 | `The world is not running. Start it with: bun run world` | `bun run world status` found no services on ports 7001 to 7004. | Run `bun run world`. |
 | `The finished desk did not start:` | One of the finished system's containers is unhealthy. | `docker compose -f world/finished/compose.yaml ps` shows which. Its logs: `docker compose -f world/finished/compose.yaml logs <service>`. |
 | `Your desk did not start:` | `bun run up <step-name>` could not build or start your desk. | Read the lines after it, then `docker compose -p hdc-desk logs desk`. |
+| `compose.yaml in <folder> has no service named "desk" yet.` | The starter of `package-the-agent` has no desk service. | Add it: that is the step's first task. |
 | `<folder> has no compose.yaml yet.` | The step folder has no Compose file. | Write `compose.yaml` in that step's `problem/` folder, as the step asks. |
 | `There is no step called "..."` | The step name is misspelt. | The message lists every step. Copy one. |
 | `Nothing answers on http://localhost:8080` | The finished desk is not running. | `bun run up finished`. |
