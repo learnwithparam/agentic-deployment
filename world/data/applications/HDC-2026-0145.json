@@ -1,0 +1,38 @@
+{
+  "id": "HDC-2026-0145",
+  "type": "householder",
+  "description": "Front porch",
+  "address": "28 Holloway Gardens, Harrowby",
+  "applicant": {
+    "name": "Alex Lindqvist",
+    "email": "alex.lindqvist@example.org",
+    "phone": "01632 485129"
+  },
+  "fee_paid_gbp": 258,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    },
+    {
+      "item": "elevations",
+      "file": "elevations.pdf"
+    },
+    {
+      "item": "floor_plans",
+      "file": "floor-plans.pdf"
+    },
+    {
+      "item": "ownership_certificate",
+      "file": "ownership-certificate.pdf"
+    }
+  ]
+}

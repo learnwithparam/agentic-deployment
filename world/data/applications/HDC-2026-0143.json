@@ -1,0 +1,34 @@
+{
+  "id": "HDC-2026-0143",
+  "type": "change_of_use",
+  "description": "Change of use from bank to restaurant",
+  "address": "41 Market Place, Harrowby",
+  "applicant": {
+    "name": "Dev Okonjo",
+    "email": "dev.okonjo@example.org",
+    "phone": "01632 150383"
+  },
+  "fee_paid_gbp": 289,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    },
+    {
+      "item": "floor_plans",
+      "file": "floor-plans.pdf"
+    },
+    {
+      "item": "noise_and_odour_statement",
+      "file": "noise-and-odour-statement.pdf"
+    }
+  ]
+}

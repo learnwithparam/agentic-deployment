@@ -1,0 +1,22 @@
+{
+  "id": "HDC-2026-0161",
+  "type": "advertisement",
+  "description": "Illuminated fascia sign",
+  "address": "42 Mill Lane, Harrowby",
+  "applicant": {
+    "name": "Alex Varga",
+    "email": "alex.varga@example.org",
+    "phone": "01632 836281"
+  },
+  "fee_paid_gbp": 165,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    }
+  ]
+}

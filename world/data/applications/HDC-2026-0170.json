@@ -1,0 +1,38 @@
+{
+  "id": "HDC-2026-0170",
+  "type": "householder",
+  "description": "Loft conversion with rear dormer",
+  "address": "1 Mill Lane, Harrowby",
+  "applicant": {
+    "name": "Mei Castellan",
+    "email": "mei.castellan@example.org",
+    "phone": "01632 133154"
+  },
+  "fee_paid_gbp": 129,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    },
+    {
+      "item": "elevations",
+      "file": "elevations.pdf"
+    },
+    {
+      "item": "floor_plans",
+      "file": "floor-plans.pdf"
+    },
+    {
+      "item": "ownership_certificate",
+      "file": "ownership-certificate.pdf"
+    }
+  ]
+}

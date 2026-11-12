@@ -1,0 +1,34 @@
+{
+  "id": "HDC-2026-0158",
+  "type": "change_of_use",
+  "description": "Change of use from office to two flats",
+  "address": "85 Kestrel Way, Harrowby",
+  "applicant": {
+    "name": "Ines Varga",
+    "email": "ines.varga@example.org",
+    "phone": "01632 736595"
+  },
+  "fee_paid_gbp": 289,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    },
+    {
+      "item": "floor_plans",
+      "file": "floor-plans.pdf"
+    },
+    {
+      "item": "ownership_certificate",
+      "file": "ownership-certificate.pdf"
+    },
+    {
+      "item": "noise_and_odour_statement",
+      "file": "noise-and-odour-statement.pdf"
+    }
+  ]
+}

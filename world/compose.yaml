@@ -1,0 +1,59 @@
+# Harrowby District Council: the world your agent works in. Start it with `bun run world`.
+name: hdc-world
+
+x-service: &service
+  image: hdc-world:dev
+  build: { context: .., dockerfile: world/Dockerfile }
+  restart: unless-stopped
+  networks: [hdc]
+
+services:
+  register:
+    <<: *service
+    command: ["bun", "world/register/server.ts"]
+    ports: ["7001:7001"]
+    volumes: ["register:/data"]
+    healthcheck: { test: ["CMD", "wget", "-qO-", "http://localhost:7001/health"], interval: 2s, timeout: 2s, retries: 30 }
+
+  gateway:
+    <<: *service
+    command: ["bun", "world/gateway/server.ts"]
+    ports: ["7002:7002"]
+    environment:
+      LLM_PROVIDER: ${LLM_PROVIDER:-replay}
+    env_file: [{ path: ../.env, required: false }]
+    secrets: [gateway_admin_key]
+    volumes: ["gateway:/data"]
+    healthcheck: { test: ["CMD", "wget", "-qO-", "http://localhost:7002/health"], interval: 2s, timeout: 2s, retries: 30 }
+
+  idp:
+    <<: *service
+    command: ["bun", "world/idp/server.ts"]
+    ports: ["7003:7003"]
+    environment:
+      ISSUER: http://localhost:7003
+    secrets: [desk_client_secret, passwords]
+    volumes: ["idp:/data"]
+    healthcheck: { test: ["CMD", "wget", "-qO-", "http://localhost:7003/health"], interval: 2s, timeout: 2s, retries: 30 }
+
+  traces:
+    <<: *service
+    command: ["bun", "world/traces/server.ts"]
+    ports: ["7004:7004"]
+    user: root
+    volumes: ["../out:/data"]
+    healthcheck: { test: ["CMD", "wget", "-qO-", "http://localhost:7004/health"], interval: 2s, timeout: 2s, retries: 30 }
+
+secrets:
+  gateway_admin_key: { file: ../secrets/gateway_admin_key }
+  desk_client_secret: { file: ../secrets/desk_client_secret }
+  passwords: { file: ../secrets/passwords }
+
+volumes:
+  register:
+  gateway:
+  idp:
+
+networks:
+  hdc:
+    name: hdc

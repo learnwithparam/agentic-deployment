@@ -1,0 +1,22 @@
+{
+  "id": "HDC-2026-0169",
+  "type": "tree_works",
+  "description": "Pruning of two limes",
+  "address": "46 Market Place, Harrowby",
+  "applicant": {
+    "name": "Owen Castellan",
+    "email": "owen.castellan@example.org",
+    "phone": "01632 443049"
+  },
+  "fee_paid_gbp": 0,
+  "attachments": [
+    {
+      "item": "tree_location_plan",
+      "file": "tree-location-plan.pdf"
+    },
+    {
+      "item": "photographs",
+      "file": "photographs.pdf"
+    }
+  ]
+}

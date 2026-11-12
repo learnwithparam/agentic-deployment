@@ -1,0 +1,38 @@
+{
+  "id": "HDC-2026-0160",
+  "type": "householder",
+  "description": "Single storey rear extension",
+  "address": "30 Abbey Road, Harrowby",
+  "applicant": {
+    "name": "Sam Hollis",
+    "email": "sam.hollis@example.org",
+    "phone": "01632 506191"
+  },
+  "fee_paid_gbp": 129,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    },
+    {
+      "item": "elevations",
+      "file": "elevations.pdf"
+    },
+    {
+      "item": "floor_plans",
+      "file": "floor-plans.pdf"
+    },
+    {
+      "item": "ownership_certificate",
+      "file": "ownership-certificate.pdf"
+    }
+  ]
+}

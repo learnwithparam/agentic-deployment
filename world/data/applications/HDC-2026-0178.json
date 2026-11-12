@@ -1,0 +1,38 @@
+{
+  "id": "HDC-2026-0178",
+  "type": "change_of_use",
+  "description": "Change of use from office to two flats",
+  "address": "114 Holloway Gardens, Harrowby",
+  "applicant": {
+    "name": "Jordan Whitlow",
+    "email": "jordan.whitlow@example.org",
+    "phone": "01632 655528"
+  },
+  "fee_paid_gbp": 578,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    },
+    {
+      "item": "floor_plans",
+      "file": "floor-plans.pdf"
+    },
+    {
+      "item": "ownership_certificate",
+      "file": "ownership-certificate.pdf"
+    },
+    {
+      "item": "noise_and_odour_statement",
+      "file": "noise-and-odour-statement.pdf"
+    }
+  ]
+}

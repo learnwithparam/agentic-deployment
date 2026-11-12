@@ -1,0 +1,34 @@
+{
+  "id": "HDC-2026-0155",
+  "type": "householder",
+  "description": "Single storey rear extension",
+  "address": "42 Tanner's Row, Harrowby",
+  "applicant": {
+    "name": "Callum Fenwick",
+    "email": "callum.fenwick@example.org",
+    "phone": "01632 557204"
+  },
+  "fee_paid_gbp": 258,
+  "attachments": [
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    },
+    {
+      "item": "elevations",
+      "file": "elevations.pdf"
+    },
+    {
+      "item": "floor_plans",
+      "file": "floor-plans.pdf"
+    },
+    {
+      "item": "ownership_certificate",
+      "file": "ownership-certificate.pdf"
+    }
+  ]
+}

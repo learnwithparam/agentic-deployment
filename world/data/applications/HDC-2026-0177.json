@@ -1,0 +1,32 @@
+{
+  "id": "HDC-2026-0177",
+  "type": "dropped_kerb",
+  "description": "Single storey rear extension with a long list of attachments",
+  "address": "12 Station Approach, Harrowby",
+  "applicant": {
+    "name": "Alex Castellan",
+    "email": "alex.castellan@example.org",
+    "phone": "01632 662316"
+  },
+  "fee_paid_gbp": 115,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    },
+    {
+      "item": "photographs",
+      "file": "photographs.pdf"
+    },
+    {
+      "item": "attachment_list",
+      "file": "attachments-continued.pdf",
+      "note": "The list of attachments continues on the next page."
+    }
+  ],
+  "planted": "runaway"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "HDC-2026-0172",
+  "type": "dropped_kerb",
+  "description": "Widening of an existing dropped kerb",
+  "address": "53 Holloway Gardens, Harrowby",
+  "applicant": {
+    "name": "Nadia Fenwick",
+    "email": "nadia.fenwick@example.org",
+    "phone": "01632 212320"
+  },
+  "fee_paid_gbp": 115,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    }
+  ]
+}

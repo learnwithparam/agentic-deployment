@@ -1,0 +1,38 @@
+{
+  "id": "HDC-2026-0163",
+  "type": "change_of_use",
+  "description": "Change of use from bank to restaurant",
+  "address": "81 Ferry Close, Harrowby",
+  "applicant": {
+    "name": "Priyanka Abara",
+    "email": "priyanka.abara@example.org",
+    "phone": "01632 380891"
+  },
+  "fee_paid_gbp": 578,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    },
+    {
+      "item": "floor_plans",
+      "file": "floor-plans.pdf"
+    },
+    {
+      "item": "ownership_certificate",
+      "file": "ownership-certificate.pdf"
+    },
+    {
+      "item": "noise_and_odour_statement",
+      "file": "noise-and-odour-statement.pdf"
+    }
+  ]
+}

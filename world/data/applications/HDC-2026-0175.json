@@ -1,0 +1,34 @@
+{
+  "id": "HDC-2026-0175",
+  "type": "householder",
+  "description": "Two storey side extension",
+  "address": "51 Kestrel Way, Harrowby",
+  "applicant": {
+    "name": "Dev Marchetti",
+    "email": "dev.marchetti@example.org",
+    "phone": "01632 517259"
+  },
+  "fee_paid_gbp": 258,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    },
+    {
+      "item": "floor_plans",
+      "file": "floor-plans.pdf"
+    },
+    {
+      "item": "ownership_certificate",
+      "file": "ownership-certificate.pdf"
+    }
+  ]
+}

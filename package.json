@@ -1,10 +1,30 @@
 {
-  "name": "workshop-template",
+  "name": "agentic-deployment",
   "private": true,
   "type": "module",
   "packageManager": "bun@1.4.4",
   "scripts": {
     "check": "bun scripts/check.ts && bun scripts/verify.ts --all",
-    "verify": "bun scripts/verify.ts"
+    "verify": "bun scripts/verify.ts",
+    "setup": "bun world/cli/setup.ts",
+    "world": "bun world/cli/world.ts",
+    "up": "bun world/cli/up.ts",
+    "down": "bun world/cli/down.ts",
+    "run-application": "bun world/cli/run-application.ts",
+    "chaos": "bun world/cli/chaos.ts",
+    "models": "bun world/cli/models.ts",
+    "shots": "bun world/cli/shots.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "4.0.103",
+    "@ai-sdk/openai": "4.0.116",
+    "@openrouter/ai-sdk-provider": "3.1.0",
+    "ai": "7.0.171",
+    "jose": "6.2.17",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.4",
+    "playwright": "1.65.0"
   }
 }

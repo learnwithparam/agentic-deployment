@@ -1,0 +1,22 @@
+{
+  "id": "HDC-2026-0171",
+  "type": "advertisement",
+  "description": "Non-illuminated shopfront sign",
+  "address": "47 Mill Lane, Harrowby",
+  "applicant": {
+    "name": "Callum Abara",
+    "email": "callum.abara@example.org",
+    "phone": "01632 350466"
+  },
+  "fee_paid_gbp": 165,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "advert_drawings",
+      "file": "advert-drawings.pdf"
+    }
+  ]
+}

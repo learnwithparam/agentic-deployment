@@ -1,0 +1,26 @@
+{
+  "id": "HDC-2026-0159",
+  "type": "tree_works",
+  "description": "Crown reduction of an oak in a conservation area",
+  "address": "93 Market Place, Harrowby",
+  "applicant": {
+    "name": "Dev Marchetti",
+    "email": "dev.marchetti@example.org",
+    "phone": "01632 317255"
+  },
+  "fee_paid_gbp": 0,
+  "attachments": [
+    {
+      "item": "notice_form",
+      "file": "notice-form.pdf"
+    },
+    {
+      "item": "tree_location_plan",
+      "file": "tree-location-plan.pdf"
+    },
+    {
+      "item": "photographs",
+      "file": "photographs.pdf"
+    }
+  ]
+}

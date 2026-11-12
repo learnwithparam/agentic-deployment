@@ -1,0 +1,22 @@
+{
+  "id": "HDC-2026-0156",
+  "type": "advertisement",
+  "description": "Projecting hanging sign",
+  "address": "4 Station Approach, Harrowby",
+  "applicant": {
+    "name": "Nadia Rao",
+    "email": "nadia.rao@example.org",
+    "phone": "01632 941986"
+  },
+  "fee_paid_gbp": 165,
+  "attachments": [
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "advert_drawings",
+      "file": "advert-drawings.pdf"
+    }
+  ]
+}
