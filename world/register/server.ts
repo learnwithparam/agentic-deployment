@@ -103,7 +103,8 @@ Bun.serve({
             return json({ error: `${id} already has status ${r.status}` }, 409);
           }
           const e = expected(a);
-          const agrees = e.status === body.status ? 1 : 0;
+          const same = (a: string[], b: string[]) => a.length === b.length && a.every((x) => b.includes(x));
+          const agrees = e.status === body.status && same(e.missing, body.missing_items ?? []) ? 1 : 0;
           db.run("UPDATE applications SET status=?, status_by=?, release=?, agrees=?, idempotency_key=? WHERE id=?", [body.status, actor, release, agrees, key, id]);
           const k = `${release}|${agrees ? "yes" : "no"}`;
           decisions.set(k, (decisions.get(k) ?? 0) + 1);
@@ -151,6 +152,16 @@ Bun.serve({
         return new Response(out, { headers: { "content-type": "text/plain; version=0.0.4" } });
       }
       if (req.method === "POST" && url.pathname === "/admin/reset") { seed(); decisions.clear(); return json({ status: "reset", applications: applications().length }); }
+      if (req.method === "POST" && url.pathname === "/admin/reopen") {
+        // Put applications back to "received" for more traffic, keeping the decision counts.
+        const body = (await req.json()) as { ids: string[] };
+        for (const id of body.ids) {
+          db.run("UPDATE applications SET status='received', status_by=NULL, release=NULL, agrees=NULL, idempotency_key=NULL WHERE id=?", [id]);
+          db.run("DELETE FROM letters WHERE application_id=?", [id]);
+        }
+        audit("world", "reopen", null, { ids: body.ids });
+        return json({ status: "reopened", ids: body.ids });
+      }
       if (req.method === "POST" && url.pathname === "/admin/chaos") {
         const body = (await req.json()) as Record<string, string | number | null>;
         for (const [k, v] of Object.entries(body)) v === null ? db.run("DELETE FROM chaos WHERE k=?", [k]) : db.run("INSERT OR REPLACE INTO chaos (k, v) VALUES (?, ?)", [k, String(v)]);

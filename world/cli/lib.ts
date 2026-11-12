@@ -79,7 +79,7 @@ export async function startWorld(log = console.log): Promise<void> {
   }
   if (!(await worldUp())) throw new Error("The world started but a service does not answer on ports 7001 to 7004.");
   await admin("/admin/keys", { name: "desk", key: secret("desk_gateway_key"), max_budget_usd: 2 });
-  await admin("/admin/keys", { name: "finished", key: secret("finished_gateway_key"), max_budget_usd: 2 });
+  await admin("/admin/keys", { name: "finished", key: secret("finished_gateway_key"), max_budget_usd: 50 });
 }
 
 /** Put the world back to its first state: every application received, no letters, no spend, no spans. */

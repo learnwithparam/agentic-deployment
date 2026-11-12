@@ -9,5 +9,7 @@ COPY world/register ./world/register
 COPY world/gateway ./world/gateway
 COPY world/idp ./world/idp
 COPY world/traces ./world/traces
+COPY world/releases ./world/releases
+COPY world/finished/controller ./world/finished/controller
 RUN mkdir -p /data && chown bun:bun /data
 USER bun
