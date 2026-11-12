@@ -1,5 +1,6 @@
-// The council's validation rules, written as code. The register uses them to judge every decision the agent
-// writes, and the checks use them as the truth. Never imported by the learner's agent.
+// biome-ignore-all lint/style/useNamingConvention: JSON fields stay snake_case, like fee_paid_gbp
+// The council's validation rules, written as code. The register uses them to judge every decision
+// the agent writes, and the checks use them as the truth. Never imported by the learner's agent.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -25,20 +26,21 @@ export const checklist = (): Checklist =>
   JSON.parse(readFileSync(join(DATA, "checklist.json"), "utf8"));
 
 export function applications(): Application[] {
-  const dir = join(DATA, "applications");
-  return readdirSync(dir)
-    .filter((f) => f.endsWith(".json"))
-    .sort()
-    .map((f) => JSON.parse(readFileSync(join(dir, f), "utf8")));
+  const folder = join(DATA, "applications");
+  const files = readdirSync(folder).filter((file) => file.endsWith(".json"));
+  files.sort();
+  return files.map((file) => JSON.parse(readFileSync(join(folder, file), "utf8")));
 }
 
-export function missingItems(app: Application, c = checklist()): string[] {
-  const have = new Set(app.attachments.map((a) => a.item));
-  return (c.types[app.type]?.required ?? []).filter((i) => !have.has(i));
+export function missingItems(application: Application, rules = checklist()): string[] {
+  const attached = new Set(application.attachments.map((attachment) => attachment.item));
+  const required = rules.types[application.type]?.required ?? [];
+  return required.filter((item) => !attached.has(item));
 }
 
-export function feeOwed(app: Application, c = checklist()): number {
-  return Math.max(0, (c.types[app.type]?.fee_gbp ?? 0) - app.fee_paid_gbp);
+export function feeOwed(application: Application, rules = checklist()): number {
+  const feeDue = rules.types[application.type]?.fee_gbp ?? 0;
+  return Math.max(0, feeDue - application.fee_paid_gbp);
 }
 
 export type Expected = {
@@ -48,13 +50,13 @@ export type Expected = {
 };
 
 /** What a correct validation of this application says. */
-export function expected(app: Application, c = checklist()): Expected {
-  const missing = missingItems(app, c);
-  const owed = feeOwed(app, c);
-  const all = owed > 0 ? [...missing, "fee"] : missing;
+export function expected(application: Application, rules = checklist()): Expected {
+  const missing = missingItems(application, rules);
+  const owed = feeOwed(application, rules);
+  const everythingMissing = owed > 0 ? [...missing, "fee"] : missing;
   return {
-    status: all.length ? "invalid_missing_items" : "valid_awaiting_officer",
-    missing: all,
+    status: everythingMissing.length ? "invalid_missing_items" : "valid_awaiting_officer",
+    missing: everythingMissing,
     fee_owed_gbp: owed,
   };
 }

@@ -1,48 +1,70 @@
-// Look inside a Docker image for a secret: every layer and the image config, the way an attacker with
-// `docker save` would.
+// Look inside a Docker image for a secret: every layer and the image config, the way an attacker
+// with `docker save` would.
 
 import { gunzipSync } from "bun";
-import { sh } from "../../world/cli/lib";
+import { runCommand } from "../../world/cli/lib";
 
-function* tarEntries(buf: Uint8Array): Generator<{ name: string; data: Uint8Array }> {
-  let off = 0;
-  while (off + 512 <= buf.length) {
-    const h = buf.subarray(off, off + 512);
-    if (h.every((b) => b === 0)) break;
-    const name = new TextDecoder().decode(h.subarray(0, 100)).replace(/\0.*$/s, "");
-    const size = parseInt(
-      new TextDecoder().decode(h.subarray(124, 136)).replace(/\0.*$/s, "").trim() || "0",
-      8,
-    );
-    off += 512;
-    yield { name, data: buf.subarray(off, off + size) };
-    off += Math.ceil(size / 512) * 512;
+const TAR_BLOCK = 512;
+
+// A tar header field is text padded with zero bytes; everything from the first zero is padding.
+function headerText(header: Uint8Array, start: number, end: number): string {
+  const text = new TextDecoder().decode(header.subarray(start, end));
+  return text.replace(/\0.*$/s, "");
+}
+
+function* tarEntries(archive: Uint8Array): Generator<{ name: string; data: Uint8Array }> {
+  let offset = 0;
+  while (offset + TAR_BLOCK <= archive.length) {
+    const header = archive.subarray(offset, offset + TAR_BLOCK);
+    // A block of zeros marks the end of the archive.
+    if (header.every((byte) => byte === 0)) break;
+    const name = headerText(header, 0, 100);
+    const size = parseInt(headerText(header, 124, 136).trim() || "0", 8);
+    offset += TAR_BLOCK;
+    yield { name, data: archive.subarray(offset, offset + size) };
+    offset += Math.ceil(size / TAR_BLOCK) * TAR_BLOCK;
   }
 }
 
-const has = (hay: Uint8Array, needle: string) =>
-  Buffer.from(hay.buffer, hay.byteOffset, hay.byteLength).indexOf(needle) >= 0;
+const has = (haystack: Uint8Array, needle: string) => {
+  const bytes = Buffer.from(haystack.buffer, haystack.byteOffset, haystack.byteLength);
+  return bytes.indexOf(needle) >= 0;
+};
 
-/** Every place in the image where one of the needles appears: config, history or a file in a layer. */
+// Layers are often gzip files; their first two bytes are 0x1f 0x8b. Null means it would not unzip.
+function unzipped(data: Uint8Array): Uint8Array | null {
+  if (data[0] !== 0x1f || data[1] !== 0x8b) return data;
+  try {
+    return gunzipSync(data);
+  } catch {
+    return null;
+  }
+}
+
+async function savedImage(image: string): Promise<Uint8Array> {
+  const saving = Bun.spawn(["docker", "save", image], { stdout: "pipe", stderr: "pipe" });
+  const archive = new Uint8Array(await new Response(saving.stdout).arrayBuffer());
+  await saving.exited;
+  return archive;
+}
+
+/** Every place in the image where a needle appears: config, history or a file in a layer. */
 export async function findInImage(image: string, needles: string[]): Promise<string[]> {
   const found: string[] = [];
-  const p = Bun.spawn(["docker", "save", image], { stdout: "pipe", stderr: "pipe" });
-  const outer = new Uint8Array(await new Response(p.stdout).arrayBuffer());
-  await p.exited;
-  for (const e of tarEntries(outer)) {
-    let data = e.data;
-    if (data[0] === 0x1f && data[1] === 0x8b) {
-      try {
-        data = gunzipSync(data);
-      } catch {
-        continue;
-      }
+  for (const entry of tarEntries(await savedImage(image))) {
+    const data = unzipped(entry.data);
+    if (data === null) continue;
+    for (const needle of needles) {
+      if (needle && has(data, needle))
+        found.push(`${entry.name} contains ${needle.slice(0, 12)}...`);
     }
-    for (const n of needles)
-      if (n && has(data, n)) found.push(`${e.name} contains ${n.slice(0, 12)}...`);
   }
-  const hist = await sh(["docker", "history", "--no-trunc", "--format", "{{.CreatedBy}}", image]);
-  for (const n of needles)
-    if (n && hist.out.includes(n)) found.push(`the image history contains ${n.slice(0, 12)}...`);
+  const historyCommand = ["docker", "history", "--no-trunc", "--format", "{{.CreatedBy}}", image];
+  const history = await runCommand(historyCommand);
+  for (const needle of needles) {
+    if (needle && history.out.includes(needle)) {
+      found.push(`the image history contains ${needle.slice(0, 12)}...`);
+    }
+  }
   return found;
 }

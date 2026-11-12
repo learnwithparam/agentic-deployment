@@ -1,3 +1,4 @@
+// biome-ignore-all lint/style/useNamingConvention: the OpenAI chat format names fields tool_calls
 // The only way the desk talks to a model: the council's gateway, in the OpenAI chat format.
 // The desk asks for a role ("fast"), never a model id. The gateway decides which model plays it.
 import { GATEWAY_URL, gatewayKey } from "./config";
@@ -15,6 +16,13 @@ export type ToolCall = {
 };
 export type Reply = { message: Message; costUsd: number | null };
 
+// What the gateway sends back: the model's message and its price, or an error.
+type GatewayAnswer = {
+  choices: { message: Message }[];
+  usage?: { cost_usd?: number };
+  error?: { type?: string; message?: string };
+};
+
 export class GatewayError extends Error {
   constructor(
     public status: number,
@@ -31,21 +39,22 @@ export async function chat(
   tools: unknown[],
   runId: string,
 ): Promise<Reply> {
-  const r = await fetch(`${GATEWAY_URL}/v1/chat/completions`, {
+  const response = await fetch(`${GATEWAY_URL}/v1/chat/completions`, {
     method: "POST",
     headers: {
       authorization: `Bearer ${gatewayKey()}`,
       "content-type": "application/json",
+      // The gateway files the cost of this call under the run, so each run has a price.
       "x-run-id": runId,
     },
     body: JSON.stringify({ model: role, messages, tools }),
   });
-  const body = (await r.json()) as any;
-  if (!r.ok)
+  const answer = (await response.json()) as GatewayAnswer;
+  if (!response.ok)
     throw new GatewayError(
-      r.status,
-      body?.error?.type ?? "model_error",
-      body?.error?.message ?? `gateway answered ${r.status}`,
+      response.status,
+      answer?.error?.type ?? "model_error",
+      answer?.error?.message ?? `gateway answered ${response.status}`,
     );
-  return { message: body.choices[0].message, costUsd: body.usage?.cost_usd ?? null };
+  return { message: answer.choices[0].message, costUsd: answer.usage?.cost_usd ?? null };
 }

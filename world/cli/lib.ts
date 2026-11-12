@@ -1,5 +1,7 @@
-// Shared helpers for the world commands and the checks. Only Bun built-ins, so `bun run check` works
-// before `bun install`.
+// biome-ignore-all lint/style/useNamingConvention: env vars and gateway JSON keep their names
+// (HDC_SECRETS, max_budget_usd), because compose files and the gateway read them exactly.
+// Shared helpers for the world commands and the checks.
+// Only Bun built-ins, so `bun run check` works before `bun install`.
 
 import { randomBytes } from "node:crypto";
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -18,80 +20,86 @@ export const URLS = {
   alertmanager: "http://localhost:9093",
 };
 
-export type Out = { code: number; out: string; err: string };
-export async function sh(
-  cmd: string[],
-  opts: { env?: Record<string, string>; cwd?: string; quiet?: boolean } = {},
-): Promise<Out> {
-  const p = Bun.spawn(cmd, {
-    cwd: opts.cwd ?? ROOT,
-    env: { ...process.env, ...opts.env },
+export type CommandResult = { code: number; out: string; err: string };
+type CommandOptions = { env?: Record<string, string>; cwd?: string; quiet?: boolean };
+
+/** Run a command and collect what it printed and its exit code. */
+export async function runCommand(
+  command: string[],
+  options: CommandOptions = {},
+): Promise<CommandResult> {
+  const child = Bun.spawn(command, {
+    cwd: options.cwd ?? ROOT,
+    env: { ...process.env, ...options.env },
     stdout: "pipe",
     stderr: "pipe",
   });
   const [out, err] = await Promise.all([
-    new Response(p.stdout).text(),
-    new Response(p.stderr).text(),
+    new Response(child.stdout).text(),
+    new Response(child.stderr).text(),
   ]);
-  const code = await p.exited;
+  const code = await child.exited;
   return { code, out, err };
 }
 
 export const secret = (name: string) => readFileSync(join(SECRETS, name), "utf8").trim();
 
+function makeSecretOnce(name: string, makeValue: () => string) {
+  const file = join(SECRETS, name);
+  if (!existsSync(file)) writeFileSync(file, `${makeValue()}\n`);
+  // Containers run as another user and must read the file.
+  chmodSync(file, 0o644);
+}
+
+function makePasswords(): string {
+  const peopleFile = readFileSync(join(ROOT, "world", "data", "people.json"), "utf8");
+  const people = JSON.parse(peopleFile).people as { username: string }[];
+  const passwords = people.map((person) => [person.username, randomBytes(6).toString("base64url")]);
+  return JSON.stringify(Object.fromEntries(passwords), null, 2);
+}
+
 /** Make the world's secrets once. They live in secrets/, which git ignores. */
 export function ensureSecrets() {
   mkdirSync(SECRETS, { recursive: true });
-  const make = (name: string, value: () => string) => {
-    const f = join(SECRETS, name);
-    if (!existsSync(f)) writeFileSync(f, value() + "\n");
-    chmodSync(f, 0o644); // containers run as another user and must read the file
-  };
-  make("gateway_admin_key", () => `hdc-admin-${randomBytes(20).toString("hex")}`);
-  make("desk_gateway_key", () => `hdc-gw-${randomBytes(18).toString("hex")}`);
-  make("finished_gateway_key", () => `hdc-gw-${randomBytes(18).toString("hex")}`);
-  make("desk_client_secret", () => randomBytes(18).toString("hex"));
-  const people = JSON.parse(readFileSync(join(ROOT, "world", "data", "people.json"), "utf8"))
-    .people as { username: string }[];
-  make("passwords", () =>
-    JSON.stringify(
-      Object.fromEntries(people.map((p) => [p.username, randomBytes(6).toString("base64url")])),
-      null,
-      2,
-    ),
-  );
+  makeSecretOnce("gateway_admin_key", () => `hdc-admin-${randomBytes(20).toString("hex")}`);
+  makeSecretOnce("desk_gateway_key", () => `hdc-gw-${randomBytes(18).toString("hex")}`);
+  makeSecretOnce("finished_gateway_key", () => `hdc-gw-${randomBytes(18).toString("hex")}`);
+  makeSecretOnce("desk_client_secret", () => randomBytes(18).toString("hex"));
+  makeSecretOnce("passwords", makePasswords);
 }
 
 /** Env every compose command gets, so compose files can find the secrets folder. */
-export const composeEnv = () => ({
-  HDC_SECRETS: SECRETS,
-  HDC_ROOT: ROOT,
-  GATEWAY_ADMIN_KEY: existsSync(join(SECRETS, "gateway_admin_key"))
-    ? secret("gateway_admin_key")
-    : "",
-});
+export function composeEnv() {
+  const hasAdminKey = existsSync(join(SECRETS, "gateway_admin_key"));
+  return {
+    HDC_SECRETS: SECRETS,
+    HDC_ROOT: ROOT,
+    GATEWAY_ADMIN_KEY: hasAdminKey ? secret("gateway_admin_key") : "",
+  };
+}
 
 export async function healthy(url: string, tries = 1): Promise<boolean> {
   for (let i = 0; i < tries; i++) {
     try {
-      if ((await fetch(url, { signal: AbortSignal.timeout(2000) })).ok) return true;
-    } catch {}
+      const response = await fetch(url, { signal: AbortSignal.timeout(2000) });
+      if (response.ok) return true;
+    } catch {
+      // Not answering yet; try again after a short wait.
+    }
     if (i < tries - 1) await Bun.sleep(1000);
   }
   return false;
 }
 
 export async function worldUp(): Promise<boolean> {
-  const all = await Promise.all(
-    ["register", "gateway", "idp", "traces"].map((s) =>
-      healthy(`${URLS[s as keyof typeof URLS]}/health`),
-    ),
-  );
-  return all.every(Boolean);
+  const services = [URLS.register, URLS.gateway, URLS.idp, URLS.traces];
+  const answers = await Promise.all(services.map((base) => healthy(`${base}/health`)));
+  return answers.every(Boolean);
 }
 
-export async function admin(path: string, body?: unknown) {
-  const r = await fetch(`${URLS.gateway}${path}`, {
+/** Call the gateway's admin API: GET when there is no body, POST when there is. */
+export async function admin<Answer = unknown>(path: string, body?: unknown): Promise<Answer> {
+  const response = await fetch(`${URLS.gateway}${path}`, {
     method: body === undefined ? "GET" : "POST",
     headers: {
       authorization: `Bearer ${secret("gateway_admin_key")}`,
@@ -99,39 +107,33 @@ export async function admin(path: string, body?: unknown) {
     },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  return r.json() as Promise<any>;
+  return (await response.json()) as Answer;
 }
 
-/** Start the world (build on first run), register the service keys, and wait until every service answers. */
+async function startContainers(log: (line: string) => void) {
+  log(
+    "Starting the world: register, gateway, sign-in, trace desk. The first start builds an image.",
+  );
+  const composeUp = [
+    ...["docker", "compose", "-f", "world/compose.yaml", "up"],
+    ...["-d", "--build", "--wait", "--wait-timeout", "120"],
+  ];
+  const result = await runCommand(composeUp, { env: composeEnv() });
+  if (result.code !== 0) {
+    const printed = (result.err || result.out).trim();
+    const lastLines = printed.split("\n").slice(-8).join("\n");
+    throw new Error(`docker compose could not start the world:\n${lastLines}`);
+  }
+}
+
+/** Start the world (build on first run), register the service keys, and wait for every service. */
 export async function startWorld(log = console.log): Promise<void> {
   ensureSecrets();
   mkdirSync(join(ROOT, "out"), { recursive: true });
+  if (!(await worldUp())) await startContainers(log);
   if (!(await worldUp())) {
-    log(
-      "Starting the world: register, gateway, sign-in, trace desk. The first start builds an image.",
-    );
-    const r = await sh(
-      [
-        "docker",
-        "compose",
-        "-f",
-        "world/compose.yaml",
-        "up",
-        "-d",
-        "--build",
-        "--wait",
-        "--wait-timeout",
-        "120",
-      ],
-      { env: composeEnv() },
-    );
-    if (r.code !== 0)
-      throw new Error(
-        `docker compose could not start the world:\n${(r.err || r.out).trim().split("\n").slice(-8).join("\n")}`,
-      );
-  }
-  if (!(await worldUp()))
     throw new Error("The world started but a service does not answer on ports 7001 to 7004.");
+  }
   await admin("/admin/keys", { name: "desk", key: secret("desk_gateway_key"), max_budget_usd: 2 });
   await admin("/admin/keys", {
     name: "finished",
@@ -140,7 +142,7 @@ export async function startWorld(log = console.log): Promise<void> {
   });
 }
 
-/** Put the world back to its first state: every application received, no letters, no spend, no spans. */
+/** Put the world back to its first state: every application received, no letters, no spend. */
 export async function resetWorld() {
   await fetch(`${URLS.register}/admin/reset`, { method: "POST" });
   await admin("/admin/reset", {});
@@ -148,5 +150,7 @@ export async function resetWorld() {
 }
 
 export async function gatewayProvider(): Promise<string> {
-  return ((await (await fetch(`${URLS.gateway}/health`)).json()) as any).provider;
+  const response = await fetch(`${URLS.gateway}/health`);
+  const health = (await response.json()) as { provider: string };
+  return health.provider;
 }
