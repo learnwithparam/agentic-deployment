@@ -334,9 +334,21 @@ function checkSchedules(allParts: Part[]) {
   }
 }
 
+// The desk's page.ts is copied into every step folder. They must all match the world's copy.
+function checkPageCopies(allFiles: string[]) {
+  const master = join(ROOT, "world", "finished", "desk", "src", "page.ts");
+  const wanted = read(master);
+  for (const file of allFiles) {
+    if (file.endsWith(join("src", "page.ts")) && file !== master && read(file) !== wanted) {
+      fail(file, "differs from world/finished/desk/src/page.ts. Copy that file over it");
+    }
+  }
+}
+
 const files = walk(ROOT);
 const markdownFiles = files.filter((file) => file.endsWith(".md"));
 checkNoMakefile(files);
+checkPageCopies(files);
 checkProse(markdownFiles);
 checkImagesExist(markdownFiles);
 needPicture(join(ROOT, "README.md"), "the root README", { mermaid: true, image: true });

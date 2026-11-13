@@ -41,29 +41,41 @@ function addLine(output, className, text) {
 }
 
 function showEvent(output, answer, name, data) {
-  if (name === 'tool') addLine(output, 'tool', 'checked: ' + data.name);
+  if (name === 'tool') addLine(output, 'tool', 'Checked: ' + data.name.replace(/_/g, ' '));
   if (name === 'token') {
     if (!answer.parentNode) output.appendChild(answer);
     answer.textContent += data.text;
   }
   if (name === 'error') addLine(output, 'err', data.message);
   if (name === 'done') {
-    const cost = data.cost_usd == null ? '' : ', cost $' + Number(data.cost_usd).toFixed(4);
-    addLine(output, 'done', 'Done. Run ' + data.run_id + cost);
+    addLine(output, 'done', 'Check finished. Your reference is ' + data.run_id + '.');
   }
 }
 
 document.getElementById('go').onclick = async () => {
+  const button = document.getElementById('go');
   const output = document.getElementById('out');
   output.innerHTML = '';
+  button.disabled = true;
+  addLine(output, 'tool', 'Checking ' + applicationPicker.value);
+  output.firstChild.dataset.waiting = 'yes';
+  try {
+    await runCheck(output);
+  } finally {
+    button.disabled = false;
+  }
+};
+
+async function runCheck(output) {
   const response = await fetch('/v1/runs', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ application_id: applicationPicker.value }),
   });
-  // A desk that does not stream answers in one piece, so show that piece as it is.
+  // A desk that does not stream answers in one piece, which is not worth showing as it is.
   if (!response.headers.get('content-type')?.includes('event-stream')) {
-    output.textContent = await response.text();
+    output.innerHTML = '';
+    addLine(output, 'err', 'The desk could not check this application. Try again in a minute.');
     return;
   }
   const reader = response.body.getReader();
@@ -79,10 +91,11 @@ document.getElementById('go').onclick = async () => {
     while ((end = unread.indexOf('\\n\\n')) >= 0) {
       const { name, data } = readEvent(unread.slice(0, end));
       unread = unread.slice(end + 2);
+      if (output.firstChild?.dataset.waiting) output.innerHTML = '';
       showEvent(output, answer, name, data);
     }
   }
-};`;
+}`;
 
 /** The resident's page: pick an application and watch the desk check it. */
 export function residentPage(version: string): string {
@@ -104,26 +117,39 @@ body{font:16px system-ui;margin:0;background:#f6f5f1;color:#1d1d1b}
 header{background:#26344d;color:#fff;padding:16px 20px}
 header h1{margin:0;font-size:20px}
 main{max-width:720px;margin:24px auto;padding:0 16px}
-table{width:100%;border-collapse:collapse;background:#fff}
+table{width:100%;border-collapse:collapse;background:#fff;display:block;overflow-x:auto}
 td,th{padding:8px 10px;border-bottom:1px solid #ddd;text-align:left}
 button{background:#26344d;color:#fff;border:0;border-radius:6px;padding:6px 12px;font:inherit;
 cursor:pointer}`;
 
 /** One row of the queue: the application and a button that validates it. */
-function staffRow(application: { id: string }): string {
+function staffRow(application: StaffApplication): string {
   const action = `/staff/validate/${application.id}`;
-  const validateForm = `<form method="post" action="${action}"><button>Validate</button></form>`;
-  return `<tr><td>${application.id}</td><td>${validateForm}</td></tr>`;
+  const label = "Validate application";
+  const validateForm = `<form method="post" action="${action}"><button>${label}</button></form>`;
+  const applicant = application.applicant ?? "";
+  const proposal = application.description ?? "";
+  const cells = [application.id, applicant, proposal, validateForm];
+  return `<tr>${cells.map((cell) => `<td>${cell}</td>`).join("")}</tr>`;
 }
 
+type StaffApplication = { id: string; applicant?: string; description?: string };
+
 /** The staff page: the applications that wait for an officer to validate them. */
-export function staffPage(name: string, applications: { id: string }[]): string {
+export function staffPage(name: string, applications: StaffApplication[]): string {
   const rows = applications.map(staffRow).join("");
+  const waiting = applications.length;
+  const verb = waiting === 1 ? "application waits" : "applications wait";
+  const none =
+    "No applications wait for an officer. New ones appear here after the desk checks them.";
+  const empty = `${none} <a href="/">Open the resident desk</a>`;
+  const summary = waiting ? `${waiting} ${verb} for an officer.` : empty;
+  const summaryTag = waiting ? "<p>" : "<p data-empty-state>";
   return `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>Staff: Harrowby permit desk</title>
 <style>${staffStyles}</style>
 <header><h1>Validation queue</h1><div>Signed in as ${name}</div></header><main>
-<p>${applications.length} application(s) wait for an officer.</p>
-<table><tr><th>Application</th><th></th></tr>
+${summaryTag}${summary}</p>
+<table><tr><th>Application</th><th>Applicant</th><th>Proposal</th><th>Action</th></tr>
 ${rows}</table></main>`;
 }
