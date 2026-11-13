@@ -52,10 +52,93 @@ flowchart TD
 
 ## Walkthrough
 
-TODO(part session): the commands for each step, each with its Expect line.
+Work in each step's `problem/` folder. Start the world first.
+
+```bash
+bun run world
+```
+
+Expect: `The world is running. Model provider: replay.`
+
+Step 1: add the step limit and the dollar limit, and turn the gateway's refusal into a clean stop.
+
+```bash
+bun run up cap-the-spend
+bun run chaos runaway --desk
+bun run verify cap-the-spend
+```
+
+Expect: `The run ended: stopped_budget after 12 model calls, $0.0345`, then `Done. All 5 rules pass.`
+
+Step 2: give each resident a limit of 5 runs in 10 seconds.
+
+```bash
+bun run up rate-limit-residents
+bun run verify rate-limit-residents
+```
+
+Expect: `Done. All 4 rules pass.` once the 6th quick request gets 429 with `Retry-After`.
+
+Step 3: keep a run journal, so a killed run finishes after the restart.
+
+```bash
+bun run up survive-a-restart
+bun run chaos kill --desk
+bun run verify survive-a-restart
+```
+
+Expect: `Register: 1 decision(s) and 1 letter(s) for HDC-2026-0142.`, then `Done. All 3 rules pass.`
+
+Check the whole part:
 
 ```bash
 bun run verify part bound-the-runs
 ```
 
 Expect: `Part bound-the-runs is done: 3/3 steps pass.`
+
+```
+Part bound-the-runs:
+  PASS   cap-the-spend  (5/5 rules)
+  PASS   rate-limit-residents  (4/4 rules)
+  PASS   survive-a-restart  (3/3 rules)
+Part bound-the-runs is done: 3/3 steps pass.
+```
+
+## Assignment: survive the bad night
+
+Picture a bad night at the council. A runaway application loops, and the desk's container is killed
+in the middle of a run. In the morning there must be no overspend and no second letter.
+
+For example, after `bun run chaos runaway --desk` and `bun run chaos kill --desk`, the spend log shows
+one run stopped at 12 model calls and $0.0345. The register shows 1 decision and 1 letter for
+HDC-2026-0142.
+
+1. Run both chaos commands against your desk from `survive-a-restart`.
+2. Write `out/bad-night.md`. Say which brake fired first for HDC-2026-0177: the step limit, the dollar
+   limit or the key's budget. Say why you chose that order of limits.
+3. In the same note, name the idempotency key for the letter and what it is built from.
+
+Hand in your branch and `out/bad-night.md`. It is graded yes or no on each question:
+
+- Do `bun run verify cap-the-spend`, `rate-limit-residents` and `survive-a-restart` pass?
+- Did the runaway run end as `stopped_budget`?
+- Is there exactly one letter for the killed application?
+- Does the note name the idempotency key and what it is built from?
+
+Extension: kill the desk at 10 different points in a run, not only before the letter. Show zero
+duplicate letters in all 10.
+
+## Finished
+
+Your desk now has brakes and a memory:
+
+- A runaway run stops itself at the step limit or the dollar limit, and the resident reads why.
+- A spent gateway budget ends a run cleanly as `stopped_budget`, never as a hang.
+- One resident cannot start more than 5 runs in 10 seconds, and every other resident is still served.
+- Every run is saved after each step, so a killed run finishes after the restart with no second letter
+  and no model call paid twice.
+
+Next is Part 4, release safely. You change the desk's prompt without hurting residents: a gate of
+evals before release, a canary that gets a small share of traffic, an automatic rollback when the
+canary goes wrong, and a runbook for the people on call.
