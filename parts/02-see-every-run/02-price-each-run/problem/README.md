@@ -19,8 +19,9 @@ gateway's spend log for that run has 6 lines that add up to the same number.
 
 1. **Keep each run.** Make `src/runs.ts` with a `Map` from `run_id` to a run:
    `{ run_id, application_id, status, steps, cost_usd }`. `steps` is the number of model calls.
-2. **Add up the cost.** After each model call, add its `costUsd` to the run's total. Once one call
-   has no price, the total is `null`, and it stays `null`.
+2. **Add up the cost.** `src/agent.ts` already adds each call's `costUsd` to a total with `addCost`.
+   Once one call has no price, the total is `null`, and it stays `null`. Keep that total, and the
+   number of model calls, on the run in your `Map`.
 3. **Put the cost on the root span.** When the run ends, set `app.cost_usd` on the root span, rounded
    to 6 decimal places. When the total is `null`, set `app.cost_unknown` to `true` instead, and end
    the run with the status `cost_unknown`. Never write `0` for an unknown cost.

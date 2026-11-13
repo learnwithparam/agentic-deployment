@@ -22,12 +22,14 @@ spans, such as `execute_tool calculate_fee`.
    when the run ends, also when the run fails.
 2. **Make it the parent.** Run the loop inside
    `context.with(trace.setSpan(context.active(), runSpan), ...)`. Then every span that the loop starts
-   becomes a child of the root span, in the same trace.
-3. **One span per model call.** Wrap each `chat()` call in `inChildSpan(`chat ${release.role}`, ...)`.
+   becomes a child of the root span, in the same trace. `runAgent` is a generator, and you cannot
+   `yield` from inside the `context.with` callback. So move today's loop into its own generator. Then
+   call each `steps.next()` inside `context.with`, and `yield` its value outside it.
+3. **One span per model call.** Wrap each `chat()` call in ``inChildSpan(`chat ${release.role}`, ...)``.
    Put the token counts on it as `gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens`. The
    gateway sends them in `usage.prompt_tokens` and `usage.completion_tokens`, so read them in
    `src/model.ts`.
-4. **One span per tool call.** Wrap each `runTool` call in `inChildSpan(`execute_tool ${name}`, ...)`.
+4. **One span per tool call.** Wrap each `runToolCall` call in ``inChildSpan(`execute_tool ${name}`, ...)``.
 5. **Keep residents out of spans.** Never put the messages, a tool's answer or the letter on a span.
    They hold the resident's name.
 
