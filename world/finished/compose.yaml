@@ -1,0 +1,94 @@
+# The finished permit desk: what you build in this course, running. Start it with `bun run up finished`.
+# Traefik splits traffic between a stable desk and a canary. Prometheus watches the register's judgement of
+# every decision, and Alertmanager calls the release controller, which rolls a bad canary back.
+name: hdc-finished
+
+x-desk: &desk
+  image: hdc-desk-finished:dev
+  build: { context: ./desk }
+  restart: unless-stopped
+  secrets: [gateway_key, desk_client_secret]
+  healthcheck:
+    {
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/healthz"],
+      interval: 2s,
+      timeout: 2s,
+      retries: 20,
+    }
+
+services:
+  desk-stable:
+    <<: *desk
+    environment:
+      PUBLIC_URL: http://localhost:8080
+      RELEASE_FILE: /app/release.json
+    volumes: ["stable-data:/data"]
+
+  desk-canary:
+    <<: *desk
+    environment:
+      PUBLIC_URL: http://localhost:8080
+      RELEASE_FILE: /control/canary/release.json
+    volumes: ["canary-data:/data", "control:/control:ro"]
+    depends_on: { controller: { condition: service_healthy } }
+
+  controller:
+    image: hdc-world:dev
+    command: ["bun", "world/finished/controller/server.ts"]
+    user: root
+    restart: unless-stopped
+    ports: ["7010:7010"]
+    volumes: ["control:/control"]
+    healthcheck:
+      {
+        test: ["CMD", "wget", "-qO-", "http://localhost:7010/health"],
+        interval: 2s,
+        timeout: 2s,
+        retries: 20,
+      }
+
+  traefik:
+    image: traefik:v3.7.18
+    restart: unless-stopped
+    command:
+      - --entrypoints.web.address=:8080
+      - --providers.file.directory=/control/traefik
+      - --providers.file.watch=true
+      - --ping=true
+      - --ping.entrypoint=web
+    ports: ["8080:8080"]
+    volumes: ["control:/control:ro"]
+    depends_on: { controller: { condition: service_healthy } }
+    healthcheck:
+      {
+        test: ["CMD", "wget", "-qO-", "http://localhost:8080/ping"],
+        interval: 2s,
+        timeout: 2s,
+        retries: 20,
+      }
+
+  prometheus:
+    image: prom/prometheus:v3.16.0
+    restart: unless-stopped
+    ports: ["9090:9090"]
+    volumes: ["./prometheus:/etc/prometheus:ro"]
+
+  alertmanager:
+    image: prom/alertmanager:v0.35.0
+    restart: unless-stopped
+    ports: ["9093:9093"]
+    volumes: ["./alertmanager:/etc/alertmanager:ro"]
+
+secrets:
+  gateway_key: { file: "${HDC_SECRETS:-../../secrets}/finished_gateway_key" }
+  desk_client_secret: { file: "${HDC_SECRETS:-../../secrets}/desk_client_secret" }
+
+volumes:
+  stable-data:
+  canary-data:
+  control:
+
+networks:
+  default:
+    name: hdc
+    external: true

@@ -1,0 +1,26 @@
+{
+  "id": "HDC-2026-0164",
+  "type": "tree_works",
+  "description": "Pruning of two limes",
+  "address": "7 Mill Lane, Harrowby",
+  "applicant": {
+    "name": "Tomasz Castellan",
+    "email": "tomasz.castellan@example.org",
+    "phone": "01632 901451"
+  },
+  "fee_paid_gbp": 0,
+  "attachments": [
+    {
+      "item": "notice_form",
+      "file": "notice-form.pdf"
+    },
+    {
+      "item": "tree_location_plan",
+      "file": "tree-location-plan.pdf"
+    },
+    {
+      "item": "photographs",
+      "file": "photographs.pdf"
+    }
+  ]
+}

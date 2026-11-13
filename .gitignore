@@ -1,2 +1,6 @@
 verify-report.json
 node_modules
+.env
+secrets/
+out/
+playground/

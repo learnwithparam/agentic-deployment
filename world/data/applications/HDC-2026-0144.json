@@ -1,0 +1,22 @@
+{
+  "id": "HDC-2026-0144",
+  "type": "tree_works",
+  "description": "Crown reduction of an oak in a conservation area",
+  "address": "1 Orchard Rise, Harrowby",
+  "applicant": {
+    "name": "Sam Marchetti",
+    "email": "sam.marchetti@example.org",
+    "phone": "01632 599630"
+  },
+  "fee_paid_gbp": 0,
+  "attachments": [
+    {
+      "item": "notice_form",
+      "file": "notice-form.pdf"
+    },
+    {
+      "item": "photographs",
+      "file": "photographs.pdf"
+    }
+  ]
+}

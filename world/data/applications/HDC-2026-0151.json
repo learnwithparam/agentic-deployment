@@ -1,0 +1,22 @@
+{
+  "id": "HDC-2026-0151",
+  "type": "advertisement",
+  "description": "Non-illuminated shopfront sign",
+  "address": "82 Orchard Rise, Harrowby",
+  "applicant": {
+    "name": "Kwame Varga",
+    "email": "kwame.varga@example.org",
+    "phone": "01632 787547"
+  },
+  "fee_paid_gbp": 165,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    }
+  ]
+}

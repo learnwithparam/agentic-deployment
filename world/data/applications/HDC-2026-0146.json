@@ -1,0 +1,26 @@
+{
+  "id": "HDC-2026-0146",
+  "type": "advertisement",
+  "description": "Non-illuminated shopfront sign",
+  "address": "3 Ferry Close, Harrowby",
+  "applicant": {
+    "name": "Jordan Pennant",
+    "email": "jordan.pennant@example.org",
+    "phone": "01632 123102"
+  },
+  "fee_paid_gbp": 165,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "advert_drawings",
+      "file": "advert-drawings.pdf"
+    }
+  ]
+}

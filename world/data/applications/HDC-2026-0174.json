@@ -1,0 +1,26 @@
+{
+  "id": "HDC-2026-0174",
+  "type": "tree_works",
+  "description": "Crown reduction of an oak in a conservation area",
+  "address": "64 Church Street, Harrowby",
+  "applicant": {
+    "name": "Ines Hollis",
+    "email": "ines.hollis@example.org",
+    "phone": "01632 412538"
+  },
+  "fee_paid_gbp": 0,
+  "attachments": [
+    {
+      "item": "notice_form",
+      "file": "notice-form.pdf"
+    },
+    {
+      "item": "tree_location_plan",
+      "file": "tree-location-plan.pdf"
+    },
+    {
+      "item": "photographs",
+      "file": "photographs.pdf"
+    }
+  ]
+}

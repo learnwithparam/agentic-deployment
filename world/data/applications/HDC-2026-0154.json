@@ -1,0 +1,22 @@
+{
+  "id": "HDC-2026-0154",
+  "type": "tree_works",
+  "description": "Pruning of two limes",
+  "address": "94 Market Place, Harrowby",
+  "applicant": {
+    "name": "Mei Whitlow",
+    "email": "mei.whitlow@example.org",
+    "phone": "01632 880260"
+  },
+  "fee_paid_gbp": 0,
+  "attachments": [
+    {
+      "item": "tree_location_plan",
+      "file": "tree-location-plan.pdf"
+    },
+    {
+      "item": "photographs",
+      "file": "photographs.pdf"
+    }
+  ]
+}

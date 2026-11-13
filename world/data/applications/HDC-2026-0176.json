@@ -1,0 +1,26 @@
+{
+  "id": "HDC-2026-0176",
+  "type": "advertisement",
+  "description": "Projecting hanging sign",
+  "address": "99 Mill Lane, Harrowby",
+  "applicant": {
+    "name": "Sam Abara",
+    "email": "sam.abara@example.org",
+    "phone": "01632 874608"
+  },
+  "fee_paid_gbp": 165,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "advert_drawings",
+      "file": "advert-drawings.pdf"
+    }
+  ]
+}

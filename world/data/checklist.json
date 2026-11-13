@@ -1,0 +1,58 @@
+{
+  "council": "Harrowby District Council",
+  "note": "The council's local validation list. Fees are the council's own illustrative figures.",
+  "types": {
+    "householder": {
+      "label": "Householder extension",
+      "fee_gbp": 258,
+      "required": [
+        "application_form",
+        "location_plan",
+        "site_plan",
+        "elevations",
+        "floor_plans",
+        "ownership_certificate"
+      ]
+    },
+    "change_of_use": {
+      "label": "Change of use",
+      "fee_gbp": 578,
+      "required": [
+        "application_form",
+        "location_plan",
+        "site_plan",
+        "floor_plans",
+        "ownership_certificate",
+        "noise_and_odour_statement"
+      ]
+    },
+    "advertisement": {
+      "label": "Shop sign (advertisement consent)",
+      "fee_gbp": 165,
+      "required": ["application_form", "location_plan", "advert_drawings"]
+    },
+    "tree_works": {
+      "label": "Tree works notice",
+      "fee_gbp": 0,
+      "required": ["notice_form", "tree_location_plan", "photographs"]
+    },
+    "dropped_kerb": {
+      "label": "Dropped kerb",
+      "fee_gbp": 115,
+      "required": ["application_form", "site_plan", "photographs"]
+    }
+  },
+  "items": {
+    "application_form": "Completed application form",
+    "notice_form": "Completed tree works notice form",
+    "location_plan": "Location plan at 1:1250",
+    "site_plan": "Site plan at 1:500",
+    "elevations": "Existing and proposed elevations",
+    "floor_plans": "Existing and proposed floor plans",
+    "ownership_certificate": "Ownership certificate (A, B, C or D)",
+    "noise_and_odour_statement": "Noise and odour statement",
+    "advert_drawings": "Drawings of the sign with size and lighting",
+    "tree_location_plan": "Plan showing where each tree stands",
+    "photographs": "Photographs of the site"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "HDC-2026-0147",
+  "type": "dropped_kerb",
+  "description": "Dropped kerb for a driveway",
+  "address": "88 Orchard Rise, Harrowby",
+  "applicant": {
+    "name": "Priyanka Doyle",
+    "email": "priyanka.doyle@example.org",
+    "phone": "01632 826220"
+  },
+  "fee_paid_gbp": 115,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "id": "HDC-2026-0150",
+  "type": "householder",
+  "description": "Two storey side extension",
+  "address": "43 Market Place, Harrowby",
+  "applicant": {
+    "name": "Ruth Castellan",
+    "email": "ruth.castellan@example.org",
+    "phone": "01632 474079"
+  },
+  "fee_paid_gbp": 129,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    },
+    {
+      "item": "elevations",
+      "file": "elevations.pdf"
+    },
+    {
+      "item": "floor_plans",
+      "file": "floor-plans.pdf"
+    },
+    {
+      "item": "ownership_certificate",
+      "file": "ownership-certificate.pdf"
+    }
+  ]
+}

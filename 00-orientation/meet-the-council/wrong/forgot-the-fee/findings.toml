@@ -1,0 +1,6 @@
+# Read the attachments, saw every document there, and missed that no fee was paid.
+status = "valid_awaiting_officer"
+missing = []
+fee_owed_gbp = 0
+run_cost_usd = 0.0141
+tool_calls = 5

@@ -1,0 +1,22 @@
+{
+  "id": "HDC-2026-0166",
+  "type": "advertisement",
+  "description": "Projecting hanging sign",
+  "address": "74 Holloway Gardens, Harrowby",
+  "applicant": {
+    "name": "Ruth Abara",
+    "email": "ruth.abara@example.org",
+    "phone": "01632 707248"
+  },
+  "fee_paid_gbp": 165,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "advert_drawings",
+      "file": "advert-drawings.pdf"
+    }
+  ]
+}

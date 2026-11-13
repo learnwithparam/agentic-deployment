@@ -1,0 +1,25 @@
+{
+  "note": "Staff and residents who can sign in. Passwords are made fresh by `bun run world` and saved in secrets/passwords.json, never here.",
+  "people": [
+    {
+      "username": "amara.okafor",
+      "name": "Amara Okafor",
+      "roles": ["validation_officer"]
+    },
+    {
+      "username": "tom.reid",
+      "name": "Tom Reid",
+      "roles": ["team_lead", "validation_officer"]
+    },
+    {
+      "username": "priya.shah",
+      "name": "Priya Shah",
+      "roles": ["budget_holder"]
+    },
+    {
+      "username": "sam.hollis",
+      "name": "Sam Hollis",
+      "roles": ["resident"]
+    }
+  ]
+}

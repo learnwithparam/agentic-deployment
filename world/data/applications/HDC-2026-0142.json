@@ -1,0 +1,38 @@
+{
+  "id": "HDC-2026-0142",
+  "type": "change_of_use",
+  "description": "Change of use from shop to cafe",
+  "address": "55 Kestrel Way, Harrowby",
+  "applicant": {
+    "name": "Ines Fenwick",
+    "email": "ines.fenwick@example.org",
+    "phone": "01632 857419"
+  },
+  "fee_paid_gbp": 0,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    },
+    {
+      "item": "floor_plans",
+      "file": "floor-plans.pdf"
+    },
+    {
+      "item": "ownership_certificate",
+      "file": "ownership-certificate.pdf"
+    },
+    {
+      "item": "noise_and_odour_statement",
+      "file": "noise-and-odour-statement.pdf"
+    }
+  ]
+}

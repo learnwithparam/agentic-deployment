@@ -1,0 +1,22 @@
+{
+  "id": "HDC-2026-0141",
+  "type": "advertisement",
+  "description": "Illuminated fascia sign",
+  "address": "86 Market Place, Harrowby",
+  "applicant": {
+    "name": "Graham Rao",
+    "email": "graham.rao@example.org",
+    "phone": "01632 425697"
+  },
+  "fee_paid_gbp": 165,
+  "attachments": [
+    {
+      "item": "location_plan",
+      "file": "location-plan.pdf"
+    },
+    {
+      "item": "advert_drawings",
+      "file": "advert-drawings.pdf"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+# Run the finished permit desk on HDC-2026-0142, then fill these in from what you see.
+# The register (http://localhost:7001) and the trace desk (http://localhost:7004) have every answer.
+
+status = ""          # the status the agent wrote in the register
+missing = []         # what the letter asks the resident for, as the register names it, for example ["fee"]
+fee_owed_gbp = 0     # how much of the fee is still owed, in pounds
+run_cost_usd = 0     # the cost on the run's root span in the trace desk, for example 0.0123
+tool_calls = 0       # how many execute_tool spans the trace has

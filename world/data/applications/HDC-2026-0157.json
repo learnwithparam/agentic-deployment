@@ -1,0 +1,26 @@
+{
+  "id": "HDC-2026-0157",
+  "type": "dropped_kerb",
+  "description": "Widening of an existing dropped kerb",
+  "address": "62 Kestrel Way, Harrowby",
+  "applicant": {
+    "name": "Graham Whitlow",
+    "email": "graham.whitlow@example.org",
+    "phone": "01632 297496"
+  },
+  "fee_paid_gbp": 115,
+  "attachments": [
+    {
+      "item": "application_form",
+      "file": "application-form.pdf"
+    },
+    {
+      "item": "site_plan",
+      "file": "site-plan.pdf"
+    },
+    {
+      "item": "photographs",
+      "file": "photographs.pdf"
+    }
+  ]
+}
