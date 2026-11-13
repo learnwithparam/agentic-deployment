@@ -1,0 +1,62 @@
+# The permit desk with a canary, run by Docker Compose. Start it with: bun run up <step-name>
+# Traefik answers on port 3000 and splits the traffic between two desks built from this folder.
+name: hdc-desk
+
+x-desk: &desk
+  image: hdc-desk-release:dev
+  build:
+    context: .
+  secrets: [gateway_key, desk_client_secret]
+  healthcheck:
+    test: ["CMD", "wget", "-qO-", "http://localhost:3000/healthz"]
+    interval: 2s
+    timeout: 2s
+    retries: 15
+  restart: unless-stopped
+
+services:
+  traefik:
+    image: traefik:v3.7.18
+    command:
+      - --entrypoints.web.address=:3000
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --ping=true
+      - --ping.entrypoint=web
+    ports: ["3000:3000"]
+    volumes: ["./traefik:/etc/traefik/dynamic:ro"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+    restart: unless-stopped
+
+  # The release that is live today. Its release file is baked into the image.
+  desk-stable:
+    <<: *desk
+    environment:
+      RELEASE_FILE: /app/release.json
+    volumes: ["stable-data:/data"]
+
+  # The new release, on a small share of the traffic. Same image, another release file.
+  desk-canary:
+    <<: *desk
+    environment:
+      RELEASE_FILE: /app/releases/v3.json
+    volumes: ["canary-data:/data"]
+
+secrets:
+  gateway_key:
+    file: ${HDC_SECRETS:-../../../../secrets}/desk_gateway_key
+  desk_client_secret:
+    file: ${HDC_SECRETS:-../../../../secrets}/desk_client_secret
+
+volumes:
+  stable-data:
+  canary-data:
+
+networks:
+  default:
+    name: hdc
+    external: true

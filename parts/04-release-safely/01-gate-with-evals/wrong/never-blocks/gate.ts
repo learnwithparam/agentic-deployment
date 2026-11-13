@@ -14,15 +14,28 @@ function loadCases(): EvalCase[] {
   return JSON.parse(caseFile).cases as EvalCase[];
 }
 
-// Start the runner in a fresh container from this folder's image, built from your code.
+// The world made the desk's gateway key, in the secrets folder at the top of the repo.
+const SECRETS = process.env.HDC_SECRETS ?? join(HERE, "..", "..", "..", "..", "secrets");
+
+// Build this folder's image, so the gate tests the code you ship. Prints the image id.
+function buildImage(): string {
+  const built = Bun.spawnSync(["docker", "build", "-q", HERE], { stderr: "pipe" });
+  if (built.exitCode !== 0) {
+    throw new Error(`The desk image did not build:\n${built.stderr.toString().trim()}`);
+  }
+  return built.stdout.toString().trim();
+}
+
+// Start the runner in a fresh container on the world's network, with only the gateway key.
 function runCases(releaseName: string, applicationIds: string[]): Decision[] {
-  const compose = ["docker", "compose", "-p", "hdc-desk", "-f", join(HERE, "compose.yaml")];
+  const keyFile = join(SECRETS, "desk_gateway_key");
   const settings = [
     ...["-e", "DRY_RUN=1", "-e", "DESK_DATA=/tmp/evals", "-e", "SERVICE_VERSION=gate"],
     ...["-e", `RELEASE_FILE=/app/releases/${releaseName}.json`],
+    ...["-v", `${keyFile}:/run/secrets/gateway_key:ro`],
   ];
-  const runner = ["desk", "bun", "src/evals.ts", ...applicationIds];
-  const command = [...compose, "run", "--rm", "--build", "--no-deps", ...settings, ...runner];
+  const runner = [buildImage(), "bun", "src/evals.ts", ...applicationIds];
+  const command = ["docker", "run", "--rm", "--network", "hdc", ...settings, ...runner];
   const finished = Bun.spawnSync(command, { cwd: HERE, stderr: "pipe" });
   const printed = finished.stdout.toString();
   if (finished.exitCode !== 0) {
