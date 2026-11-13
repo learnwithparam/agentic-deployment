@@ -128,8 +128,10 @@ parts fit each plan in [schedules.toml](schedules.toml).
 At the end you have your own copy of the permit desk, ready for real users, in a public fork:
 
 - CI runs the checks against the replay model and passes.
-- A scorecard from `bun run verify --report`. It shows that every step passed, the cost of one run, where the
-  runaway run stopped, and how long the rollback took.
+- A scorecard. `bun run verify --report` writes `verify-report.json`, which shows that every step passed.
+  Next to it, write three numbers from your own runs: the cost of one run (`bun run run-application`), where
+  the runaway run stopped (`bun run chaos runaway`), and how long the rollback took (`bun run chaos
+  bad-canary`).
 - A recording of `bun run chaos bad-canary`. The alert fires, the canary goes to 0%, and no one presses a key.
 - `runbook.md`. A runbook is a page of steps to follow when something goes wrong. Every alert points to its
   section.

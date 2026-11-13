@@ -63,7 +63,8 @@ Expect: a JSON object with a password for `amara.okafor`, `tom.reid`, `priya.sha
 - Validate with no token answers 401, and with a forged token answers 401.
 - A signed-in resident gets 403 on validate.
 - The agent's own service identity gets 403 on validate.
-- Every refused call leaves the register unchanged, and an officer's call validates the application.
+- Every refused call leaves the register unchanged, also a form post to `/staff/validate/:id` with no
+  session. An officer's call validates the application.
 
 ```bash
 bun run verify sign-in-staff
