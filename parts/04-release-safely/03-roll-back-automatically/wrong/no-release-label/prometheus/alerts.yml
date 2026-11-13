@@ -1,0 +1,11 @@
+groups:
+  - name: permit-desk
+    rules:
+      - alert: DecisionsDisagreeWithRules
+        # Any decision the council's rules disagree with is a reason to roll back.
+        expr: sum(register_decisions_total{agrees="no"}) > 0
+        for: 4s
+        labels:
+          severity: page
+        annotations:
+          summary: "The desk writes decisions the council's rules disagree with."

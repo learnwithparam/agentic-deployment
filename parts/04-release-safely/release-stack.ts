@@ -5,7 +5,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { postRun } from "../../checks/lib/sse";
-import { type Span, spans, world } from "../../checks/lib/world";
+import { resetWorld, type Span, spans, world } from "../../checks/lib/world";
 import { admin, composeEnv, healthy, runCommand, URLS } from "../../world/cli/lib";
 
 export const PROJECT = "hdc-desk";
@@ -128,4 +128,107 @@ export function countByRelease(roots: Span[]): Record<string, number> {
     counts[release] = (counts[release] ?? 0) + 1;
   }
   return counts;
+}
+
+// The canary drill: put a release on the canary, send residents' runs, and watch what the
+// release controller does with no one at the keyboard.
+export const CONTROLLER = "http://localhost:7010";
+
+type AuditEntry = { action: string; release?: string; alert?: string; weight?: number };
+export type ControllerState = {
+  canary_release: string;
+  canary_weight: number;
+  audit: AuditEntry[];
+};
+type PrometheusAlert = { state: string; labels: Record<string, string> };
+
+export async function controllerState(): Promise<ControllerState> {
+  const response = await fetch(`${CONTROLLER}/state`);
+  return (await response.json()) as ControllerState;
+}
+
+/** The alerts Prometheus holds right now, firing or pending. */
+export async function prometheusAlerts(): Promise<PrometheusAlert[]> {
+  const response = await fetch(`${URLS.prometheus}/api/v1/alerts`);
+  const answer = (await response.json()) as { data: { alerts: PrometheusAlert[] } };
+  return answer.data.alerts;
+}
+
+// After a reset, wait until Prometheus has seen the empty register, so an old alert cannot roll
+// back the new canary.
+async function waitForNoAlerts() {
+  for (let i = 0; i < 30; i++) {
+    if ((await prometheusAlerts()).length === 0) return;
+    await Bun.sleep(1000);
+  }
+}
+
+async function startCanary(release: string) {
+  await resetWorld();
+  await fetch(`${CONTROLLER}/reset`, { method: "POST" });
+  await waitForNoAlerts();
+  await fetch(`${CONTROLLER}/canary`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ release, weight: 10 }),
+  });
+  // Traefik reads the controller's new file within a second or two.
+  await Bun.sleep(3000);
+}
+
+export type Drill = {
+  release: string;
+  runs: number;
+  seconds: number;
+  rollback: AuditEntry | undefined;
+  weightAtEnd: number;
+};
+
+const findRollback = (state: ControllerState) =>
+  state.audit.find((entry) => entry.action === "rollback");
+
+/** True when Prometheus fires an alert about this release. */
+export async function alertFiresFor(release: string): Promise<boolean> {
+  const alerts = await prometheusAlerts();
+  return alerts.some((alert) => alert.state === "firing" && alert.labels.release === release);
+}
+
+// Alertmanager repeats a firing alert every few seconds. After 30 seconds of firing with no
+// rollback, the alert is not reaching the controller, so waiting longer will not help.
+const FIRING_WITHOUT_ROLLBACK_SECONDS = 30;
+
+/** Send a few runs every half second until the controller rolls the canary back, or time is up. */
+export async function canaryDrill(release: string, seconds: number, log = (_line: string) => {}) {
+  await startCanary(release);
+  log(`Release ${release} is live as a canary on 10% of traffic. Nobody touches the keyboard now.`);
+  const startedAt = Date.now();
+  const secondsGone = () => (Date.now() - startedAt) / 1000;
+  let runs = 0;
+  let firstFiring: number | null = null;
+  let state = await controllerState();
+  while (!findRollback(state) && secondsGone() < seconds) {
+    await sendRuns(4, 4);
+    runs += 4;
+    await Bun.sleep(500);
+    state = await controllerState();
+    if (firstFiring === null && (await anyAlertFiring())) firstFiring = secondsGone();
+    if (firstFiring !== null && secondsGone() - firstFiring > FIRING_WITHOUT_ROLLBACK_SECONDS) {
+      log("An alert has fired for 30 s, and the controller has not rolled back.");
+      break;
+    }
+    if (runs % 80 === 0) log(`  ${runs} runs sent, canary still at ${state.canary_weight}%...`);
+  }
+  const drill: Drill = {
+    release,
+    runs,
+    seconds: secondsGone(),
+    rollback: findRollback(state),
+    weightAtEnd: state.canary_weight,
+  };
+  return drill;
+}
+
+async function anyAlertFiring(): Promise<boolean> {
+  const alerts = await prometheusAlerts();
+  return alerts.some((alert) => alert.state === "firing");
 }

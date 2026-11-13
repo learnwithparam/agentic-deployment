@@ -1,0 +1,97 @@
+# The permit desk with a canary that rolls itself back. Start it from this folder with:
+#   docker compose up -d --build --wait
+# Traefik answers on port 3000. The release controller decides the split and writes Traefik's file.
+# Prometheus watches the register's judgement of every decision, and Alertmanager calls the
+# controller when an alert fires.
+name: hdc-desk
+
+x-desk: &desk
+  image: hdc-desk-release:dev
+  build:
+    context: .
+  secrets: [gateway_key, desk_client_secret]
+  healthcheck:
+    test: ["CMD", "wget", "-qO-", "http://localhost:3000/healthz"]
+    interval: 2s
+    timeout: 2s
+    retries: 15
+  restart: unless-stopped
+
+services:
+  traefik:
+    image: traefik:v3.7.18
+    command:
+      - --entrypoints.web.address=:3000
+      - --providers.file.directory=/control/traefik
+      - --providers.file.watch=true
+      - --ping=true
+      - --ping.entrypoint=web
+    ports: ["3000:3000"]
+    volumes: ["control:/control:ro"]
+    depends_on: { controller: { condition: service_healthy } }
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+    restart: unless-stopped
+
+  # The release that is live today. Its release file is baked into the image.
+  desk-stable:
+    <<: *desk
+    environment:
+      RELEASE_FILE: /app/release.json
+    volumes: ["stable-data:/data"]
+
+  # The canary reads the release file the controller writes, so the controller picks the release.
+  desk-canary:
+    <<: *desk
+    environment:
+      RELEASE_FILE: /control/canary/release.json
+    volumes: ["canary-data:/data", "control:/control:ro"]
+    depends_on: { controller: { condition: service_healthy } }
+
+  # The release controller owns the canary: its release, its weight and the rollback webhook.
+  # It keeps an audit log of every change at http://localhost:7010/state.
+  controller:
+    image: hdc-world:dev
+    command: ["bun", "world/finished/controller/server.ts"]
+    user: root
+    environment:
+      RELEASES_DIR: /releases
+    ports: ["7010:7010"]
+    volumes: ["control:/control", "./releases:/releases:ro"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:7010/health"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.16.0
+    ports: ["9090:9090"]
+    volumes: ["./prometheus:/etc/prometheus:ro"]
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:v0.35.0
+    ports: ["9093:9093"]
+    volumes: ["./alertmanager:/etc/alertmanager:ro"]
+    restart: unless-stopped
+
+secrets:
+  gateway_key:
+    file: ${HDC_SECRETS:-../../../../secrets}/desk_gateway_key
+  desk_client_secret:
+    file: ${HDC_SECRETS:-../../../../secrets}/desk_client_secret
+
+volumes:
+  stable-data:
+  canary-data:
+  control:
+
+networks:
+  default:
+    name: hdc
+    external: true

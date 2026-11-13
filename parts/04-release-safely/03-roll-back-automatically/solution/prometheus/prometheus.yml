@@ -1,0 +1,15 @@
+# Prometheus reads the register's counts every 2 seconds and checks the alert rules in alerts.yml.
+global:
+  scrape_interval: 2s
+  evaluation_interval: 2s
+rule_files: [/etc/prometheus/alerts.yml]
+alerting:
+  alertmanagers:
+    - static_configs: [{ targets: ["alertmanager:9093"] }]
+scrape_configs:
+  # register_decisions_total{release, agrees}: every decision, judged by the council's rules.
+  - job_name: register
+    static_configs: [{ targets: ["register:7001"] }]
+  # desk_runs_total{release, status}: every run that ended, by release.
+  - job_name: desk
+    static_configs: [{ targets: ["desk-stable:3000", "desk-canary:3000"] }]
