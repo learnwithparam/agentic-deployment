@@ -270,6 +270,7 @@ const PAGE = `<!doctype html><meta charset="utf-8">
 <meta name="viewport" content="width=device-width">
 <title>Harrowby trace desk</title>
 <style>${STYLE}</style>
+<body data-audience="staff">
 <header><h1>Harrowby trace desk</h1></header>
 <main><div id="list"></div>
 <div id="w"><p class="m">Pick a trace from the list to see its steps.</p></div></main>

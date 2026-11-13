@@ -4,6 +4,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { PORTS } from "../e2e/ports";
 import { ROOT } from "./structure";
 
 const work = mkdtempSync(join(tmpdir(), "text-audit-"));
@@ -16,16 +17,24 @@ writeFileSync(join(secrets, "passwords"), JSON.stringify({ "amara.okafor": PASSW
 
 const base = { ...process.env, SECRETS_DIR: secrets };
 const localUrls = {
-  REGISTER_URL: "http://localhost:7001",
-  GATEWAY_URL: "http://localhost:7002",
-  IDP_URL: "http://localhost:7003",
-  ISSUER: "http://localhost:7003",
-  OTEL_EXPORTER_OTLP_ENDPOINT: "http://localhost:7004",
+  REGISTER_URL: `http://localhost:${PORTS.register}`,
+  GATEWAY_URL: `http://localhost:${PORTS.gateway}`,
+  IDP_URL: `http://localhost:${PORTS.idp}`,
+  ISSUER: `http://localhost:${PORTS.idp}`,
+  OTEL_EXPORTER_OTLP_ENDPOINT: `http://localhost:${PORTS.traces}`,
 };
 const services = [
-  { file: "world/register/server.ts", env: { REGISTER_DATA: join(work, "register") }, port: 7001 },
-  { file: "world/idp/server.ts", env: { IDP_DATA: join(work, "idp") }, port: 7003 },
-  { file: "world/traces/server.ts", env: { TRACES_DATA: join(work, "traces") }, port: 7004 },
+  {
+    file: "world/register/server.ts",
+    env: { REGISTER_DATA: join(work, "register") },
+    port: PORTS.register,
+  },
+  { file: "world/idp/server.ts", env: { IDP_DATA: join(work, "idp") }, port: PORTS.idp },
+  {
+    file: "world/traces/server.ts",
+    env: { TRACES_DATA: join(work, "traces") },
+    port: PORTS.traces,
+  },
   {
     file: "world/finished/desk/src/server.ts",
     env: {
@@ -35,7 +44,7 @@ const services = [
       RELEASE_FILE: join(ROOT, "world/finished/desk/release.json"),
       CLIENT_SECRET_FILE: join(secrets, "desk_client_secret"),
     },
-    port: 3000,
+    port: PORTS.desk,
   },
 ];
 
@@ -78,7 +87,7 @@ try {
     cwd: ROOT,
     env: {
       ...process.env,
-      AUDIT_URL: "http://localhost:3000",
+      AUDIT_URL: `http://localhost:${PORTS.desk}`,
       AUDIT_USER: "amara.okafor",
       AUDIT_PASSWORD: PASSWORD,
     },

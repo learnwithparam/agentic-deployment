@@ -1,11 +1,13 @@
 // Every page a resident, officer or reader can open. The audit visits each at 1280 px and 375 px.
-// The audit script (scripts/text-audit.ts) starts the services on these ports.
+// The audit script (scripts/text-audit.ts) starts the services on the ports in ports.ts.
+import { PORTS } from "./ports";
+
 export type Route = { name: string; path: string };
 
-const REGISTER = "http://localhost:7001";
-const IDP = "http://localhost:7003";
-const TRACES = "http://localhost:7004";
-const DESK = "http://localhost:3000";
+const REGISTER = `http://localhost:${PORTS.register}`;
+const IDP = `http://localhost:${PORTS.idp}`;
+const TRACES = `http://localhost:${PORTS.traces}`;
+const DESK = `http://localhost:${PORTS.desk}`;
 
 export const routes: Route[] = [
   { name: "resident desk", path: `${DESK}/` },

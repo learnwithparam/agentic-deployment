@@ -1,9 +1,10 @@
 // A state is a page after someone does something. The audit checks it like a route.
 import type { Page } from "@playwright/test";
+import { PORTS } from "./ports";
 
 export type PageState = { name: string; path: string; prepare: (page: Page) => Promise<void> };
 
-const DESK = "http://localhost:3000";
+const DESK = `http://localhost:${PORTS.desk}`;
 
 export const states: PageState[] = [
   {
