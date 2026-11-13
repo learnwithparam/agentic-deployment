@@ -1,0 +1,185 @@
+{
+  "note": "30 fixed applications and the answer the council's rules give for each. The gate runs every release against them.",
+  "cases": [
+    {
+      "application_id": "HDC-2026-0140",
+      "status": "valid_awaiting_officer",
+      "missing_items": [],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0141",
+      "status": "invalid_missing_items",
+      "missing_items": ["application_form"],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0142",
+      "status": "invalid_missing_items",
+      "missing_items": ["fee"],
+      "fee_owed_gbp": 578
+    },
+    {
+      "application_id": "HDC-2026-0143",
+      "status": "invalid_missing_items",
+      "missing_items": ["ownership_certificate", "fee"],
+      "fee_owed_gbp": 289
+    },
+    {
+      "application_id": "HDC-2026-0144",
+      "status": "invalid_missing_items",
+      "missing_items": ["tree_location_plan"],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0145",
+      "status": "valid_awaiting_officer",
+      "missing_items": [],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0146",
+      "status": "valid_awaiting_officer",
+      "missing_items": [],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0147",
+      "status": "invalid_missing_items",
+      "missing_items": ["photographs"],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0148",
+      "status": "valid_awaiting_officer",
+      "missing_items": [],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0149",
+      "status": "invalid_missing_items",
+      "missing_items": ["photographs"],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0150",
+      "status": "invalid_missing_items",
+      "missing_items": ["fee"],
+      "fee_owed_gbp": 129
+    },
+    {
+      "application_id": "HDC-2026-0151",
+      "status": "invalid_missing_items",
+      "missing_items": ["advert_drawings"],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0152",
+      "status": "valid_awaiting_officer",
+      "missing_items": [],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0153",
+      "status": "invalid_missing_items",
+      "missing_items": ["noise_and_odour_statement", "fee"],
+      "fee_owed_gbp": 289
+    },
+    {
+      "application_id": "HDC-2026-0154",
+      "status": "invalid_missing_items",
+      "missing_items": ["notice_form"],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0155",
+      "status": "invalid_missing_items",
+      "missing_items": ["application_form"],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0156",
+      "status": "invalid_missing_items",
+      "missing_items": ["application_form"],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0157",
+      "status": "valid_awaiting_officer",
+      "missing_items": [],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0158",
+      "status": "invalid_missing_items",
+      "missing_items": ["location_plan", "fee"],
+      "fee_owed_gbp": 289
+    },
+    {
+      "application_id": "HDC-2026-0159",
+      "status": "valid_awaiting_officer",
+      "missing_items": [],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0160",
+      "status": "invalid_missing_items",
+      "missing_items": ["fee"],
+      "fee_owed_gbp": 129
+    },
+    {
+      "application_id": "HDC-2026-0161",
+      "status": "invalid_missing_items",
+      "missing_items": ["advert_drawings"],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0162",
+      "status": "invalid_missing_items",
+      "missing_items": ["photographs"],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0163",
+      "status": "valid_awaiting_officer",
+      "missing_items": [],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0164",
+      "status": "valid_awaiting_officer",
+      "missing_items": [],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0165",
+      "status": "valid_awaiting_officer",
+      "missing_items": [],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0166",
+      "status": "invalid_missing_items",
+      "missing_items": ["location_plan"],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0167",
+      "status": "valid_awaiting_officer",
+      "missing_items": [],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0168",
+      "status": "invalid_missing_items",
+      "missing_items": ["location_plan"],
+      "fee_owed_gbp": 0
+    },
+    {
+      "application_id": "HDC-2026-0169",
+      "status": "invalid_missing_items",
+      "missing_items": ["notice_form"],
+      "fee_owed_gbp": 0
+    }
+  ]
+}
