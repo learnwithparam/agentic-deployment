@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "start": "bun src/server.ts",
-    "gate": "bun gate.ts"
+    "gate": "bun gate.ts",
+    "verify": "bun ../../../../scripts/verify.ts"
   },
   "dependencies": {
     "@opentelemetry/api": "1.10.0",

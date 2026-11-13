@@ -5,7 +5,8 @@
   "scripts": {
     "start": "bun src/server.ts",
     "gate": "bun gate.ts",
-    "drill": "bun ../../canary-drill.ts"
+    "drill": "bun ../../../canary-drill.ts",
+    "verify": "bun ../../../../../scripts/verify.ts"
   },
   "dependencies": {
     "@opentelemetry/api": "1.10.0",

@@ -23,9 +23,10 @@ In this part you add four safety steps:
 
 ## Why it matters
 
-A change to load balancing once sent some Claude requests to the wrong servers. At the worst point, 16% of
-Sonnet 4 requests were affected. Anthropic rolled back the faulty changes. Now it runs quality tests all the
-time on its real production systems
+In one month, three separate bugs lowered the quality of Claude's answers. One sent some requests to the
+wrong servers. At its worst hour, it affected 16% of Sonnet 4 requests. Anthropic fixed that bug, and rolled
+back the changes behind the other two. It now says it will run quality evals all the time on its real
+production systems
 ([Anthropic Engineering, "A postmortem of three recent issues"](https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues)).
 
 Anthropic also ships agent updates slowly, step by step. Old and new versions run side by side for a while
@@ -53,10 +54,126 @@ flowchart LR
 
 ## Walkthrough
 
-TODO(part session): the commands for each step, each with its Expect line.
+Start the world and stop the finished desk. It uses the same container names as your desk.
+
+```bash
+bun run world
+bun run down
+```
+
+Expect: `The world is running. Model provider: replay.` and `The desks are stopped. The world is still running.`
+
+### gate-with-evals
+
+Work in `01-gate-with-evals/problem/`. Write the checks in `evals/checks.ts` and the exit code in `gate.ts`.
+
+```bash
+cd parts/04-release-safely/01-gate-with-evals/problem
+bun run gate v1
+bun run gate v2
+```
+
+Expect: `Release v1 may ship.`, then six `FAIL` lines and `Release v2 is blocked.`
+
+```bash
+bun run verify gate-with-evals
+```
+
+Expect: `Done. All 5 rules pass.`
+
+### ship-a-canary
+
+Work in `02-ship-a-canary/problem/`. Split the desk into `desk-stable` and `desk-canary`, and put Traefik in
+front.
+
+```bash
+cd ../../02-ship-a-canary/problem
+docker compose up -d --build --wait
+for i in $(seq 20); do curl -s localhost:3000/healthz; echo; done | sort | uniq -c
+```
+
+Expect: about 18 answers with `"version":"v1"` and about 2 with `"version":"v3"`.
+
+```bash
+bun run verify ship-a-canary
+```
+
+Expect: `Done. All 5 rules pass.`
+
+### roll-back-automatically
+
+Work in `03-roll-back-automatically/problem/`. Write the alert rule and the route to the controller.
+
+```bash
+cd ../../03-roll-back-automatically/problem
+docker compose up -d --build --wait
+bun run drill v2
+```
+
+Expect: `Alert ReleaseDisagreesWithRules fired for release v2.` and `Rolled back to 0%`.
+
+```bash
+bun run verify roll-back-automatically
+```
+
+Expect: `Done. All 5 rules pass.`
+
+### write-the-runbook
+
+Work in `04-write-the-runbook/problem/`. Fill in `runbook.md` and link each alert to it.
+
+```bash
+cd ../../04-write-the-runbook/problem
+bun run verify write-the-runbook
+```
+
+Expect: `Done. All 5 rules pass.`
+
+### The whole part
 
 ```bash
 bun run verify part release-safely
 ```
 
 Expect: `Part release-safely is done: 4/4 steps pass.`
+
+The passing table looks like this:
+
+    Part release-safely:
+      PASS   gate-with-evals  (5/5 rules)
+      PASS   ship-a-canary  (5/5 rules)
+      PASS   roll-back-automatically  (5/5 rules)
+      PASS   write-the-runbook  (5/5 rules)
+
+## Assignment: ship v3 safely
+
+The planning team wants release v3 live. Last time, v2 told residents that a missing fee was fine. Show that
+v3 is safe, and that the desk would undo it if it were not.
+
+Hand in a branch or pull request on your fork with:
+
+- `releases/v3.json`, the release you ship;
+- the output of `bun run gate v3` and `bun run gate v2`;
+- the output of `bun run drill v3` and `bun run drill v2`;
+- `release-note.md`, one page: what changed, the gate result, the canary result and the rollback plan.
+
+The rubric. Each answer is yes or no.
+
+1. Does `bun run verify part release-safely` pass?
+2. Does the gate pass v3 and still block v2, with the failing case ids printed?
+3. Does every run the canary served carry `release.id` v3 in its trace?
+4. Does the release note name the alert that would roll v3 back, and link its runbook heading?
+5. Does the runbook's kill switch stop all model calls within 10 seconds when you run it?
+
+## FINISHED
+
+You now have a release process for the permit desk. A new prompt passes 30 fixed cases before it ships. It
+then serves 10% of residents, and every trace says which release served it. If the register disagrees with
+it, an alert sets it back to 0% with nobody at the keyboard. And a runbook tells the person on call what to
+do, with a kill switch that works.
+
+For example, release v2 is blocked by the gate with six failing cases. Ship it anyway as a canary, and the
+drill rolls it back within a minute.
+
+The last part, `go-further`, is optional. It shows a new release real traffic without letting it answer
+anyone: a shadow. Then it puts the desk on a container host with a public address.
