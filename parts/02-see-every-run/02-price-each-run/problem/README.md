@@ -70,7 +70,7 @@ Expect: `Done. All 4 rules pass.`
 - Compare with the gateway. Its spend log has one line per model call, with `run_id` and `cost_usd`:
 
 ```bash
-curl -s -H "Authorization: Bearer $(cat ../../../../secrets/gateway_admin_key)" localhost:7002/admin/spend
+curl -s -H "Authorization: Bearer $(cat secrets/gateway_admin_key)" localhost:7002/admin/spend
 ```
 
 Expect: a JSON list of lines such as `{"key":"desk","role":"fast","run_id":"...","input_tokens":507,"cost_usd":0.001374}`.

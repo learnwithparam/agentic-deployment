@@ -73,6 +73,10 @@ Expect: `Done. All 8 rules pass.`
 
 - The first build is slow because it downloads the Bun image. Later builds reuse it.
 - Read the desk's own logs: `docker compose -p hdc-desk logs desk`.
+- New to Dockerfiles? Start from `FROM oven/bun:1.4.4-alpine` and `WORKDIR /app`. A build argument reaches
+  the program only if the Dockerfile copies it into the environment: `ARG GATEWAY_KEY`, then
+  `ENV GATEWAY_KEY=${GATEWAY_KEY}`. End with the command that starts the desk:
+  `CMD ["bun", "src/server.ts"]`.
 - `wget` is in the Alpine Bun image, so the healthcheck can be
   `["CMD", "wget", "-qO-", "http://localhost:3000/healthz"]`.
 - Inside the Docker network, the desk reaches the world at `http://register:7001` and

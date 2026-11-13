@@ -28,7 +28,9 @@ validate. It gives `sam.hollis` the role `resident`, so the desk answers him wit
      `httpOnly` cookie, and redirect to `/staff`.
    - `POST /v1/applications/:id/validate` reads `Authorization: Bearer <token>`. Answer 401 when `verify`
      fails, and 403 when the roles do not include `validation_officer`. Only then call the register.
-   - Do the same for the queue's form route `POST /staff/validate/:id`.
+   - Add the route `POST /staff/validate/:id`. The Validate button on the queue sends its form there.
+     The starter has no such route yet. Give it the same checks: no valid session cookie redirects to
+     `signInUrl()`, and a user who is not a `validation_officer` gets 403.
 
 ```mermaid
 sequenceDiagram
@@ -44,10 +46,10 @@ sequenceDiagram
   D-->>B: cookie, then the queue
 ```
 
-Sign in as an officer. The world made the passwords:
+Sign in as an officer. The world made the passwords. Run this from the top of the repo:
 
 ```bash
-cat ../../../../secrets/passwords
+cat secrets/passwords
 ```
 
 Expect: a JSON object with a password for `amara.okafor`, `tom.reid`, `priya.shah` and `sam.hollis`.
@@ -71,7 +73,8 @@ Expect: `Done. All 6 rules pass.`
 
 ## If you get stuck
 
-- Get a token from the command line to try your route:
+- Get a token from the command line to try your route. Replace `<from the file>` with the password next
+  to `sam.hollis` in `secrets/passwords`:
 
 ```bash
 curl -s localhost:7003/token -d grant_type=password -d username=sam.hollis -d password=<from the file>
