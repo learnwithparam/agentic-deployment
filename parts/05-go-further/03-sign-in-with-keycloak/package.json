@@ -1,5 +1,5 @@
 {
-  "name": "sign-in-with-a-real-provider",
+  "name": "sign-in-with-keycloak",
   "private": true,
   "type": "module",
   "scripts": {

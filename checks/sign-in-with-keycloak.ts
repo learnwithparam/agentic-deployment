@@ -1,4 +1,4 @@
-// sign-in-with-a-real-provider: the council's sign-in is a Keycloak realm. The desk signs staff in
+// sign-in-with-keycloak: the council's sign-in is a Keycloak realm. The desk signs staff in
 // with the authorization code flow and PKCE, checks every token with the realm's keys, and trades
 // a staff token for one that only the service accepts.
 import type { Rule } from "../scripts/verify";
@@ -73,19 +73,51 @@ async function expiredToken(dir: string): Promise<{ auth: DeskAuth; token: strin
   }
 }
 
+const MEMORY_UNITS = new Map<string, number>([
+  ["B", 1],
+  ["KiB", 2 ** 10],
+  ["MiB", 2 ** 20],
+  ["GiB", 2 ** 30],
+]);
+
+/** True when the Keycloak container of this project uses less than 1 GiB of memory right now. */
+function keycloakUnderOneGiB(): boolean {
+  const id = Bun.spawnSync([
+    "docker",
+    "ps",
+    "-q",
+    "--filter",
+    `label=com.docker.compose.project=${PROJECT}`,
+    "--filter",
+    "label=com.docker.compose.service=keycloak",
+  ])
+    .stdout.toString()
+    .trim();
+  if (!id) return false;
+  const usage = Bun.spawnSync(["docker", "stats", "--no-stream", "--format", "{{.MemUsage}}", id])
+    .stdout.toString()
+    .split("/")[0]
+    ?.trim();
+  const match = /^([\d.]+)(B|KiB|MiB|GiB)$/.exec(usage ?? "");
+  return match !== null && Number(match[1]) * (MEMORY_UNITS.get(match[2] ?? "") ?? 0) < 2 ** 30;
+}
+
 export default [
   {
-    says: "the realm's discovery document answers with its issuer, keys and token address",
+    says:
+      "the realm's discovery document answers with its issuer, keys and token address, and" +
+      " Keycloak uses under 1 GiB of memory",
     test: async (dir) => {
       if (!(await startKeycloak(dir))) return false;
       const response = await fetch(DISCOVERY);
       const found = (await response.json()) as Record<string, string>;
       const hasAddresses = Boolean(found.jwks_uri && found.token_endpoint);
-      return response.ok && found.issuer === REALM_URL && hasAddresses;
+      return response.ok && found.issuer === REALM_URL && hasAddresses && keycloakUnderOneGiB();
     },
     tryNext:
       "Add a keycloak service to compose.yaml: image keycloak/keycloak:26.8.2, the realm folder" +
-      " mounted at /opt/keycloak/data/import, and kc.sh start-dev --import-realm.",
+      " mounted at /opt/keycloak/data/import, and kc.sh start-dev --import-realm. If it uses" +
+      " 1 GiB or more, cap its JVM heap with JAVA_OPTS_APPEND=-Xmx512m.",
   },
   {
     says: "the realm refuses a sign-in request that has no PKCE challenge",

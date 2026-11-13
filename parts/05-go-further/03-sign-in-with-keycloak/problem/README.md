@@ -1,4 +1,4 @@
-# Sign in with a real provider
+# Sign in with Keycloak
 
 ## The problem
 
@@ -51,14 +51,12 @@ Expect: JSON that holds `"issuer":"http://localhost:8180/realms/council"`.
 
 ## Done when
 
-- The realm's discovery document answers.
-- The realm refuses a sign-in request that has no PKCE challenge.
-- A token from the officer's sign-in is accepted by the desk.
-- An expired token and a token for another audience are refused.
-- The narrowed token is accepted by the service and refused by the desk's own audience.
+- The realm's discovery page answers. It refuses a sign-in with no PKCE challenge. Keycloak stays under 1 GiB.
+- The desk accepts the officer's token. It refuses an expired token and one for another audience.
+- The service accepts the narrowed token. The desk refuses it.
 
 ```bash
-bun run verify sign-in-with-a-real-provider
+bun run verify sign-in-with-keycloak
 ```
 
 Expect: `Done. All 5 rules pass.`

@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnusedVariables: this wrong version keeps the mistake
 // biome-ignore-all lint/style/useNamingConvention: OAuth fields stay snake_case
 // The desk's side of sign-in with Keycloak: send the browser to the realm, swap the code for a
 // token, check a token with the realm's keys, and narrow a token for one service.

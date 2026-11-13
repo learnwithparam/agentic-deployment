@@ -1,5 +1,5 @@
 // biome-ignore-all lint/style/useNamingConvention: OAuth and compose fields stay as they are named
-// Helpers for the sign-in-with-a-real-provider check: start Keycloak from a folder, sign in as the
+// Helpers for the sign-in-with-keycloak check: start Keycloak from a folder, sign in as the
 // officer the way a browser does, and load the folder's own desk-auth module.
 import { existsSync } from "node:fs";
 import { join } from "node:path";

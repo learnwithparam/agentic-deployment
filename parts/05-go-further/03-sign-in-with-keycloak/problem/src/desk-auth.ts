@@ -1,3 +1,4 @@
+// biome-ignore-all lint/correctness/noUnusedFunctionParameters: stubs keep the parameters
 // The desk's side of sign-in with Keycloak: send the browser to the realm, swap the code for a
 // token, check a token with the realm's keys, and narrow a token for one service.
 // Start from the sample in ../solution/src/desk-auth.ts only when you are stuck.

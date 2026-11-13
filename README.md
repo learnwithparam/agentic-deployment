@@ -111,7 +111,7 @@ flowchart LR
 | [2. See every run](parts/02-see-every-run/README.md)     | `trace-every-run`, `price-each-run`                                                | 35      | a trace and a cost for every run, which match the gateway's numbers                        |
 | [3. Bound the runs](parts/03-bound-the-runs/README.md)   | `cap-the-spend`, `rate-limit-residents`, `survive-a-restart`                       | 50      | a runaway run stopped, a limit per resident, runs that survive a crash with one letter     |
 | [4. Release safely](parts/04-release-safely/README.md)   | `gate-with-evals`, `ship-a-canary`, `roll-back-automatically`, `write-the-runbook` | 75      | a test gate, a canary, a rollback that no one has to press, and a runbook                  |
-| [5. Go further](parts/05-go-further/README.md) (stretch) | `shadow-the-canary`, `deploy-to-the-cloud`, `sign-in-with-a-real-provider`         | 85      | shadow traffic, the same image on a container host, and a real sign-in provider            |
+| [5. Go further](parts/05-go-further/README.md) (stretch) | `shadow-the-canary`, `deploy-to-the-cloud`, `sign-in-with-keycloak`                | 85      | shadow traffic, the same image on a container host, and a real sign-in provider            |
 
 Each step has one command: `bun run verify <step-name>`. It prints what passed, what failed and what to try
 next. `bun run verify part <part-name>` checks a whole part. `bun run verify --report` writes
