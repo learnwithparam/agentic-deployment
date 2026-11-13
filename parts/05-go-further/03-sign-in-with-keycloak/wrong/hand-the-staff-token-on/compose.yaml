@@ -15,7 +15,7 @@ services:
         KC_BOOTSTRAP_ADMIN_PASSWORD="$$(cat /run/secrets/keycloak_admin_password)";
         exec /opt/keycloak/bin/kc.sh start-dev --import-realm --health-enabled=true
     environment:
-      JAVA_OPTS_KC_HEAP: "-Xms256m -Xmx640m"
+      JAVA_OPTS_KC_HEAP: "-Xms64m -Xmx384m"
     ports: ["8180:8080", "9000:9000"]
     secrets: [keycloak_amara_password, keycloak_admin_password, desk_client_secret]
     volumes: ["./realm:/opt/keycloak/data/import:ro"]

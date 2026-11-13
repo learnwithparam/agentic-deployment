@@ -7,6 +7,7 @@ import {
   DISCOVERY,
   loadDeskAuth,
   officerToken,
+  PROJECT,
   REALM_URL,
   refusesWithoutPkce,
   setTokenSeconds,
@@ -117,7 +118,7 @@ export default [
     tryNext:
       "Add a keycloak service to compose.yaml: image keycloak/keycloak:26.8.2, the realm folder" +
       " mounted at /opt/keycloak/data/import, and kc.sh start-dev --import-realm. If it uses" +
-      " 1 GiB or more, cap its JVM heap with JAVA_OPTS_APPEND=-Xmx512m.",
+      " 1 GiB or more, cap its JVM heap with JAVA_OPTS_KC_HEAP set to -Xmx384m.",
   },
   {
     says: "the realm refuses a sign-in request that has no PKCE challenge",
