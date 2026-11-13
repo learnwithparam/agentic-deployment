@@ -47,6 +47,10 @@ bun run chaos kill --desk
 
 Expect: `Register: 1 decision(s) and 1 letter(s) for HDC-2026-0142. The goal is exactly 1 and 1.`
 
+The starter prints this line too. The register still finishes the letter that was on its way when the
+desk died. What the starter does not do is finish the run. So also look for the `resuming` line in the
+desk's logs (see "If you get stuck"), and run the check below.
+
 ## Done when
 
 - After `bun run chaos kill --desk`, the killed run finishes: `GET /v1/runs/:id` says `done`.

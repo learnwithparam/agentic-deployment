@@ -60,6 +60,9 @@ Expect: `Done. All 4 rules pass.`
 
 - One list for the whole desk is a common mistake. Then one busy resident blocks everyone.
 - Forget start times older than the window each time you count, so the list stays short.
+- The `Map` lives inside one container. A restart empties it, and two copies of the desk each keep their
+  own count. That is fine for this step. A real deploy with many copies keeps the count in one shared
+  store, such as Redis, or at the proxy in front of the desks.
 - Compare with `../solution/` when you are done.
 
 ## Words you will use
