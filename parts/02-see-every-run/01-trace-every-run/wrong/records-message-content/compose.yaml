@@ -1,0 +1,25 @@
+# The permit desk, run by Docker Compose. Start it with: bun run up <step-name>
+name: hdc-desk
+services:
+  desk:
+    build:
+      context: .
+    ports: ["3000:3000"]
+    secrets: [gateway_key, desk_client_secret]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/healthz"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+    restart: unless-stopped
+
+secrets:
+  gateway_key:
+    file: ${HDC_SECRETS:-../../../../secrets}/desk_gateway_key
+  desk_client_secret:
+    file: ${HDC_SECRETS:-../../../../secrets}/desk_client_secret
+
+networks:
+  default:
+    name: hdc
+    external: true
