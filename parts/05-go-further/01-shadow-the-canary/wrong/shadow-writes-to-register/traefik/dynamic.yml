@@ -1,0 +1,22 @@
+# Traefik reads this file and watches it. Stable answers every request; the shadow gets a copy.
+http:
+  routers:
+    desk:
+      rule: "PathPrefix(`/`)"
+      entryPoints: [web]
+      service: desk
+  services:
+    # The mirroring service: stable answers the resident, and Traefik sends a copy of every
+    # request to the shadow. Traefik drops the shadow's answer, so no resident ever sees it.
+    desk:
+      mirroring:
+        service: stable
+        mirrors:
+          - name: shadow
+            percent: 100
+    stable:
+      loadBalancer:
+        servers: [{ url: "http://desk-stable:3000" }]
+    shadow:
+      loadBalancer:
+        servers: [{ url: "http://desk-shadow:3000" }]

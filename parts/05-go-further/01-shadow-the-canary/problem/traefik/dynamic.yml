@@ -1,0 +1,13 @@
+# Traefik reads this file and watches it. Today every request goes to stable, and only stable.
+http:
+  routers:
+    desk:
+      rule: "PathPrefix(`/`)"
+      entryPoints: [web]
+      service: desk
+  services:
+    # TODO(you): make "desk" a mirroring service. Stable answers every request, and a copy of
+    # each request goes to the shadow, whose answer Traefik drops.
+    desk:
+      loadBalancer:
+        servers: [{ url: "http://desk-stable:3000" }]

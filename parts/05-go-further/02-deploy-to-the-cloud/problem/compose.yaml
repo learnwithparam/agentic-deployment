@@ -1,0 +1,30 @@
+# The permit desk on its own: the image you ship to a container host. Start it here with:
+#   bun run up deploy-to-the-cloud
+name: hdc-desk
+services:
+  desk:
+    build:
+      context: .
+    ports: ["3000:3000"]
+    secrets: [gateway_key, desk_client_secret]
+    volumes: ["desk-data:/data"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/healthz"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+    restart: unless-stopped
+
+secrets:
+  gateway_key:
+    file: ${HDC_SECRETS:-../../../../secrets}/desk_gateway_key
+  desk_client_secret:
+    file: ${HDC_SECRETS:-../../../../secrets}/desk_client_secret
+
+volumes:
+  desk-data:
+
+networks:
+  default:
+    name: hdc
+    external: true

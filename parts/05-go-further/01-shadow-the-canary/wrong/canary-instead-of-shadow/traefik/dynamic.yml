@@ -1,0 +1,22 @@
+# Traefik reads this file and watches it. Stable answers every request; the shadow gets a copy.
+http:
+  routers:
+    desk:
+      rule: "PathPrefix(`/`)"
+      entryPoints: [web]
+      service: desk
+  services:
+    # The shadow gets 10% of the requests, so it sees real traffic at a small cost.
+    desk:
+      weighted:
+        services:
+          - name: stable
+            weight: 90
+          - name: shadow
+            weight: 10
+    stable:
+      loadBalancer:
+        servers: [{ url: "http://desk-stable:3000" }]
+    shadow:
+      loadBalancer:
+        servers: [{ url: "http://desk-shadow:3000" }]

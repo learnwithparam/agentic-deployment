@@ -1,0 +1,64 @@
+# The permit desk with a shadow. Start it from this folder with: docker compose up -d --build --wait
+# Traefik answers on port 3000. Stable answers every resident.
+name: hdc-desk
+
+x-desk: &desk
+  image: hdc-desk-release:dev
+  build:
+    context: .
+  secrets: [gateway_key, desk_client_secret]
+  healthcheck:
+    test: ["CMD", "wget", "-qO-", "http://localhost:3000/healthz"]
+    interval: 2s
+    timeout: 2s
+    retries: 15
+  restart: unless-stopped
+
+services:
+  traefik:
+    image: traefik:v3.7.18
+    command:
+      - --entrypoints.web.address=:3000
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --ping=true
+      - --ping.entrypoint=web
+    ports: ["3000:3000"]
+    volumes: ["./traefik:/etc/traefik/dynamic:ro"]
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+    restart: unless-stopped
+
+  # The release that is live today. Its release file is baked into the image.
+  desk-stable:
+    <<: *desk
+    environment:
+      RELEASE_FILE: /app/release.json
+    volumes: ["stable-data:/data"]
+
+  # The shadow sees a copy of every request. It runs the new release as a dry run: it reads the
+  # register but never writes to it, so it never sends a resident a letter.
+  desk-shadow:
+    <<: *desk
+    environment:
+      RELEASE_FILE: /app/releases/v3.json
+      DRY_RUN: "1"
+    volumes: ["shadow-data:/data"]
+
+secrets:
+  gateway_key:
+    file: ${HDC_SECRETS:-../../../../secrets}/desk_gateway_key
+  desk_client_secret:
+    file: ${HDC_SECRETS:-../../../../secrets}/desk_client_secret
+
+volumes:
+  stable-data:
+  shadow-data:
+
+networks:
+  default:
+    name: hdc
+    external: true
