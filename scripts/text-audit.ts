@@ -39,6 +39,13 @@ const services = [
   },
 ];
 
+// CI runs this before anything else has installed packages, so install the audit's own first.
+await Bun.spawn(["bun", "install", "--frozen-lockfile"], { cwd: ROOT, stdout: "ignore" }).exited;
+const playwright = join(ROOT, "node_modules", ".bin", "playwright");
+if (!process.env.PLAYWRIGHT_CHROMIUM) {
+  await Bun.spawn([playwright, "install", "chromium"], { cwd: ROOT, stdout: "ignore" }).exited;
+}
+
 // The desk has its own packages, which the Docker build installs. Install them here the same way.
 await Bun.spawn(["bun", "install", "--frozen-lockfile"], {
   cwd: join(ROOT, "world/finished/desk"),
@@ -67,7 +74,7 @@ async function waitFor(url: string) {
 let code = 1;
 try {
   for (const service of services) await waitFor(`http://localhost:${service.port}/`);
-  const audit = Bun.spawn(["bunx", "playwright", "test", "-c", "e2e/playwright.config.ts"], {
+  const audit = Bun.spawn([playwright, "test", "-c", "e2e/playwright.config.ts"], {
     cwd: ROOT,
     env: {
       ...process.env,
