@@ -1,0 +1,4 @@
+# Where your container host serves the permit desk.
+# The sample points at your own machine, so the check can run anywhere, CI included.
+# A real deploy puts the host's address here, for example "https://permit-desk.example.app".
+public_url = "http://localhost:3000"

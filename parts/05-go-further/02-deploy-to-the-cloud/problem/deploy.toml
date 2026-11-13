@@ -1,0 +1,3 @@
+# Where your container host serves the permit desk.
+# TODO(you): deploy the image, then put its address here, for example "https://permit-desk.example.app".
+public_url = ""
