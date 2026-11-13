@@ -2,12 +2,11 @@
 
 ## The problem
 
-A resident says the desk asked for a fee they had already paid. You want to see that run: which tools
-it called, how many model calls it made, and in what order. Today the desk keeps no record of a run.
+A resident says the desk asked for a fee they had already paid. You want to see that run: its tools
+and its model calls, in order. Today the desk keeps no record of a run.
 When the stream ends, the run is gone.
 
-The trace desk at http://localhost:7004 is waiting for spans, but your desk sends none. Open it and you
-see "No traces yet."
+The trace desk at http://localhost:7004 waits for spans, but your desk sends none.
 
 For example, the finished desk sends a trace for every run. For HDC-2026-0142 it shows one root span,
 `invoke_agent permit-desk`. Under it are six green `chat fast` spans and five amber `execute_tool`
@@ -15,8 +14,8 @@ spans, such as `execute_tool calculate_fee`.
 
 ## Your challenge
 
-`src/telemetry.ts` is ready. It sets up OpenTelemetry and sends spans to the trace desk. It gives you
-`tracer` and a helper, `inChildSpan(name, attributes, work)`. Now use them in `src/agent.ts`:
+`src/telemetry.ts` is ready. It sends spans to the trace desk and gives you `tracer` and a helper,
+`inChildSpan(name, attributes, work)`. Use them in `src/agent.ts`:
 
 1. **One root span per run.** In `runAgent`, start a span called `invoke_agent permit-desk` with
    `tracer.startSpan`. Give it three attributes: `run.id`, `application.id` and `release.id`. End it
@@ -29,8 +28,8 @@ spans, such as `execute_tool calculate_fee`.
    gateway sends them in `usage.prompt_tokens` and `usage.completion_tokens`, so read them in
    `src/model.ts`.
 4. **One span per tool call.** Wrap each `runTool` call in `inChildSpan(`execute_tool ${name}`, ...)`.
-5. **Keep residents out of spans.** Put names and counts on spans. Never put the messages, a tool's
-   answer or the letter on a span. They hold the resident's name.
+5. **Keep residents out of spans.** Never put the messages, a tool's answer or the letter on a span.
+   They hold the resident's name.
 
 ```mermaid
 flowchart TD
@@ -71,7 +70,6 @@ Expect: `Done. All 5 rules pass.`
 
 - Do the chat spans show up as separate traces, each with one span? Then they lost their parent.
   `tracer.startSpan` does not make a span active. Wrap the loop in `context.with(...)`.
-- No traces at all? Spans leave in batches every half second. Wait a moment and reload the page.
 - Read what reached the trace desk:
 
 ```bash
@@ -89,4 +87,4 @@ Expect: JSON spans with names such as `chat fast` and attributes such as `run.id
 - **Root span**: the span with no parent. Here it covers the whole run.
 - **Attribute**: a name and a value on a span, such as `run.id` or `gen_ai.usage.input_tokens`.
 - **Context**: the record of which span is active now, so a new span knows its parent.
-- **OTLP**: the format OpenTelemetry uses to send spans to a trace desk or a collector.
+- **OTLP**: the format OpenTelemetry uses to send spans.
