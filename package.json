@@ -4,8 +4,11 @@
   "type": "module",
   "packageManager": "bun@1.4.4",
   "scripts": {
-    "check": "bun scripts/check.ts && bun scripts/verify.ts --all",
+    "check": "bun scripts/readable.ts && bun scripts/plain-english.ts && bun scripts/check.ts && bun scripts/verify.ts --all",
+    "readable": "bun scripts/readable.ts",
+    "format": "biome check --write .",
     "verify": "bun scripts/verify.ts",
+    "plain-english": "bun scripts/plain-english.ts",
     "setup": "bun world/cli/setup.ts",
     "world": "bun world/cli/world.ts",
     "up": "bun world/cli/up.ts",
@@ -24,6 +27,7 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.6.5",
     "@types/bun": "1.4.4",
     "playwright": "1.65.0"
   }

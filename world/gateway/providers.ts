@@ -1,44 +1,127 @@
+// biome-ignore-all lint/style/useNamingConvention: OpenAI chat fields stay snake_case (tool_calls)
 // Real providers through the Vercel AI SDK. Loaded only when LLM_PROVIDER is not replay.
-import { MODEL_IDS, KEY_ENV, type Provider, type Role } from "../../config/models";
+import type { AssistantModelMessage, LanguageModel, ModelMessage, ToolSet } from "ai";
+import { KEY_ENV, MODEL_IDS, type Provider, type Role } from "../../config/models";
 
-type Msg = { role: string; content?: string | null; tool_calls?: { id: string; function: { name: string; arguments: string } }[]; tool_call_id?: string };
-type Tool = { type: "function"; function: { name: string; description?: string; parameters?: Record<string, unknown> } };
+type ToolCall = { id: string; type: "function"; function: { name: string; arguments: string } };
+export type ChatMessage = {
+  role: string;
+  content?: string | null;
+  tool_calls?: ToolCall[];
+  tool_call_id?: string;
+};
+export type ChatTool = {
+  type: "function";
+  function: { name: string; description?: string; parameters?: Record<string, unknown> };
+};
+type RealProvider = Exclude<Provider, "replay">;
 
-export async function callProvider(p: Exclude<Provider, "replay">, role: Role, messages: Msg[], tools: Tool[] = [], maxTokens = 1024) {
-  const key = process.env[KEY_ENV[p]];
-  if (!key) throw Object.assign(new Error(`${KEY_ENV[p]} is not set. Put it in .env and restart the world.`), { code: "no_key" });
-  const { generateText, jsonSchema, tool } = await import("ai");
-  const id = MODEL_IDS[p][role];
-  let model: any;
-  if (p === "anthropic") model = (await import("@ai-sdk/anthropic")).createAnthropic({ apiKey: key })(id);
-  else if (p === "openai") model = (await import("@ai-sdk/openai")).createOpenAI({ apiKey: key })(id);
-  else model = (await import("@openrouter/ai-sdk-provider")).createOpenRouter({ apiKey: key }).chat(id);
+/** What the gateway needs back from any model, real or replayed. */
+export type ModelAnswer = {
+  content: string | null;
+  toolCalls: ToolCall[] | undefined;
+  inputTokens: number;
+  outputTokens: number;
+};
 
-  const names = new Map<string, string>();
-  const converted: any[] = [];
-  for (const m of messages) {
-    if (m.role === "system") continue; // AI SDK 7 takes the system prompt as "instructions"
-    if (m.role === "user") converted.push({ role: "user", content: m.content ?? "" });
-    else if (m.role === "assistant") {
-      const parts: any[] = [];
-      if (m.content) parts.push({ type: "text", text: m.content });
-      for (const c of m.tool_calls ?? []) {
-        names.set(c.id, c.function.name);
-        parts.push({ type: "tool-call", toolCallId: c.id, toolName: c.function.name, input: JSON.parse(c.function.arguments || "{}") });
-      }
-      converted.push({ role: "assistant", content: parts });
-    } else if (m.role === "tool") {
-      converted.push({ role: "tool", content: [{ type: "tool-result", toolCallId: m.tool_call_id, toolName: names.get(m.tool_call_id ?? "") ?? "tool", output: { type: "text", value: m.content ?? "" } }] });
-    }
+async function languageModel(provider: RealProvider, role: Role, key: string) {
+  const modelId = MODEL_IDS[provider][role];
+  if (provider === "anthropic") {
+    const { createAnthropic } = await import("@ai-sdk/anthropic");
+    return createAnthropic({ apiKey: key })(modelId);
   }
-  const toolSet: Record<string, any> = {};
-  for (const t of tools) toolSet[t.function.name] = tool({ description: t.function.description, inputSchema: jsonSchema((t.function.parameters ?? { type: "object", properties: {} }) as any) });
-  const instructions = messages.filter((m) => m.role === "system").map((m) => m.content ?? "").join("\n") || undefined;
-  const r = await generateText({ model, instructions, messages: converted, tools: tools.length ? toolSet : undefined, maxOutputTokens: maxTokens });
+  if (provider === "openai") {
+    const { createOpenAI } = await import("@ai-sdk/openai");
+    return createOpenAI({ apiKey: key })(modelId);
+  }
+  const { createOpenRouter } = await import("@openrouter/ai-sdk-provider");
+  return createOpenRouter({ apiKey: key }).chat(modelId) as LanguageModel;
+}
+
+function assistantMessage(message: ChatMessage, toolNames: Map<string, string>): ModelMessage {
+  const parts: Exclude<AssistantModelMessage["content"], string> = [];
+  if (message.content) parts.push({ type: "text", text: message.content });
+  for (const call of message.tool_calls ?? []) {
+    toolNames.set(call.id, call.function.name);
+    parts.push({
+      type: "tool-call",
+      toolCallId: call.id,
+      toolName: call.function.name,
+      input: JSON.parse(call.function.arguments || "{}"),
+    });
+  }
+  return { role: "assistant", content: parts };
+}
+
+function toolMessage(message: ChatMessage, toolNames: Map<string, string>): ModelMessage {
+  const result = {
+    type: "tool-result" as const,
+    toolCallId: message.tool_call_id ?? "",
+    toolName: toolNames.get(message.tool_call_id ?? "") ?? "tool",
+    output: { type: "text" as const, value: message.content ?? "" },
+  };
+  return { role: "tool", content: [result] };
+}
+
+/** Turn OpenAI chat messages into the AI SDK's messages. */
+function convertMessages(messages: ChatMessage[]): ModelMessage[] {
+  const toolNames = new Map<string, string>();
+  const converted: ModelMessage[] = [];
+  for (const message of messages) {
+    // AI SDK 7 takes the system prompt as "instructions", so system messages are skipped here.
+    if (message.role === "user") converted.push({ role: "user", content: message.content ?? "" });
+    if (message.role === "assistant") converted.push(assistantMessage(message, toolNames));
+    if (message.role === "tool") converted.push(toolMessage(message, toolNames));
+  }
+  return converted;
+}
+
+async function toolSetFor(tools: ChatTool[]): Promise<ToolSet> {
+  const { jsonSchema, tool } = await import("ai");
+  const toolSet: ToolSet = {};
+  for (const offered of tools) {
+    const schema = offered.function.parameters ?? { type: "object", properties: {} };
+    toolSet[offered.function.name] = tool({
+      description: offered.function.description,
+      inputSchema: jsonSchema(schema),
+    });
+  }
+  return toolSet;
+}
+
+function missingKeyError(provider: RealProvider): Error {
+  const message = `${KEY_ENV[provider]} is not set. Put it in .env and restart the world.`;
+  return Object.assign(new Error(message), { code: "no_key" });
+}
+
+export async function callProvider(
+  provider: RealProvider,
+  role: Role,
+  messages: ChatMessage[],
+  options: { tools?: ChatTool[]; maxTokens?: number } = {},
+): Promise<ModelAnswer> {
+  const { tools = [], maxTokens = 1024 } = options;
+  const key = process.env[KEY_ENV[provider]];
+  if (!key) throw missingKeyError(provider);
+  const { generateText } = await import("ai");
+  const systemMessages = messages.filter((message) => message.role === "system");
+  const instructions = systemMessages.map((message) => message.content ?? "").join("\n");
+  const answer = await generateText({
+    model: await languageModel(provider, role, key),
+    instructions: instructions || undefined,
+    messages: convertMessages(messages),
+    tools: tools.length ? await toolSetFor(tools) : undefined,
+    maxOutputTokens: maxTokens,
+  });
+  const toolCalls = answer.toolCalls.map((call) => ({
+    id: call.toolCallId,
+    type: "function" as const,
+    function: { name: call.toolName, arguments: JSON.stringify(call.input) },
+  }));
   return {
-    content: r.text || null,
-    tool_calls: r.toolCalls.length ? r.toolCalls.map((c: any) => ({ id: c.toolCallId, type: "function" as const, function: { name: c.toolName, arguments: JSON.stringify(c.input) } })) : undefined,
-    input_tokens: r.usage.inputTokens ?? 0,
-    output_tokens: r.usage.outputTokens ?? 0,
+    content: answer.text || null,
+    toolCalls: toolCalls.length ? toolCalls : undefined,
+    inputTokens: answer.usage.inputTokens ?? 0,
+    outputTokens: answer.usage.outputTokens ?? 0,
   };
 }

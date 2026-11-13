@@ -29,29 +29,17 @@
     "advertisement": {
       "label": "Shop sign (advertisement consent)",
       "fee_gbp": 165,
-      "required": [
-        "application_form",
-        "location_plan",
-        "advert_drawings"
-      ]
+      "required": ["application_form", "location_plan", "advert_drawings"]
     },
     "tree_works": {
       "label": "Tree works notice",
       "fee_gbp": 0,
-      "required": [
-        "notice_form",
-        "tree_location_plan",
-        "photographs"
-      ]
+      "required": ["notice_form", "tree_location_plan", "photographs"]
     },
     "dropped_kerb": {
       "label": "Dropped kerb",
       "fee_gbp": 115,
-      "required": [
-        "application_form",
-        "site_plan",
-        "photographs"
-      ]
+      "required": ["application_form", "site_plan", "photographs"]
     }
   },
   "items": {

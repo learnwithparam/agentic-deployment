@@ -8,7 +8,13 @@ x-desk: &desk
   build: { context: ./desk }
   restart: unless-stopped
   secrets: [gateway_key, desk_client_secret]
-  healthcheck: { test: ["CMD", "wget", "-qO-", "http://localhost:3000/healthz"], interval: 2s, timeout: 2s, retries: 20 }
+  healthcheck:
+    {
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/healthz"],
+      interval: 2s,
+      timeout: 2s,
+      retries: 20,
+    }
 
 services:
   desk-stable:
@@ -33,7 +39,13 @@ services:
     restart: unless-stopped
     ports: ["7010:7010"]
     volumes: ["control:/control"]
-    healthcheck: { test: ["CMD", "wget", "-qO-", "http://localhost:7010/health"], interval: 2s, timeout: 2s, retries: 20 }
+    healthcheck:
+      {
+        test: ["CMD", "wget", "-qO-", "http://localhost:7010/health"],
+        interval: 2s,
+        timeout: 2s,
+        retries: 20,
+      }
 
   traefik:
     image: traefik:v3.7.18
@@ -47,7 +59,13 @@ services:
     ports: ["8080:8080"]
     volumes: ["control:/control:ro"]
     depends_on: { controller: { condition: service_healthy } }
-    healthcheck: { test: ["CMD", "wget", "-qO-", "http://localhost:8080/ping"], interval: 2s, timeout: 2s, retries: 20 }
+    healthcheck:
+      {
+        test: ["CMD", "wget", "-qO-", "http://localhost:8080/ping"],
+        interval: 2s,
+        timeout: 2s,
+        retries: 20,
+      }
 
   prometheus:
     image: prom/prometheus:v3.16.0

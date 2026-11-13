@@ -1,36 +1,54 @@
+// biome-ignore-all lint/style/useNamingConvention: the desk's JSON uses names like application_id
 // The permit desk's web service. Today it runs on one laptop with `bun src/server.ts`.
 import { Hono } from "hono";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
+import { type Event, runAgent } from "./agent";
 import { PORT, REGISTER_URL, release } from "./config";
-import { runAgent } from "./agent";
 import { residentPage, staffPage } from "./page";
+
+type RunRequest = { application_id?: string };
+type Application = { id: string; status: string };
 
 const app = new Hono();
 
-app.get("/", (c) => c.html(residentPage(release.id)));
+app.get("/", (context) => context.html(residentPage(release.id)));
 
-app.get("/healthz", (c) => c.json({ status: "ok", version: release.id }));
+// The container platform asks this to know the desk is alive. Keep it cheap: no model call.
+app.get("/healthz", (context) => context.json({ status: "ok", version: release.id }));
 
 // Runs the agent to the end, then answers with everything at once.
-app.post("/v1/runs", async (c) => {
-  const { application_id } = await c.req.json().catch(() => ({}) as any);
-  if (!application_id) return c.json({ error: "send {\"application_id\": \"HDC-2026-0142\"}" }, 400);
+app.post("/v1/runs", async (context) => {
+  // A body that is not JSON counts as an empty one, so the resident gets the 400 below.
+  const request: RunRequest = await context.req.json().catch(() => ({}));
+  const applicationId = request.application_id;
+  if (!applicationId)
+    return context.json({ error: 'send {"application_id": "HDC-2026-0142"}' }, 400);
   const runId = crypto.randomUUID();
-  const events = [];
-  for await (const e of runAgent(application_id, runId)) events.push(e);
-  return c.json({ run_id: runId, events });
+  const events: Event[] = [];
+  for await (const event of runAgent(applicationId, runId)) events.push(event);
+  return context.json({ run_id: runId, events });
 });
 
 // Staff pages. Anyone can open them today.
-app.get("/staff", async (c) => {
-  const all = (await (await fetch(`${REGISTER_URL}/applications`)).json()) as { id: string; status: string }[];
-  return c.html(staffPage("anyone (nobody checked)", all.filter((a) => a.status === "valid_awaiting_officer")));
+app.get("/staff", async (context) => {
+  const response = await fetch(`${REGISTER_URL}/applications`);
+  const applications = (await response.json()) as Application[];
+  const waiting = applications.filter(
+    (application) => application.status === "valid_awaiting_officer",
+  );
+  return context.html(staffPage("anyone (nobody checked)", waiting));
 });
-app.post("/v1/applications/:id/validate", async (c) => {
-  const r = await fetch(`${REGISTER_URL}/applications/${c.req.param("id")}/validate`, {
-    method: "POST", headers: { "content-type": "application/json", "x-actor": "permit-desk" }, body: JSON.stringify({ officer: "unknown" }),
+app.post("/v1/applications/:id/validate", async (context) => {
+  const applicationId = context.req.param("id");
+  const response = await fetch(`${REGISTER_URL}/applications/${applicationId}/validate`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-actor": "permit-desk" },
+    body: JSON.stringify({ officer: "unknown" }),
   });
-  return c.json(await r.json(), r.status as any);
+  // Pass the register's answer straight back, with its status code.
+  return context.json(await response.json(), response.status as ContentfulStatusCode);
 });
 
+// A run can take a minute or more, so the server keeps a quiet connection open for 120 seconds.
 export default { port: PORT, fetch: app.fetch, idleTimeout: 120 };
 console.log(`permit desk ${release.id} listening on ${PORT}`);

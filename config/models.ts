@@ -1,6 +1,8 @@
 // The only file that names a model. Code asks for a role (fast, smart, judge), never an id.
-// The provider comes from LLM_PROVIDER. "replay" is the default: no key, no network, the same reply every time.
-// Ids and prices read from each provider's live list on the build date; recheck them before a cohort.
+// The provider comes from LLM_PROVIDER. "replay" is the default: no key, no network,
+// the same reply every time.
+// Ids and prices read from each provider's live list on the build date; recheck them before a
+// cohort.
 
 export const ROLES = ["fast", "smart", "judge"] as const;
 export type Role = (typeof ROLES)[number];
@@ -19,7 +21,10 @@ export const MODEL_IDS: Record<Exclude<Provider, "replay">, Record<Role, string>
   openai: { fast: "gpt-6-luna", smart: "gpt-6-luna-pro", judge: "gpt-6-luna" },
 };
 
-/** The env var that holds the key for each real provider. Keys live in the git-ignored .env, never here. */
+/**
+ * The env var that holds the key for each real provider.
+ * Keys live in the git-ignored .env, never here.
+ */
 export const KEY_ENV: Record<Exclude<Provider, "replay">, string> = {
   anthropic: "ANTHROPIC_API_KEY",
   openrouter: "OPENROUTER_API_KEY",
@@ -40,17 +45,25 @@ export const PRICES: Partial<Record<Provider, Partial<Record<Role, [number, numb
 };
 
 export function provider(env: Record<string, string | undefined> = process.env): Provider {
-  const p = (env.LLM_PROVIDER ?? "replay").trim() as Provider;
-  if (!PROVIDERS.includes(p)) throw new Error(`LLM_PROVIDER="${p}" is not one of ${PROVIDERS.join(", ")}`);
-  return p;
+  const chosen = (env.LLM_PROVIDER ?? "replay").trim() as Provider;
+  if (!PROVIDERS.includes(chosen)) {
+    throw new Error(`LLM_PROVIDER="${chosen}" is not one of ${PROVIDERS.join(", ")}`);
+  }
+  return chosen;
 }
 
-export function isRole(x: string): x is Role {
-  return (ROLES as readonly string[]).includes(x);
+export function isRole(name: string): name is Role {
+  return (ROLES as readonly string[]).includes(name);
 }
 
-export function price(p: Provider, role: Role, inputTokens: number, outputTokens: number): number | null {
-  const pr = PRICES[p]?.[role];
-  if (!pr) return null;
-  return (inputTokens * pr[0] + outputTokens * pr[1]) / 1_000_000;
+export function price(
+  chosenProvider: Provider,
+  role: Role,
+  inputTokens: number,
+  outputTokens: number,
+): number | null {
+  const prices = PRICES[chosenProvider]?.[role];
+  if (!prices) return null;
+  const [inputPrice, outputPrice] = prices;
+  return (inputTokens * inputPrice + outputTokens * outputPrice) / 1_000_000;
 }
