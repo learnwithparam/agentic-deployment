@@ -139,6 +139,6 @@ Your desk now has brakes and a memory:
 - Every run is saved after each step, so a killed run finishes after the restart with no second letter
   and no model call paid twice.
 
-Next is Part 4, release safely. You change the desk's prompt without hurting residents: a gate of
-evals before release, a canary that gets a small share of traffic, an automatic rollback when the
-canary goes wrong, and a runbook for the people on call.
+Next is Part 4, release safely. You change the desk's prompt without hurting residents. A gate of
+evals runs before each release. A canary gets a small share of traffic. A bad canary rolls back by
+itself, and a runbook tells the people on call what to do.
