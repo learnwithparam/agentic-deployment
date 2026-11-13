@@ -13,11 +13,13 @@ resident progress while the run happens.
 
 Turn this folder into a container that Docker Compose runs next to the world.
 
-1. Write a `Dockerfile`. Install with `bun install --production --frozen-lockfile`, copy `release.json` and
-   `src/`, and run as the image's `bun` user, not root.
+1. Write a `Dockerfile` from `oven/bun:1.4.4-alpine`. Install with `bun install --production --frozen-lockfile`,
+   copy `release.json` and `src/`, and run as the image's `bun` user, not root. End with
+   `CMD ["bun", "src/server.ts"]`.
 2. In `compose.yaml`, add a service named `desk`. It builds this folder, publishes port 3000, and has a
    healthcheck that calls `/healthz`. Pass the gateway key as a build argument:
-   `GATEWAY_KEY: ${GATEWAY_ADMIN_KEY}`. This is not safe, and you fix it in the next step.
+   `GATEWAY_KEY: ${GATEWAY_ADMIN_KEY}`. The desk sees it only after `ARG GATEWAY_KEY` and
+   `ENV GATEWAY_KEY=${GATEWAY_KEY}` in the Dockerfile. This is not safe, and you fix it in the next step.
 3. In `src/server.ts`, add `GET /healthz`. It answers `{ "status": "ok", "version": "<release id>" }`
    without calling the model.
 4. Make `POST /v1/runs` stream Server-Sent Events with `streamSSE` from `hono/streaming`. Send one event per
@@ -75,8 +77,6 @@ Expect: `Done. All 8 rules pass.`
 - Read the desk's own logs: `docker compose -p hdc-desk logs desk`.
 - `wget` is in the Alpine Bun image, so the healthcheck can be
   `["CMD", "wget", "-qO-", "http://localhost:3000/healthz"]`.
-- Inside the Docker network, the desk reaches the world at `http://register:7001` and
-  `http://gateway:7002`. The defaults in `src/config.ts` already use these.
 - Compare with `../solution/` when you are done.
 
 ## Words you will use

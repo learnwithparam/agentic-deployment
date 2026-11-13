@@ -34,11 +34,13 @@ flowchart LR
   S & SH -->|spans| TD[Trace desk]
 ```
 
-Start it from this folder, then send one run:
+Stop the other desks first. Run this from the top of the repo, then start the shadow from this folder and
+send one run:
 
 ```bash
 bun run down
-docker compose up -d --build --wait
+cd parts/05-go-further/01-shadow-the-canary/problem
+docker compose up -d --build --wait --remove-orphans
 curl -sN localhost:3000/v1/runs -H 'content-type: application/json' -d '{"application_id":"HDC-2026-0142"}' | tail -2
 ```
 

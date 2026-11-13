@@ -99,7 +99,8 @@ you can.
 
 For example, HDC-2026-0142 is a `change_of_use` application, and its run costs $0.014128 in replay.
 
-1. Reset the world, then send all 40 applications to your desk with `bun run run-application`.
+1. Reset the world with `bun run world reset`. Then send all 40 applications to your desk with
+   `bun run run-application <id> --desk`, for example `bun run run-application HDC-2026-0140 --desk`.
 2. Read the root spans from `out/spans.jsonl` (or `GET http://localhost:7004/api/spans`). Group the
    runs by application type. The type is in `world/data/applications/<id>.json`.
 3. Write `out/cost-by-type.md`: a table with each type, its number of runs, its total cost and its

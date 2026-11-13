@@ -20,9 +20,12 @@ are never inside the sandbox. A proxy outside the sandbox holds them
 
 ## Your challenge
 
-1. See the leak for yourself:
+Run every command on this page from the top of the repo, the folder with the course's `README.md`.
+
+1. Build this step's desk, then see the leak for yourself:
 
 ```bash
+bun run up move-secrets-out
 docker image inspect hdc-desk-desk --format '{{json .Config.Env}}'
 ```
 
@@ -73,7 +76,7 @@ Expect: `Done. All 5 rules pass.`
 - Look at what the gateway billed:
 
 ```bash
-curl -s -H "Authorization: Bearer $(cat ../../../../secrets/gateway_admin_key)" localhost:7002/admin/spend
+curl -s -H "Authorization: Bearer $(cat secrets/gateway_admin_key)" localhost:7002/admin/spend
 ```
 
 Expect: a JSON list where each line has `"key": "desk"` once you are done.

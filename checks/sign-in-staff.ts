@@ -23,6 +23,11 @@ const validate = (token?: string) =>
 
 const isRedirect = (status: number) => [302, 303].includes(status);
 
+// The Validate button on the staff queue posts this form. With no session cookie it must not
+// change the register, however the desk answers.
+const validateFromQueue = () =>
+  fetch(`${URLS.desk}/staff/validate/${APP}`, { method: "POST", redirect: "manual" });
+
 /** The HTTP status each caller got from validate, plus 1 when the register was still untouched. */
 type Scenario = Record<string, number>;
 
@@ -35,6 +40,7 @@ async function playScenario(started: ReturnType<typeof startDesk>): Promise<Scen
   statuses.forged = (await validate(await forgedToken())).status;
   statuses.resident = (await validate(await tokenFor("sam.hollis"))).status;
   statuses.agent = (await validate(await serviceToken())).status;
+  statuses.queueForm = (await validateFromQueue()).status;
   const untouched = (await application(APP)).status === "valid_awaiting_officer";
   statuses.statusBeforeOfficer = untouched ? 1 : 0;
   statuses.officer = (await validate(await tokenFor("amara.okafor"))).status;
@@ -139,7 +145,8 @@ export default [
       );
     },
     tryNext:
-      "Return before you call the register when a check fails." +
+      "Return before you call the register when a check fails, in both validate routes:" +
+      " /v1/applications/:id/validate and the queue's form route /staff/validate/:id." +
       " For an officer, pass user.sub as the officer.",
   },
 ] satisfies Rule[];

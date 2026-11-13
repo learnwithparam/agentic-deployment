@@ -88,6 +88,7 @@ bun run verify survive-a-restart
 ```
 
 Expect: `Register: 1 decision(s) and 1 letter(s) for HDC-2026-0142.`, then `Done. All 3 rules pass.`
+The starter prints the register line too, so trust the check, not that line.
 
 Check the whole part:
 

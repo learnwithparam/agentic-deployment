@@ -98,7 +98,8 @@ export default [
     says: "every answer on http://localhost:3000 comes from stable, 10 times out of 10",
     test: stableAnswersEveryTime,
     tryNext:
-      "A weighted service lets the shadow answer some residents." +
+      "The stack starts only when desk-shadow exists, so add it first." +
+      " Then: a weighted service lets the shadow answer some residents." +
       " Use a mirroring service: service stable, and a mirror to shadow.",
   },
   {
@@ -107,7 +108,9 @@ export default [
       const seen = await shadowed(dir);
       return seen?.counts[seen.stable] === RUNS;
     },
-    tryNext: "Every request must reach stable. Read docker compose logs traefik for errors.",
+    tryNext:
+      "Add desk-shadow first: the stack does not start without it." +
+      " Then every request must reach stable. Read docker compose logs traefik for errors.",
   },
   {
     says: `the shadow traced a copy of each of the ${RUNS} runs, under another release`,

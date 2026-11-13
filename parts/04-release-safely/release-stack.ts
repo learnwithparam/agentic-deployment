@@ -154,11 +154,22 @@ export async function prometheusAlerts(): Promise<PrometheusAlert[]> {
   return answer.data.alerts;
 }
 
+// Prometheus may still be starting, for example just after `docker compose restart prometheus`.
+// Until it answers, there is no list of alerts yet, so the caller waits and asks again.
+async function alertsOnceReady(): Promise<PrometheusAlert[] | null> {
+  try {
+    return await prometheusAlerts();
+  } catch {
+    return null;
+  }
+}
+
 // After a reset, wait until Prometheus has seen the empty register, so an old alert cannot roll
 // back the new canary.
 async function waitForNoAlerts() {
   for (let i = 0; i < 30; i++) {
-    if ((await prometheusAlerts()).length === 0) return;
+    const alerts = await alertsOnceReady();
+    if (alerts !== null && alerts.length === 0) return;
     await Bun.sleep(1000);
   }
 }

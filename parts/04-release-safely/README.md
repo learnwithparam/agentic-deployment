@@ -88,7 +88,7 @@ front.
 
 ```bash
 cd ../../02-ship-a-canary/problem
-docker compose up -d --build --wait
+docker compose up -d --build --wait --remove-orphans
 for i in $(seq 20); do curl -s localhost:3000/healthz; echo; done | sort | uniq -c
 ```
 

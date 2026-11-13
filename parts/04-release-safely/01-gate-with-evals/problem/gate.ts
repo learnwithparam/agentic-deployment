@@ -77,5 +77,6 @@ const passedCount = cases.length - failedCount;
 console.log(`Release ${releaseName}: ${passedCount} of ${cases.length} cases pass.`);
 
 // TODO(you): block a release that fails. Exit with code 1 when any case fails, so a script
-// that ships releases stops here. Today the gate always says yes.
+// that ships releases stops here. Also print "Release <name> is blocked." or
+// "Release <name> may ship." for the person who runs it. Today the gate always says yes.
 process.exit(0);
