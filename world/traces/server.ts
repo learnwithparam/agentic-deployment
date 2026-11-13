@@ -157,7 +157,7 @@ main{display:grid;grid-template-columns:minmax(260px,380px) 1fr;min-height:calc(
 .m{color:var(--mut);font-size:12px}.c{float:right;font-family:monospace}
 #w{padding:16px 20px;overflow:auto}
 .row{display:grid;grid-template-columns:260px 1fr 90px;gap:8px;align-items:center;margin:3px 0}
-.n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:monospace;font-size:12px}
+.n{font-family:monospace;font-size:12px;overflow-wrap:anywhere}
 .track{position:relative;height:14px;background:#1b1e24;border-radius:3px}
 .b{position:absolute;height:14px;border-radius:3px;background:var(--bar)}
 .b.tool{background:var(--tool)}
@@ -271,7 +271,8 @@ const PAGE = `<!doctype html><meta charset="utf-8">
 <title>Harrowby trace desk</title>
 <style>${STYLE}</style>
 <header><h1>Harrowby trace desk</h1></header>
-<main><div id="list"></div><div id="w"><p class="m">Pick a trace.</p></div></main>
+<main><div id="list"></div>
+<div id="w"><p class="m">Pick a trace from the list to see its steps.</p></div></main>
 <script>${SCRIPT}</script>`;
 
 function spansAnswer(url: URL): Response {

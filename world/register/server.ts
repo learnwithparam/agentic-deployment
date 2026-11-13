@@ -91,9 +91,17 @@ function publicView(application: Application) {
   return { ...rest, applicant: { name: applicant.name } };
 }
 
+// Words for each status, so a member of the public never sees the stored code.
+const STATUS_WORDS: Record<string, string> = {
+  received: "Received",
+  invalid_missing_items: "Missing items",
+  valid_awaiting_officer: "Complete, waiting for an officer",
+  validated: "Validated",
+};
+
 const PAGE_STYLE =
   "body{font:15px system-ui;margin:24px;background:#f6f5f1;color:#1d1d1b}" +
-  "table{border-collapse:collapse;width:100%;background:#fff}\n" +
+  "table{border-collapse:collapse;width:100%;background:#fff;display:block;overflow-x:auto}\n" +
   "td,th{padding:6px 10px;border-bottom:1px solid #ddd;text-align:left}" +
   ".s{font-family:monospace}.invalid_missing_items{color:#a33}\n" +
   ".valid_awaiting_officer{color:#2a6}.validated{color:#25a;font-weight:600}h1{font-size:20px}";
@@ -103,7 +111,7 @@ function tableRow(row: ApplicationRow): string {
   const cells = [
     `<td>${row.id}</td>`,
     `<td>${application.description}</td>`,
-    `<td class="s ${row.status}">${row.status}</td>`,
+    `<td class="s ${row.status}">${STATUS_WORDS[row.status] ?? "Unknown status"}</td>`,
     `<td>${row.release ?? ""}</td>`,
   ];
   return `<tr>${cells.join("")}</tr>`;
@@ -322,8 +330,21 @@ function registerOverview(): Response {
 }
 
 function applicationList(): Response {
-  const query = "SELECT id, status, status_by, release FROM applications ORDER BY id";
-  return json(db.query(query).all());
+  const rows = db.query("SELECT * FROM applications ORDER BY id").all() as ApplicationRow[];
+  return json(
+    rows.map((row) => {
+      const application = JSON.parse(row.body) as Application;
+      const { id, status, status_by, release } = row;
+      return {
+        id,
+        status,
+        status_by,
+        release,
+        applicant: application.applicant.name,
+        description: application.description,
+      };
+    }),
+  );
 }
 
 const SIMPLE_ROUTES: Record<string, (request: Request, url: URL) => Response | Promise<Response>> =

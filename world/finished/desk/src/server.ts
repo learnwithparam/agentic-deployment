@@ -13,7 +13,7 @@ import * as runs from "./runs";
 import { provider } from "./telemetry";
 
 type RunRequest = { application_id?: string };
-type Application = { id: string; status: string };
+type Application = { id: string; status: string; applicant?: string; description?: string };
 
 const app = new Hono();
 

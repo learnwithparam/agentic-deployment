@@ -84,7 +84,8 @@ function signToken({ subject, name, roles, nonce }: TokenFor) {
 
 const PAGE_STYLE = `body{font:16px system-ui;background:#f6f5f1;color:#1d1d1b;display:grid;
 place-items:center;min-height:100vh;margin:0}
-form{background:#fff;padding:32px;border-radius:10px;box-shadow:0 2px 12px #0002;width:320px}
+form{background:#fff;padding:32px;border-radius:10px;box-shadow:0 2px 12px #0002;width:320px;
+box-sizing:border-box;max-width:100%}
 h1{font-size:20px;margin:0 0 4px}
 p{color:#555;margin:0 0 20px;font-size:14px}label{display:block;font-size:14px;margin:12px 0 4px}
 input{width:100%;padding:8px;box-sizing:border-box;font:inherit}
@@ -104,8 +105,10 @@ function signInPage(query: URLSearchParams, error = ""): Response {
 <form method="post" action="/authorize"><h1>Harrowby District Council</h1>
 <p>Staff sign-in for the permit desk</p>
 ${errorLine}${hiddenFields.join("")}
-<label>Username</label><input name="username" autocomplete="username">
-<label>Password</label><input name="password" type="password" autocomplete="current-password">
+<label for="username">Username</label>
+<input id="username" name="username" autocomplete="username">
+<label for="password">Password</label>
+<input id="password" name="password" type="password" autocomplete="current-password">
 <button>Sign in</button></form>`;
   return new Response(page, { headers: { "content-type": "text/html" } });
 }
