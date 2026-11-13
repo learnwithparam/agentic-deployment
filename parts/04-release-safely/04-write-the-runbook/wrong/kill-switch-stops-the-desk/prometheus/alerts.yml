@@ -1,0 +1,20 @@
+groups:
+  - name: permit-desk
+    rules:
+      - alert: ReleaseDisagreesWithRules
+        # The register judges every decision with the council's rules. A release that gets more
+        # than one in twenty wrong, over at least three decisions, is rolled back.
+        # "by (release)" keeps the release in the alert's labels, so the controller knows which one.
+        expr: |
+          (
+            sum by (release) (register_decisions_total{agrees="no"})
+            / sum by (release) (register_decisions_total)
+          ) > 0.05
+          and sum by (release) (register_decisions_total) >= 3
+        for: 4s
+        labels:
+          severity: page
+        annotations:
+          summary: "Release {{ $labels.release }} writes decisions the council's rules disagree with."
+          # The page to open when this alert wakes someone up, at the heading for this alert.
+          runbook_url: "runbook.md#roll-back"

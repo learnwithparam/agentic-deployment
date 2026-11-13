@@ -1,0 +1,15 @@
+# Alertmanager gets every firing alert from Prometheus and sends it to a receiver.
+route:
+  receiver: release-controller
+  group_by: [alertname, release]
+  # Send a new alert after 1 second, and repeat it every 10 seconds while it still fires.
+  group_wait: 1s
+  group_interval: 5s
+  repeat_interval: 10s
+receivers:
+  - name: release-controller
+    webhook_configs:
+      # "controller" is the service name inside the Docker network. localhost would be
+      # Alertmanager's own container.
+      - url: http://controller:7010/alert
+        send_resolved: false
