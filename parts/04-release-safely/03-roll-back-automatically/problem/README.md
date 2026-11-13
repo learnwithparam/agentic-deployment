@@ -25,8 +25,9 @@ This folder runs the canary from `ship-a-canary`, plus three new services:
 
 You write two files:
 
-1. `prometheus/alerts.yml`: one alert rule. It fires when more than 5% of a release's decisions disagree with
-   the rules, over at least 3 decisions. Use `sum by (release)`, so the alert carries the release label.
+1. `prometheus/alerts.yml`: one alert rule named `ReleaseDisagreesWithRules`. It fires when more than 5% of
+   a release's decisions disagree with the rules, over at least 3 decisions. Use `sum by (release)`, so
+   the alert carries the release label. The runbook in the next step uses the same name.
 2. `alertmanager/alertmanager.yml`: a receiver with a webhook to the controller, and a route that uses it.
    Repeat the alert every 10 seconds while it fires.
 

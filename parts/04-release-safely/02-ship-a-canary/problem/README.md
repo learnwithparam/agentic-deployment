@@ -35,12 +35,17 @@ flowchart LR
   S & C -->|spans with release.id| TD[Trace desk :7004]
 ```
 
-Start it from this folder. The finished desk uses the same names, so stop it first:
+The finished desk and the desks from earlier steps use port 3000 too, so stop them first. Run this from
+the top of the repo, then start the canary from this folder:
 
 ```bash
 bun run down
-docker compose up -d --build --wait
+cd parts/04-release-safely/02-ship-a-canary/problem
+docker compose up -d --build --wait --remove-orphans
 ```
+
+`--remove-orphans` stops the old `desk` service, which is no longer in your `compose.yaml`. Without it, the
+old desk keeps port 3000, and Traefik fails with `port is already allocated`.
 
 Expect: `Container hdc-desk-traefik-1  Healthy`, and the same line for both desks.
 
