@@ -1,0 +1,87 @@
+{
+  "realm": "council",
+  "enabled": true,
+  "sslRequired": "none",
+  "accessTokenLifespan": 300,
+  "roles": {
+    "realm": [
+      {
+        "name": "validation_officer"
+      }
+    ],
+    "client": {
+      "permit-service": [
+        {
+          "name": "validate"
+        }
+      ]
+    }
+  },
+  "users": [
+    {
+      "username": "amara.okafor",
+      "enabled": true,
+      "firstName": "Amara",
+      "lastName": "Okafor",
+      "email": "amara.okafor@council.example",
+      "emailVerified": true,
+      "realmRoles": ["validation_officer"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "${AMARA_PASSWORD}",
+          "temporary": false
+        }
+      ],
+      "clientRoles": {
+        "permit-service": ["validate"]
+      }
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "permit-desk",
+      "name": "The permit desk, in the browser",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:3000/staff/callback"],
+      "webOrigins": ["http://localhost:3000"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "desk-server-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "permit-desk-server",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "permit-desk-server",
+      "name": "The permit desk's server",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "${DESK_CLIENT_SECRET}",
+      "standardFlowEnabled": false,
+      "attributes": {
+        "standard.token.exchange.enabled": "true"
+      }
+    },
+    {
+      "clientId": "permit-service",
+      "name": "The service the desk calls",
+      "enabled": true,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false
+    }
+  ]
+}

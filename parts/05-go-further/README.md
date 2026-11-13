@@ -6,11 +6,13 @@ A canary still sends real residents to the new release. Some changes are too ris
 residents. Also, so far the desk runs on one machine. The council wants to host it somewhere with a public
 address.
 
-In this part you try two things:
+In this part you try three things:
 
 - Shadow traffic: a copy of each request goes to a new release, called the shadow. Residents never see the
   shadow's answer. It writes to a dry-run register, which is a practice copy, not the real register.
 - A container host: a cloud service that runs your container image for you, with its own place for secrets.
+- A real sign-in provider: Keycloak replaces the stand-in sign-in service. The desk checks its tokens, and trades
+  a staff token for a narrower one before it calls another service.
 
 For example, a resident sends HDC-2026-0142. The stable release answers the resident and writes to the real
 register. The shadow gets the same request. Its decision goes to the dry-run register, and its answer is
@@ -32,14 +34,17 @@ flowchart LR
   SH --> DRY[(dry-run register)]
   S --> REG[(register)]
   IMG[same image] --> CR[a container host with its own secret store]
+  KC[Keycloak realm] -->|staff token| D[desk]
+  D -->|token exchange: narrow token| SV[service]
 ```
 
 ## Steps
 
-| Step                  | Minutes | You make                                                                                         | The check reads                                                                                                    |
-| --------------------- | ------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `shadow-the-canary`   | 25      | Traefik mirroring to a shadow release that writes to a dry-run register                          | shadow spans exist for every mirrored request; the register and letters show zero writes from the shadow           |
-| `deploy-to-the-cloud` | 30      | the same image on a container host of your choice, with its secrets from the host's secret store | the `package-the-agent` stream checks pass against the public URL, and the staff route answers 401 without a token |
+| Step                           | Minutes | You make                                                                                                      | The check reads                                                                                                                          |
+| ------------------------------ | ------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `shadow-the-canary`            | 25      | Traefik mirroring to a shadow release that writes to a dry-run register                                       | shadow spans exist for every mirrored request; the register and letters show zero writes from the shadow                                 |
+| `deploy-to-the-cloud`          | 30      | the same image on a container host of your choice, with its secrets from the host's secret store              | the `package-the-agent` stream checks pass against the public URL, and the staff route answers 401 without a token                       |
+| `sign-in-with-a-real-provider` | 30      | a Keycloak service in compose, the desk's code flow with PKCE, token checks with `jose`, and a token exchange | the realm answers, a good token is accepted, an expired or wrong-audience token is refused, and the narrowed token fits only the service |
 
 These steps are optional. Docker Compose on your laptop is the only required target in this course.
 
@@ -80,19 +85,34 @@ bun run verify deploy-to-the-cloud
 
 Expect: `Done. All 6 rules pass.` once `public_url` answers like the desk on your laptop.
 
+### sign-in-with-a-real-provider
+
+Work in `03-sign-in-with-a-real-provider/problem/`. Add Keycloak to compose, then write the desk's sign-in code.
+The stand-in sign-in service on port 7003 stays. The earlier steps still use it.
+
+```bash
+cd ../../03-sign-in-with-a-real-provider/problem
+docker compose up -d --wait
+bun run verify sign-in-with-a-real-provider
+docker compose down -v
+```
+
+Expect: `Done. All 5 rules pass.`
+
 ### The whole part
 
 ```bash
 bun run verify part go-further
 ```
 
-Expect: `Part go-further is done: 2/2 steps pass.`
+Expect: `Part go-further is done: 3/3 steps pass.`
 
 The passing table looks like this:
 
     Part go-further:
       PASS   shadow-the-canary  (5/5 rules)
       PASS   deploy-to-the-cloud  (6/6 rules)
+      PASS   sign-in-with-a-real-provider  (5/5 rules)
 
 ## FINISHED
 

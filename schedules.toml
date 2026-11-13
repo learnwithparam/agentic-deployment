@@ -1,12 +1,12 @@
 # Parts mapped onto formats. Minutes are for the median learner. Times live only in this file.
 # Content: orientation 15, ship-the-desk 55, see-every-run 35, bound-the-runs 50, release-safely 75,
-# wrap-up 10 (bun run verify --report), go-further 55 (stretch, optional).
+# wrap-up 10 (bun run verify --report), go-further 85 (stretch, optional).
 
 # The Maven workshop: one sitting of 240 minutes, breaks added by the host. The stretch part is homework.
 [one-day]
 sessions = [
   { name = "the workshop", parts = ["orientation", "ship-the-desk", "see-every-run", "bound-the-runs", "release-safely"], minutes = 240 },
-  { name = "after the workshop", parts = ["go-further"], minutes = 55 },
+  { name = "after the workshop", parts = ["go-further"], minutes = 85 },
 ]
 
 # Four evenings of 70 to 85 minutes.
@@ -15,7 +15,7 @@ sessions = [
   { name = "evening 1", parts = ["orientation", "ship-the-desk"], minutes = 70 },
   { name = "evening 2", parts = ["see-every-run", "bound-the-runs"], minutes = 85 },
   { name = "evening 3", parts = ["release-safely"], minutes = 85 },
-  { name = "evening 4", parts = ["go-further"], minutes = 55 },
+  { name = "evening 4", parts = ["go-further"], minutes = 85 },
 ]
 
 # A cohort over four weeks: one part a week, with the assignment from each part handed in on a branch.
@@ -24,5 +24,5 @@ sessions = [
   { name = "week 1", parts = ["orientation", "ship-the-desk"], minutes = 90 },
   { name = "week 2", parts = ["see-every-run", "bound-the-runs"], minutes = 100 },
   { name = "week 3", parts = ["release-safely"], minutes = 95 },
-  { name = "week 4", parts = ["go-further"], minutes = 70 },
+  { name = "week 4", parts = ["go-further"], minutes = 85 },
 ]

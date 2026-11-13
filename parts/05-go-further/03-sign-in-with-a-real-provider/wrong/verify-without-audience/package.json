@@ -1,0 +1,8 @@
+{
+  "name": "sign-in-with-a-real-provider",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "bun ../../../../scripts/verify.ts"
+  }
+}
