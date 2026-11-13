@@ -5,8 +5,7 @@
 The planning team has two new prompts in `releases/`. Release v3 is warmer and still asks for every fee.
 Release v2 says "a missing fee is fine". Both read well.
 
-Today nothing stops v2. Someone copies it into `release.json`, and the next resident who owes a fee gets a
-letter that says "no fee is needed". That letter is the council's word.
+Today nothing stops v2. The next resident who owes a fee gets a letter that says "no fee is needed".
 
 An eval is a test of the agent's answers on fixed cases. A gate runs the evals before a release ships, and
 says no when a case fails.
@@ -71,7 +70,7 @@ Expect: `Done. All 5 rules pass.`
 
 ## If you get stuck
 
-- Look at the exit code after a run with `echo $?`. It prints `1` when the gate blocks the release.
+- Run `echo $?` after the gate. It prints the exit code.
 - Lists can come back in another order. Sort both lists before you compare them.
 - Do not fail every letter with the word "fee" in it. Release v1 writes "The application fee of £578", and that
   letter is right.
