@@ -31,8 +31,7 @@ You write two things:
    - the missing items are the case's missing items, in any order;
    - when a fee is owed, the letter never says that no fee is needed.
 2. At the end of `gate.ts`, exit with code 1 when any case fails. A script that ships releases reads the exit
-   code, not the words. People read the words, so also print one last line: `Release v2 is blocked.` when
-   a case fails, or `Release v1 may ship.` when every case passes. Use the release name you were given.
+   code, not the words. For people, also print `Release <name> is blocked.` or `Release <name> may ship.`
 
 ```mermaid
 flowchart LR
