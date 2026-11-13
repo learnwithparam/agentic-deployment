@@ -3,7 +3,7 @@
 ## The problem
 
 The planning team has two new prompts in `releases/`. Release v3 is warmer and still asks for every fee.
-Release v2 says "a missing fee is fine". Both read well. Nobody can tell them apart by reading the prompt.
+Release v2 says "a missing fee is fine". Both read well.
 
 Today nothing stops v2. Someone copies it into `release.json`, and the next resident who owes a fee gets a
 letter that says "no fee is needed". That letter is the council's word.
@@ -23,7 +23,7 @@ This folder already has most of the gate:
   council's rules give for each.
 - `src/evals.ts` runs the agent once for each case inside the desk's own image, as a dry run. A dry run reads
   the register but never writes to it. So the gate sends no letters.
-- `gate.ts` runs the cases, prints a `PASS` or `FAIL` line for each one, and counts them.
+- `gate.ts` runs the cases and prints a `PASS` or `FAIL` line for each one.
 
 You write two things:
 
@@ -81,7 +81,6 @@ Expect: `Done. All 5 rules pass.`
 
 - **Eval**: a test of the agent's answers on fixed cases, with the right answer written down.
 - **Gate**: a step before a release that says yes or no, by its exit code.
-- **Code check**: a check written in code, such as "the status matches". It is exact, free and gives the same
-  answer every time.
+- **Code check**: a check written in code, such as "the status matches". It gives the same answer every time.
 - **Release**: one version of the desk's behaviour: its prompt, its model role and its limits, in one file.
 - **Dry run**: a run that reads real data and writes nothing.
