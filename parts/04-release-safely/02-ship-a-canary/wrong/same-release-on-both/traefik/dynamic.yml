@@ -1,0 +1,22 @@
+# Traefik reads this file and watches it. Change a weight, save, and the split changes in a second.
+http:
+  routers:
+    desk:
+      rule: "PathPrefix(`/`)"
+      entryPoints: [web]
+      service: desk
+  services:
+    # The weighted service: 9 of every 10 requests go to stable, 1 goes to the canary.
+    desk:
+      weighted:
+        services:
+          - name: stable
+            weight: 90
+          - name: canary
+            weight: 10
+    stable:
+      loadBalancer:
+        servers: [{ url: "http://desk-stable:3000" }]
+    canary:
+      loadBalancer:
+        servers: [{ url: "http://desk-canary:3000" }]

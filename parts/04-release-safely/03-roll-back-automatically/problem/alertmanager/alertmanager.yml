@@ -1,0 +1,6 @@
+# Alertmanager gets every firing alert from Prometheus and sends it to a receiver.
+route:
+  receiver: nobody
+receivers:
+  # TODO(you): send alerts to the release controller's webhook instead of to nobody.
+  - name: nobody

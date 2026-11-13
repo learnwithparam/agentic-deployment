@@ -1,0 +1,5 @@
+groups:
+  - name: permit-desk
+    rules: []
+    # TODO(you): add one alert rule. It fires when a release writes decisions that the council's
+    # rules disagree with, and it carries the release in its labels.

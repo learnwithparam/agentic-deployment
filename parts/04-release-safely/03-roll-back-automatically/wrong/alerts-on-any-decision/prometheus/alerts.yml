@@ -1,0 +1,11 @@
+groups:
+  - name: permit-desk
+    rules:
+      - alert: ReleaseWritesDecisions
+        # A canary is new, so any decision it writes is a reason to look at it.
+        expr: sum by (release) (register_decisions_total) >= 3
+        for: 4s
+        labels:
+          severity: page
+        annotations:
+          summary: "Release {{ $labels.release }} writes decisions."
