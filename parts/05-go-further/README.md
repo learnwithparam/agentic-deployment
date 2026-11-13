@@ -6,13 +6,14 @@ A canary still sends real residents to the new release. Some changes are too ris
 residents. Also, so far the desk runs on one machine. The council wants to host it somewhere with a public
 address.
 
-In this part you try three things:
+In this part you try two things:
 
 - Shadow traffic: a copy of each request goes to a new release, called the shadow. Residents never see the
   shadow's answer. It writes to a dry-run register, which is a practice copy, not the real register.
 - A container host: a cloud service that runs your container image for you, with its own place for secrets.
-- A real sign-in provider: Keycloak replaces the stand-in sign-in service. The desk checks its tokens, and trades
-  a staff token for a narrower one before it calls another service.
+
+A third step, `sign-in-with-keycloak`, brings in a real sign-in provider. Keycloak replaces the stand-in sign-in
+service. The desk checks its tokens, and trades a staff token for a narrower one before it calls another service.
 
 For example, a resident sends HDC-2026-0142. The stable release answers the resident and writes to the real
 register. The shadow gets the same request. Its decision goes to the dry-run register, and its answer is
