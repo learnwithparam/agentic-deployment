@@ -45,6 +45,8 @@ schedules.toml           parts mapped onto formats
 | Model ids live only in `config/models`. Versions are pinned exactly.                                                 | `check.ts` 5      | anthropics/courses #71, philoagents #43              |
 | Every failure message a learner can see is in `00-orientation/troubleshooting.md`.                                   | `check.ts` 5      | Langfuse workshop #30, philoagents #31               |
 | Every schedule covers every part, and its minutes add up.                                                            | `check.ts` 6      | RESEARCH.md                                          |
+| Every page passes the text audit at 1280 px and 375 px: no ellipsis, no clipped text, no raw ids, verb-plus-object buttons, guiding errors and empty states, short tooltips, labelled inputs, no model or cost on public pages. | `text-audit` | UI audit, 13 Nov 2026                                |
+| U14: no sideways scroll at 375 px. `document.documentElement.scrollWidth` is at most the window width.                                                                                                                          | `text-audit` 10 | UI audit, 13 Nov 2026                                |
 
 ## Readable code
 
@@ -107,3 +109,21 @@ bun run check
 ```
 
 Expect: `The repo meets the standard` and `Every check rejects its starter and wrong answers, and passes its solution.`
+
+## Text audit
+
+`bun run text-audit` opens every page in a real browser, at 1280 px and 375 px wide, and runs 10 checks.
+`bun run check` runs it.
+
+1. No ellipsis in visible text (U1).
+2. No text clipped by CSS ellipsis or line-clamp (U2).
+3. Buttons say a verb plus an object, in 2 to 5 words (U3, U4).
+4. Errors say what happened and what to do next (U5, U6).
+5. Empty states guide, with a `data-empty-state` message and a link, button or command (U7).
+6. No raw ids, snake_case codes, `undefined` or `null` on screen (U8).
+7. No model name, token count, host or cost on a public page (U9).
+8. Tooltips are 15 words or fewer (U12).
+9. Every input has a visible label (U13).
+10. **U14: no sideways scroll at 375 px.**
+
+Staff pages carry `data-audience="staff"` on `<body>`. Only check 7 skips them.
