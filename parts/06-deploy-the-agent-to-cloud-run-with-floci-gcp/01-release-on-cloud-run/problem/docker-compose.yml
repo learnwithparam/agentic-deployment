@@ -1,0 +1,5 @@
+# Step 1: run the emulator for Google Cloud, floci-gcp, with Docker Compose.
+# TODO(you): add one service named floci-gcp. Use the image floci/floci-gcp:0.12.0, publish port 4588,
+# and mount /var/run/docker.sock, because the emulator starts your containers through it.
+name: floci-cloud-run
+services: {}

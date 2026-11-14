@@ -1,0 +1,8 @@
+{
+  "name": "release-on-cloud-run",
+  "private": true,
+  "scripts": {
+    "release": "bun release.ts",
+    "verify": "bun ../../../../scripts/verify.ts"
+  }
+}
