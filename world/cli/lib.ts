@@ -66,6 +66,9 @@ export function ensureSecrets() {
   makeSecretOnce("finished_gateway_key", () => `hdc-gw-${randomBytes(18).toString("hex")}`);
   makeSecretOnce("desk_client_secret", () => randomBytes(18).toString("hex"));
   makeSecretOnce("passwords", makePasswords);
+  // For the Keycloak step in the go-further part.
+  makeSecretOnce("keycloak_amara_password", () => randomBytes(12).toString("base64url"));
+  makeSecretOnce("keycloak_admin_password", () => randomBytes(12).toString("base64url"));
 }
 
 /** Env every compose command gets, so compose files can find the secrets folder. */

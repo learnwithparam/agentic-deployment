@@ -1,0 +1,39 @@
+# Keycloak as the council's sign-in. Start it here with:
+#   docker compose up -d --wait
+name: hdc-keycloak
+services:
+  keycloak:
+    image: keycloak/keycloak:26.8.2
+    # The secrets are read from files inside the container, never typed on a command line.
+    entrypoint:
+      - sh
+      - -c
+      - >-
+        export AMARA_PASSWORD="$$(cat /run/secrets/keycloak_amara_password)"
+        DESK_CLIENT_SECRET="$$(cat /run/secrets/desk_client_secret)"
+        KC_BOOTSTRAP_ADMIN_USERNAME=admin
+        KC_BOOTSTRAP_ADMIN_PASSWORD="$$(cat /run/secrets/keycloak_admin_password)";
+        exec /opt/keycloak/bin/kc.sh start-dev --import-realm --health-enabled=true
+    environment:
+      JAVA_OPTS_KC_HEAP: "-Xms64m -Xmx384m"
+    ports: ["8180:8080", "9000:9000"]
+    secrets: [keycloak_amara_password, keycloak_admin_password, desk_client_secret]
+    volumes: ["./realm:/opt/keycloak/data/import:ro"]
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/localhost/9000 && printf 'GET /health/ready HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q UP <&3",
+        ]
+      interval: 3s
+      timeout: 3s
+      retries: 60
+      start_period: 15s
+
+secrets:
+  keycloak_amara_password:
+    file: ${HDC_SECRETS:-../../../../secrets}/keycloak_amara_password
+  keycloak_admin_password:
+    file: ${HDC_SECRETS:-../../../../secrets}/keycloak_admin_password
+  desk_client_secret:
+    file: ${HDC_SECRETS:-../../../../secrets}/desk_client_secret
