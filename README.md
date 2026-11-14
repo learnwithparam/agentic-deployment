@@ -17,7 +17,7 @@ key to start.
 
 ## Run the finished system first
 
-You need Docker (with Compose 2.24 or newer) and Bun 1.4.4.
+You need Docker (with a recent Compose) and Bun.
 
 ```bash
 bun install
@@ -56,10 +56,10 @@ page" forever. The finished desk stops it after 12 model calls.
 bun run chaos bad-canary
 ```
 
-Expect: `Alert ReleaseDisagreesWithRules fired for release v2. The controller set the canary to 0%.` and how
+Expect: `Alert ReleaseDisagreesWithRules fired for the second release. The controller set the canary to 0%.` and how
 many seconds it took, with no one at the keyboard.
 
-A canary is a new release that gets only a small share of users first. Here release v2 gets 10% of
+A canary is a new release that gets only a small share of users first. Here the second release gets 10% of
 residents. It writes wrong letters, so an alert fires and the system turns it off.
 
 ![The finished permit desk: a resident's application checked and streamed](images/finished-system.png)
@@ -154,7 +154,7 @@ Expect: `Every role answers.`
 
 1. Anthropic, [A postmortem of three recent issues](https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues).
    A change in production made answers worse. The post explains why tests now run all the time in production.
-2. OWASP GenAI Security Project, [LLM10:2025 Unbounded Consumption](https://genai.owasp.org/llmrisk/llm102025-unbounded-consumption/).
+2. OWASP GenAI Security Project, [LLM10 Unbounded Consumption](https://genai.owasp.org/llmrisk/llm102025-unbounded-consumption/).
    This is the risk that the brakes in Part 3 close.
 3. OpenTelemetry, [semantic-conventions-genai](https://github.com/open-telemetry/semantic-conventions-genai).
    These are the span and attribute names that the trace checks read. They are still marked Development, so

@@ -24,7 +24,11 @@ The kill switch stops the desks. With no desk running, no letter goes out.
 docker compose -p hdc-desk stop desk-stable desk-canary
 ```
 
-Expect: `Container hdc-desk-desk-stable-1  Stopped`
+Expect: the desk reports it stopped:
+
+```text
+Container hdc-desk-desk-stable-1  Stopped
+```
 
 ## Roll back
 

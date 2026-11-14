@@ -2,23 +2,15 @@
 
 ## The problem
 
-A canary changes the share of traffic from one release to another. A run can last many steps. If each step
-picks a release again, one run can start on v1 and end on v2. Its prompt changes in the middle, and its letter
-can be wrong.
+If each step picks a release again, a run can start on the first release and end on the second. Its prompt changes midway, and its letter can be wrong. For example, a run is at step 4 when the canary moves from 10 to 100 percent. Step 5 asks again, and gets the second.
 
-For example, a run is at step 4 when the canary moves from 10 percent to 100 percent. Step 5 asks which release
-to use, and the answer is v2.
+## Watch it done
 
-## Your challenge
+Before, the router chooses on every call, so a run in flight switches release when the weights change. After, the run keeps its release, even after a restart:
 
-Work in `src/pin.ts`. It makes a router for releases. The store is a `Map` from a run id to a release id.
-
-1. **Look first.** In `releaseFor`, look the run up in the store. If it is there, answer with that release.
-2. **Choose once.** If the run is new, choose by the weights, save the choice in the store, and answer.
-3. **Forget the finished.** In `finish`, delete the run from the store.
-
-Use the store you are given. A router that keeps its own private map forgets every run when the desk
-restarts.
+```text
+Done. All 6 rules pass.
+```
 
 ```mermaid
 flowchart LR
@@ -29,13 +21,24 @@ flowchart LR
   V --> P
 ```
 
+## Your turn
+
+Work in `src/pin.ts`. It makes a router for releases. The store is a `Map` from a run id to a release id. Use the store you are given. A router with its own private map forgets every run when the desk restarts.
+
+1. In `releaseFor`, look the run up in the store. If it is there, answer with that release.
+2. If the run is new, choose by the weights, save the choice in the store, and answer.
+3. In `finish`, delete the run from the store.
+4. Run the check. You do not need Docker for this step.
+
 ```bash
 bun run verify pin-runs-to-their-release
 ```
 
 Expect: `Done. All 6 rules pass.`
 
-You do not need Docker for this step.
+## Do it on your work
+
+Write down where your agent picks its model or prompt. Does it pick once for each run, or once for each step? If it picks each step, save the first choice under the run id and read it back. Good looks like a run that keeps one prompt from start to end while you change the settings under it.
 
 ## Done when
 
@@ -45,14 +48,20 @@ You do not need Docker for this step.
 - After a restart, the run keeps its release.
 - A finished run is forgotten.
 
+## Solution
+
+The after state looks in the store first, saves a new choice, and deletes finished runs. The file is in `../solution/`. See the diff from the `problem/` folder:
+
+```bash
+diff -u src/pin.ts ../solution/src/pin.ts
+```
+
+Expect: the lines that changed.
+
 ## If you get stuck
 
 - Does the run switch release when the weights change? You choose on every call. Look in the store first.
 - Does the run switch after a restart? You pinned it in a `Map` you made yourself. Use the store.
-- Compare with `../solution/` when you are done.
-
-Do it on your work: write down where your agent picks its model or prompt. Does it pick once for each run, or
-once for each step?
 
 ## Words you will use
 

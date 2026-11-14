@@ -2,22 +2,15 @@
 
 ## The problem
 
-A rush of residents starts forty runs in the same moment. Each run calls the model, so the model gives
-errors and every run gets slow. A slow answer that comes late is as bad as no answer.
+A rush of residents starts forty runs at once. The model gives errors and every run gets slow. A latency goal is a promise about waiting. For example: a run starts within 5 seconds, or the resident is told at once to try again.
 
-A latency goal is a promise about waiting. For example: a run starts within 5 seconds, or the resident is told
-at once to try again.
+## Watch it done
 
-## Your challenge
+Before, nothing counts the running ones, so all forty go at once. After, the check passes without Docker:
 
-Work in `src/queue.ts`. It makes a queue with three limits: `maxRunning`, `maxWaiting` and `maxWaitMs`.
-
-1. **Limit the runs going at once.** Count the runs now going. A new run starts only below `maxRunning`.
-2. **Keep a line.** Other runs wait in order, first in, first out. When a run ends, the first one in line starts.
-3. **Refuse a full line.** When the waiting line holds `maxWaiting` runs, throw `TooBusy` at once.
-4. **Refuse a long wait.** When a run has waited `maxWaitMs`, take it out of the line, never start it, and
-   throw `TooBusy`.
-5. **Always free the slot.** Use `finally`, so a run that throws still gives its slot back.
+```text
+Done. All 6 rules pass.
+```
 
 ```mermaid
 flowchart LR
@@ -30,13 +23,26 @@ flowchart LR
   L -->|a slot frees| G
 ```
 
+## Your turn
+
+Work in `src/queue.ts`. It makes a queue with three limits: `maxRunning`, `maxWaiting` and `maxWaitMs`.
+
+1. Limit the runs going at once. Count the runs now going. A new run starts only below `maxRunning`.
+2. Keep a line. Other runs wait in order, first in, first out. When a run ends, the first one in line starts.
+3. Refuse a full line. When the waiting line holds `maxWaiting` runs, throw `TooBusy` at once.
+4. Refuse a long wait. When a run has waited `maxWaitMs`, take it out of the line, never start it, and throw `TooBusy`.
+5. Always free the slot. Use `finally`, so a run that throws still gives its slot back.
+6. Run the check.
+
 ```bash
 bun run verify hold-the-latency-goal
 ```
 
 Expect: `Done. All 6 rules pass.`
 
-You do not need Docker for this step.
+## Do it on your work
+
+Write the latency goal for your own agent in one sentence. How long may a person wait before the first word of an answer? Then find where your agent starts a run, and decide how many may go at once and how many may wait. Good looks like this: the goal has a number, and a rush beyond your limits gets a quick "try again" instead of a slow answer.
 
 ## Done when
 
@@ -47,15 +53,21 @@ You do not need Docker for this step.
 - A refusal gives `retryAfterSeconds`, a whole number of at least 1.
 - A run that throws frees its slot.
 
+## Solution
+
+The after state is a queue with the three limits, a first in, first out line and a `finally` that frees the slot. See `../solution/` for the file. To see the diff, run this in the `problem/` folder:
+
+```bash
+diff -u src/queue.ts ../solution/src/queue.ts
+```
+
+Expect: the lines that changed.
+
 ## If you get stuck
 
 - Do all the runs go at once? Nothing counts the running ones yet.
 - Does the queue stop working after an error? The slot was not freed. Put the free step in `finally`.
 - In the desk, answer a `TooBusy` with status 429 and a `Retry-After` header, like the resident limit.
-- Compare with `../solution/` when you are done.
-
-Do it on your work: write the latency goal for your own agent in one sentence. How long may a person wait
-before the first word of an answer?
 
 ## Words you will use
 

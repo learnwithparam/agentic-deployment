@@ -2,27 +2,33 @@
 
 ## The problem
 
-The desk's image carries the gateway's admin key. The key went in as a build argument. Docker keeps build
-arguments in the image's history and in its environment. So anyone who can pull the image can read the key
-with `docker history` or `docker inspect`.
+The desk's image carries the gateway's admin key, passed in as a build argument. Docker keeps build arguments in the image's history and environment, so anyone who can pull the image can read the key. The admin key has no budget, so a leaked copy can spend without limit.
 
-This is bad for two reasons:
+## Watch it done
 
-- The admin key has no budget. A leaked copy can spend money without limit.
-- Every call is billed to "admin". Nobody can tell the desk's spend from anyone else's.
+Before, the image shows the key to anyone:
 
-The council's gateway gives each service its own key with its own budget. The desk should use its own key.
-That key should never be inside the image or its environment.
+```text
+["GATEWAY_KEY=hdc-admin-...", ...]
+```
 
-Anthropic made the same choice for its cloud sandboxes. Secret keys, such as git credentials or signing keys,
-are never inside the sandbox. A proxy outside the sandbox holds them
-([Anthropic Engineering, "Beyond permission prompts"](https://www.anthropic.com/engineering/claude-code-sandboxing)).
+After, the key is a file mounted at `/run/secrets/gateway_key`, and the image holds no key. For example, with the file missing, the desk stops with this line:
 
-## Your challenge
+```text
+The desk cannot start: its gateway key file /run/secrets/gateway_key is missing.
+```
 
-Run every command on this page from the top of the repo, the folder with the course's `README.md`.
+```mermaid
+flowchart LR
+  K[secrets folder] -->|mounted file| D[desk]
+  D -->|desk key| GW[gateway]
+```
 
-1. Build this step's desk, then see the leak for yourself:
+## Your turn
+
+Run every command from the top of the repo.
+
+1. Build this step's desk, then see the leak for yourself.
 
 ```bash
 bun run up move-secrets-out
@@ -31,29 +37,21 @@ docker image inspect hdc-desk-desk --format '{{json .Config.Env}}'
 
 Expect: a list that includes `GATEWAY_KEY=hdc-admin-...`
 
-2. Remove the `ARG` and `ENV` lines for `GATEWAY_KEY` from the `Dockerfile`. Remove the build `args` from
-   `compose.yaml`.
-3. In `compose.yaml`, declare a top-level secret `gateway_key`. Its `file` is
-   `${HDC_SECRETS:-../../../../secrets}/desk_gateway_key`. List it under the `desk` service. Compose then
-   mounts it at `/run/secrets/gateway_key`.
-4. In `src/config.ts`, read the key from that file. If the file is missing, print which file is missing.
-   Then stop with `process.exit(1)`. This way a broken deploy fails at start, before the first resident
-   arrives.
+2. Remove the `ARG` and `ENV` lines for `GATEWAY_KEY` from the `Dockerfile`. Remove the build `args` from `compose.yaml`.
+3. In `compose.yaml`, declare a top-level secret `gateway_key`. Its `file` is `${HDC_SECRETS:-../../../../secrets}/desk_gateway_key`. List it under the `desk` service. Compose then mounts it at `/run/secrets/gateway_key`.
+4. In `src/config.ts`, read the key from that file. If the file is missing, print which file is missing. Then stop with `process.exit(1)`. A broken deploy then fails at start.
+5. Rebuild and look again.
 
-For example, when the file is missing, the finished desk prints this line and stops:
-`The desk cannot start: its gateway key file /run/secrets/gateway_key is missing.`
-
-```mermaid
-flowchart LR
-  subgraph secrets[secrets folder, never committed]
-    K1[desk_gateway_key]
-    K0[gateway_admin_key]
-  end
-  K1 -->|mounted at /run/secrets/gateway_key| D[desk container]
-  K0 -->|mounted| GW[gateway container]
-  D -->|Bearer desk key| GW
-  GW -->|provider key| M[model provider]
+```bash
+bun run up move-secrets-out
+docker image inspect hdc-desk-desk --format '{{json .Config.Env}}'
 ```
+
+Expect: a list with no `GATEWAY_KEY` in it.
+
+## Do it on your work
+
+Find one key in your own project. Move it into a file that git ignores, and read it from that file at start. Good looks like this: the image shows no key, and the app stops at start with a clear line when the file is missing.
 
 ## Done when
 
@@ -69,10 +67,13 @@ bun run verify move-secrets-out
 
 Expect: `Done. All 5 rules pass.`
 
+## Solution
+
+After: no key in the Dockerfile, a Compose secret, and a config that reads the file. See `../solution/` and compare with `diff -r . ../solution/`.
+
 ## If you get stuck
 
-- Rebuild after every change: `bun run up move-secrets-out` builds and restarts the desk.
-- `secrets/` is in `.gitignore`. `bun run world` made the files in it, so they are only on your machine.
+- `secrets/` is in `.gitignore`. `bun run world` made its files, so they stay on your machine.
 - Look at what the gateway billed:
 
 ```bash

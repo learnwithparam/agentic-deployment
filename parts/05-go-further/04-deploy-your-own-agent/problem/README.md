@@ -2,15 +2,24 @@
 
 ## The problem
 
-Everything so far used the council's desk. The real test is your own agent, with your own files. A checklist
-in your head does not prove it. Files and pasted output do.
+Everything so far used the council's desk. The real test is your own agent. A checklist in your head does not
+prove it. For example, "it works" proves nothing, but pasted output does. This step has no world. The check
+reads the folder you give it.
 
-For example, a learner pastes `$ curl -s http://localhost:3000/healthz` and the line it printed. That is
-evidence. A sentence that says "it works" is not.
+## Watch it done
 
-This step has no world. The check reads the folder you give it. It never looks at the course desk.
+Before, a learner says "it works". That is not evidence. After, the learner pastes
+`$ curl -s http://localhost:3000/healthz` and the line it printed. That is evidence: output from a real run,
+with the date.
 
-## Your challenge
+```mermaid
+flowchart LR
+  T[template] --> Y[your agent's files]
+  Y --> E[run it and paste the output]
+  E --> C[bun run verify, on your folder]
+```
+
+## Your turn
 
 Copy this `problem/` folder next to your own agent. It holds five files. Fill each one in for your agent.
 
@@ -20,15 +29,7 @@ Copy this `problem/` folder next to your own agent. It holds five files. Fill ea
 4. **`runbook.md`**: a real command or a real name under Kill switch, Roll back and Who to tell.
 5. **`EVIDENCE.md`**: run the health check, a roll back and the kill switch on your agent. Paste each
    command after a `$ ` and its output below it. Add the date.
-
-```mermaid
-flowchart LR
-  T[template] --> Y[your agent's files]
-  Y --> E[run it and paste the output]
-  E --> C[bun run verify, on your folder]
-```
-
-Run the check on your own folder:
+6. Run the check on your own folder.
 
 ```bash
 bun run verify deploy-your-own-agent ../my-agent
@@ -38,6 +39,11 @@ Expect: `Done. All 6 rules pass.`
 
 The check proves the shape and that the evidence exists. You prove that it is true, by running the commands.
 
+## Do it on your work
+
+This whole step is your own work. Run it on the agent you care about most. Good looks like a runbook a
+teammate could follow at night, and evidence you pasted yourself.
+
 ## Done when
 
 - The Dockerfile runs as a user that is not root and has a `HEALTHCHECK`.
@@ -46,12 +52,16 @@ The check proves the shape and that the evidence exists. You prove that it is tr
 - `runbook.md` has three sections, and none is empty.
 - `EVIDENCE.md` has a date and real output for the health check, the roll back and the kill switch.
 
+## Solution
+
+The after state is five filled-in files. See `../solution/` for them and their diff. It is an example of the
+shape, not your agent.
+
 ## If you get stuck
 
 - A `TODO` left in a file fails that rule. Search for it.
 - Does the key rule fail? The check looks for text such as `sk-` followed by a long key, and for a key name
   set in `environment`. Move the value to the secret file.
-- Compare with `../solution/` for the shape. It is an example, not your agent.
 
 ## Words you will use
 

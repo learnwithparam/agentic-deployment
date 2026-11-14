@@ -6,7 +6,7 @@ Run `docker compose stop agent`. The agent stops, so no model call is made.
 
 ## Roll back
 
-Run `docker compose up -d` with release v1 in release.json. Then check the health answer.
+Run `docker compose up -d` with the first release in release.json. Then check the health answer.
 
 ## Who to tell
 

@@ -31,7 +31,7 @@ async function checkCompose() {
   report(
     compose.code === 0 && newEnough,
     `Docker Compose ${version}`,
-    "Docker Compose 2.24 or newer is needed. Update Docker Desktop.",
+    "Docker Compose is too old. Update Docker Desktop.",
   );
 }
 

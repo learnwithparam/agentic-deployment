@@ -1,0 +1,13 @@
+# Python steps follow the same readable-code rules as TypeScript. See STANDARD.md, "Readable code".
+line-length = 100
+
+[lint]
+select = ["E", "F", "W", "I", "N", "B", "SIM", "C90", "PLR0913", "PLR0915", "PLR1702"]
+
+[lint.mccabe]
+max-complexity = 10
+
+[lint.pylint]
+max-args = 4
+max-statements = 30
+max-nested-blocks = 3

@@ -1,0 +1,15 @@
+{
+  "hosts": [
+    "medium.com",
+    "dev.to",
+    "hackernoon.com",
+    "towardsdatascience.com",
+    "geeksforgeeks.org",
+    "w3schools.com",
+    "javatpoint.com",
+    "tutorialspoint.com",
+    "*-blog-farm.com",
+    "*-blog-farm.net",
+    "*-blog-farm.io"
+  ]
+}

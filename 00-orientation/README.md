@@ -35,7 +35,7 @@ flowchart LR
 
 ## Walkthrough
 
-You need Docker (Desktop or Engine, with Compose 2.24 or newer) and Bun 1.4.4. You do not need a model key.
+You need Docker (Desktop or Engine, with a recent Compose) and Bun. You do not need a model key.
 The world plays back model replies that were recorded before (`LLM_PROVIDER=replay`). You can choose a real
 provider later.
 
@@ -82,7 +82,7 @@ Now see what the finished system does when something goes wrong:
 bun run chaos bad-canary
 ```
 
-Expect: `Alert ReleaseDisagreesWithRules fired for release v2. The controller set the canary to 0%.` and the
+Expect: `Alert ReleaseDisagreesWithRules fired for the second release. The controller set the canary to 0%.` and the
 number of seconds it took, with no one at the keyboard.
 
 Then do the orientation step, `meet-the-council`. Its files are in `meet-the-council/problem/`.

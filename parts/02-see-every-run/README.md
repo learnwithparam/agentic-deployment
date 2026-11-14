@@ -1,18 +1,18 @@
 # Part 2: See every run
 
+## After this part you can
+
+- Turn one run into a trace, with a span for each model call and each tool call.
+- Keep a resident's name, email and phone out of the record.
+- Put a price on every run, and say "unknown" when a price is missing.
+
+## You leave with
+
+A desk that records every run as a trace and answers what any run cost. You also have a short note on the costliest run of one of your own programs, from the project below.
+
 ## The problem
 
-A resident complains. The desk asked them for a fee that they had already paid. Which run was it? What did
-the agent read? Which tools did it call? What did that run cost? Today the desk keeps no record, so nobody
-can answer.
-
-The finance team also asks a question: what does one validation cost the council? Nobody can answer that
-either.
-
-In this part you add two things:
-
-- A trace is the record of one run. It is made of spans.
-- A span is one piece of work, with a start and an end. For example, one model call is one span.
+A resident complains that the desk asked for a fee they had already paid, and the finance team asks what one validation costs the council. Nobody can answer either one, because the desk keeps no record of a run. In this part you add a trace, which is the record of one run made of spans, and a price on each run. A span is one piece of work with a start and an end, such as one model call.
 
 ## Why it matters
 
@@ -43,10 +43,24 @@ flowchart LR
 
 ## Steps
 
-| Step              | Minutes | You make                                                                                                                     | The check reads                                                                                                                                                                        |
-| ----------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `trace-every-run` | 20      | OpenTelemetry tracing: a root span per run, a `chat <role>` span per model call, an `execute_tool <name>` span per tool call | `out/spans.jsonl` for 5 replayed applications: one root span each with `run.id`, `application.id`, `release.id`; token counts on every model span; no name, email or phone in any span |
-| `price-each-run`  | 15      | `app.cost_usd` on the root span and `GET /v1/runs/:id` returning it                                                          | the sum of `app.cost_usd` over the replay against the gateway's spend log (within 1 cent); a run with no price is `cost_unknown`, never 0                                              |
+| Step              | You make                                                                                                                     | The check reads                                                                                                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trace-every-run` | OpenTelemetry tracing: a root span per run, a `chat <role>` span per model call, an `execute_tool <name>` span per tool call | `out/spans.jsonl` for 5 replayed applications: one root span each with `run.id`, `application.id`, `release.id`; token counts on every model span; no name, email or phone in any span |
+| `price-each-run`  | `app.cost_usd` on the root span and `GET /v1/runs/:id` returning it                                                          | the sum of `app.cost_usd` over the replay against the gateway's spend log (within 1 cent); a run with no price is `cost_unknown`, never 0                                              |
+
+## Watch and read
+
+| Kind  | Title                                        | Made by                     | Why                                                       | Link                                                                        |
+| ----- | -------------------------------------------- | --------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------- |
+| video | OpenTelemetry explained for beginners        | The OpenTelemetry community | Shows traces and spans before you write them.             | <https://www.youtube.com/watch?v=r8UXuZ3GQhQ>                               |
+| video | Distributed tracing in plain words           | Honeycomb                   | Shows how one run becomes a tree of spans.                | <https://www.youtube.com/watch?v=rIrNIzy6U_g>                               |
+| read  | Traces                                       | OpenTelemetry project       | Defines trace, span and attribute in the words used here. | <https://opentelemetry.io/docs/concepts/signals/traces/>                    |
+| read  | A postmortem of three recent issues          | Anthropic Engineering       | Shows how records let a team put a number on a bug.       | <https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues> |
+| read  | How we built our multi-agent research system | Anthropic Engineering       | Shows why agents use far more tokens than chat.           | <https://www.anthropic.com/engineering/built-multi-agent-research-system>   |
+
+## Project
+
+Pick one program of your own that calls a model or another paid service. Record each run with an id, the number of calls and the cost, and write the record to a file. Then find the costliest run. Write two lines in `run-notes.md`: the run id and why it cost the most. If a price is missing, write "unknown", not 0.
 
 ## Walkthrough
 
@@ -113,7 +127,7 @@ Hand in `out/cost-by-type.md` on a branch of your fork. It is graded yes or no o
 - Does the named trace id exist in `out/spans.jsonl`?
 - Is a run with an unknown cost listed as unknown, not as $0?
 
-Extension: show the cost per run of release `v1` and release `v2` side by side. Read
+Extension: show the cost per run of the first release and the second release side by side. Read
 `release.id` on the root spans.
 
 ## Finished

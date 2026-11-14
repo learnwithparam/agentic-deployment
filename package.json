@@ -4,7 +4,7 @@
   "type": "module",
   "packageManager": "bun@1.4.4",
   "scripts": {
-    "check": "bun scripts/readable.ts && bun scripts/plain-english.ts && bun scripts/check.ts && bun scripts/verify.ts --all && bun checks/assignment.ts --prove && bun scripts/text-audit.ts",
+    "check": "bun scripts/readable.ts && bun scripts/plain-english.ts && bun scripts/check.ts && bun scripts/verify.ts --all && bun checks/assignment.ts --prove && bun scripts/text-audit.ts && bun test scripts/prose.test.ts && bun test scripts/dates.test.ts && bun scripts/capstone.ts && bun test scripts/shape.test.ts && bun scripts/picks.ts && bun scripts/ladder.ts && bun test scripts/workfiles.test.ts scripts/picks.test.ts scripts/ladder.test.ts scripts/changed.test.ts",
     "readable": "bun scripts/readable.ts",
     "format": "biome check --write .",
     "text-audit": "bun scripts/text-audit.ts",
@@ -18,7 +18,10 @@
     "chaos": "bun world/cli/chaos.ts",
     "models": "bun world/cli/models.ts",
     "shots": "bun world/cli/shots.ts",
-    "assignment": "bun checks/assignment.ts"
+    "assignment": "bun checks/assignment.ts",
+    "check:changed": "bun scripts/changed.ts",
+    "picks": "bun scripts/picks.ts",
+    "ladder": "bun scripts/ladder.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "4.0.103",
@@ -34,5 +37,9 @@
     "@playwright/test": "1.65.0",
     "@types/bun": "1.4.4",
     "playwright": "1.65.0"
-  }
+  },
+  "plainEnglish": {
+    "grade": 6
+  },
+  "capstone": true
 }
