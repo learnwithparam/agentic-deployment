@@ -1,6 +1,6 @@
-// release-on-cloud-run: the learner's release.ts deploys the desk to Cloud Run in floci-gcp, ships a
-// second revision and rolls back. The check starts the folder's own Compose file, runs the folder's
-// release.ts and judges what the emulator then holds. It never imports the learner's code.
+// release-on-cloud-run: the learner's release.ts deploys the desk to Cloud Run in floci-gcp,
+// ships a second revision and rolls back. The check starts the folder's own Compose file and runs
+// the folder's release.ts. Then it judges what the emulator holds. It never imports their code.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { Rule } from "../scripts/verify";
@@ -171,7 +171,7 @@ type ComposeFile = {
   services?: Record<string, { image?: string; ports?: { published?: string; target?: number }[] }>;
 };
 
-/** True when the folder's Compose file runs floci-gcp 0.12.0 on port 4588 with the Docker socket. */
+/** True when the Compose file runs floci-gcp 0.12.0 on port 4588 with the Docker socket. */
 export async function composeRunsPinnedEmulator(dir: string): Promise<boolean> {
   if (!existsSync(join(dir, "docker-compose.yml"))) return false;
   const config = await compose(dir, "config", "--format", "json");
@@ -195,7 +195,7 @@ function textFilesIn(folder: string, found: string[] = []): string[] {
 
 const fakeKey = (dir: string) => readFileSync(join(dir, "fake-key.txt"), "utf8").trim();
 
-/** True when the key sits only in fake-key.txt, never in code, and no real-looking key is in a file. */
+/** True when the key sits only in fake-key.txt, and no real-looking key is in any file. */
 export function keyStaysOutOfCode(dir: string): boolean {
   if (!existsSync(join(dir, "fake-key.txt"))) return false;
   const key = fakeKey(dir);

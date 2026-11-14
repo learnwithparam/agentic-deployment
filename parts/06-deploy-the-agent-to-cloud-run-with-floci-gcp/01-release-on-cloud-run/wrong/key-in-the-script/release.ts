@@ -24,7 +24,8 @@ async function callApi(method: string, path: string, body?: object): Promise<Api
 }
 
 // A Cloud Run service body. The release file picks the release; the image stays the same.
-// The emulator cannot mount a secret, so the key is passed as a value and the desk writes it to a file.
+// The emulator cannot mount a secret, so the key goes in as a value.
+// The desk writes it to a file, which is where it reads its key.
 function serviceBody(releaseFile: string, key: string) {
   const startDesk = 'printf %s "$GATEWAY_KEY" > /tmp/gateway_key; exec bun src/server.ts';
   const environment = [
