@@ -2,49 +2,24 @@
 
 ## The problem
 
-Open http://localhost:3000/staff today. You see the validation queue, whoever you are.
-`POST /v1/applications/<id>/validate` works for anyone too.
+Open http://localhost:3000/staff today and you see the validation queue, whoever you are. The validate route works for anyone too. Validated sends an application to a planning officer, so anyone, even the agent, could push one through. Only a `validation_officer` should be allowed to validate.
 
-Validated sends an application to a planning officer. So anyone, even the agent, could push one through.
+## Watch it done
 
 The council has a sign-in service at http://localhost:7003. It signs tokens that carry the person's `roles`.
-The desk must trust only those tokens. Only a `validation_officer` may validate.
 
-The desk also has its own service identity, the `permit-desk` client. Its tokens carry the role `agent`. The
-agent must never be able to validate its own work.
+For example, `world/data/people.json` gives `amara.okafor` the role `validation_officer`, so she may validate. It gives `sam.hollis` the role `resident`, so the desk answers him with 403. The desk's own service identity, the `permit-desk` client, carries the role `agent`, and it must never validate its own work.
 
-For example, `world/data/people.json` gives `amara.okafor` the role `validation_officer`, so she may
-validate. It gives `sam.hollis` the role `resident`, so the desk answers him with 403.
+![The validation queue after signing in](../images/expected.png)
 
-## Your challenge
+## Your turn
 
-1. In `src/auth.ts`, write `verify(token)`. Use `jwtVerify` with the `keys` set, the `ISSUER` and the
-   audience `permit-desk`. Return `{ sub, name, roles }`, or `null` for a missing, forged or expired token.
-   `signInUrl` and `exchangeCode` are already written.
-2. In `src/server.ts`, guard the staff routes:
-   - `GET /staff` with no valid session cookie redirects to `signInUrl()`.
-   - Add `GET /staff/callback`. Swap the `code` for a token with `exchangeCode`, keep the token in an
-     `httpOnly` cookie, and redirect to `/staff`.
-   - `POST /v1/applications/:id/validate` reads `Authorization: Bearer <token>`. Answer 401 when `verify`
-     fails, and 403 when the roles do not include `validation_officer`. Only then call the register.
-   - Add `POST /staff/validate/:id`, where the queue's Validate button posts. Check the session cookie:
-     no session redirects to `signInUrl()`, and a user who is not an officer gets 403.
-
-```mermaid
-sequenceDiagram
-  participant B as Officer's browser
-  participant D as Desk :3000
-  participant S as Sign-in :7003
-  B->>D: GET /staff
-  D-->>B: 302 to /authorize
-  B->>S: username and password
-  S-->>B: 302 to /staff/callback?code=...
-  B->>D: GET /staff/callback
-  D->>S: swap code for token
-  D-->>B: cookie, then the queue
-```
-
-Sign in as an officer. Read the passwords from the top of the repo:
+1. In `src/auth.ts`, write `verify(token)`. Use `jwtVerify` with the `keys` set, the `ISSUER` and the audience `permit-desk`. Return the person's `sub`, `name` and `roles`, or `null` for a missing, forged or expired token.
+2. In `src/server.ts`, make `GET /staff` redirect to `signInUrl()` when there is no valid session cookie.
+3. Add `GET /staff/callback`. Swap the `code` for a token with `exchangeCode`, keep the token in an `httpOnly` cookie, and redirect to `/staff`.
+4. Guard `POST /v1/applications/:id/validate`. It reads the `Authorization` header with a bearer token. Answer 401 when `verify` fails, and 403 when the roles do not include `validation_officer`. Only then call the register.
+5. Add `POST /staff/validate/:id`, where the queue's Validate button posts. No session redirects to `signInUrl()`. A user who is not an officer gets 403.
+6. Read the passwords, then sign in as an officer.
 
 ```bash
 cat secrets/passwords
@@ -52,7 +27,9 @@ cat secrets/passwords
 
 Expect: a JSON object with a password for `amara.okafor`, `tom.reid`, `priya.shah` and `sam.hollis`.
 
-![The validation queue after signing in](../images/expected.png)
+## Do it on your work
+
+Pick one risky route in your own project. Make it read a signed token and refuse with 401 for a bad token and 403 for a wrong role. Good looks like this: three callers (no token, wrong role, right role) get three different answers, and only the last changes anything.
 
 ## Done when
 
@@ -61,14 +38,17 @@ Expect: a JSON object with a password for `amara.okafor`, `tom.reid`, `priya.sha
 - Validate with no token or a forged token answers 401.
 - A signed-in resident gets 403 on validate.
 - The agent's own service identity gets 403 on validate.
-- Every refused call, also a form post with no session, leaves the register unchanged. An officer's call
-  validates the application.
+- Every refused call leaves the register unchanged. An officer's call validates the application.
 
 ```bash
 bun run verify sign-in-staff
 ```
 
 Expect: `Done. All 6 rules pass.`
+
+## Solution
+
+After: a `verify` function and guards on the staff routes. See `../solution/` and compare with `diff -r . ../solution/`.
 
 ## If you get stuck
 
@@ -80,7 +60,7 @@ curl -s localhost:7003/token -d grant_type=password -d username=sam.hollis -d pa
 
 Expect: `{"access_token":"eyJ...","id_token":"eyJ...","token_type":"Bearer","expires_in":3600}`
 
-- `decodeJwt` only reads a token, and anyone can write one. Use `jwtVerify`, which checks the signature.
+- `decodeJwt` only reads a token. Use `jwtVerify`, which checks the signature.
 - `getCookie` and `setCookie` come from `hono/cookie`.
 - Compare with `../solution/` when you are done.
 

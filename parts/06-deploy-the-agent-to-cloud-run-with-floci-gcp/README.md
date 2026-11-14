@@ -3,28 +3,19 @@
 This part redoes the course's release with a cloud service, on your own machine. It is optional in the live
 session and expected as homework. Nothing in parts 1 to 5 changes.
 
+## After this part you can
+
+Store a key in a secret manager, deploy a service as numbered revisions, ship a change, and roll back to the
+first release. You do it all on an emulator, with no cloud account.
+
+## You leave with
+
+A working `release.ts` and `docker-compose.yml`, a `CHOICE.md` that says when Cloud Run is the better choice,
+and a rollback you watched work.
+
 ## The problem
 
-In part 4 you built a release by hand: a canary, a check and a rollback, all with your own scripts. A real team
-often runs the desk on a cloud service instead, such as Google Cloud Run. That service keeps the key in a secret
-store, makes a new revision for every change, and serves one revision at a time.
-
-You do not need a cloud account to learn this. [floci-gcp](https://github.com/floci-io/floci-gcp) is a free,
-MIT-licensed emulator of Google Cloud. It runs as one Docker Compose service on port 4588. It needs no account
-and no key.
-
-For example, you change the desk from release v1 to v2. Cloud Run keeps the old revision, starts the new one,
-and then serves the new one. If v2 is bad, you need a way back that you have already tried.
-
-## Why it matters
-
-A rollback you have never tried is a hope, not a plan. The emulator is a safe place to try it. It also tells you
-what it cannot do. It does not apply a traffic setting, and it cannot mount a secret as a file. You learn
-those limits here, so a cloud bill and a bad night do not teach them to you.
-
-The emulator's own pages say what it supports:
-[Cloud Run](https://github.com/floci-io/floci-gcp/blob/main/docs/services/cloud-run.md) and
-[Secret Manager](https://github.com/floci-io/floci-gcp/blob/main/docs/services/secret-manager.md).
+In part 4 you built a release by hand, with your own scripts. A real team often runs the desk on a cloud service such as Google Cloud Run. It keeps the key in a secret store and makes a new revision for every change. It serves one revision at a time. You do not need a cloud account to learn this: [floci-gcp](https://github.com/floci-io/floci-gcp) is a free emulator of Google Cloud that runs as one Docker Compose service on port 4588 and needs no key. For example, you change the desk from the first release to the second. Cloud Run keeps the old revision, starts the new one, and serves it. If the second release is bad, you need a way back that you have already tried. A rollback you have never tried is a hope, not a plan, and the emulator also tells you what it cannot do: it does not apply a traffic setting, and it cannot mount a secret as a file. Its own pages say what it supports: [Cloud Run](https://github.com/floci-io/floci-gcp/blob/main/docs/services/cloud-run.md) and [Secret Manager](https://github.com/floci-io/floci-gcp/blob/main/docs/services/secret-manager.md).
 
 ```mermaid
 flowchart LR
@@ -32,20 +23,35 @@ flowchart LR
   K[fake key] -->|store| SM[Secret Manager]
   SM -->|read at deploy| R[release.ts]
   R -->|create service| CR[Cloud Run: desk]
-  CR --> V1[desk-00001: v1]
-  R -->|ship| V2[desk-00002: v2]
-  R -->|rollback| V3[desk-00003: v1 again]
+  CR --> V1[desk-00001: first release]
+  R -->|ship| V2[desk-00002: second release]
+  R -->|rollback| V3[desk-00003: first release again]
   U[you] -->|call| CR
 ```
 
-## What we teach
+## Steps
 
-You write one Bun script, `release.ts`, that talks to the emulator's Cloud Run Admin API v2 and Secret Manager.
+You write one Bun script, `release.ts`, that talks to the emulator's Cloud Run Admin API and Secret Manager.
 The desk image is the one from part 5. Only a fake key is used, never a real one.
 
-| Step                                                              | Minutes | You make                                                                      | The check reads                                                                     |
-| ----------------------------------------------------------------- | ------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| [release-on-cloud-run](01-release-on-cloud-run/problem/README.md) | 30      | a Compose file, a secret, a service, a call, a second revision and a rollback | the pinned image, the secret, the three revisions and which release each one serves |
+| Step                                                              | You make                                                                      | The check reads                                                                     |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| [release-on-cloud-run](01-release-on-cloud-run/problem/README.md) | a Compose file, a secret, a service, a call, a second revision and a rollback | the pinned image, the secret, the three revisions and which release each one serves |
+
+## Watch and read
+
+| Kind  | Title                                                           | Made by                   | Why                                                        | Link                                                                              |
+| ----- | --------------------------------------------------------------- | ------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| video | Cloud Run Deployments: Revisions, Traffic Splitting, Blue/Green | Channel to confirm        | Shows revisions and traffic before you make your own.      | <https://www.youtube.com/watch?v=aZwXM3myz5U>                                     |
+| video | Cloud Run Traffic Management Lab                                | Channel to confirm        | A hands-on run of deploying revisions and moving traffic.  | <https://www.youtube.com/watch?v=h0dBq5Ifq-o>                                     |
+| read  | Rollbacks, gradual rollouts, and traffic migration              | The Google Cloud Run team | The real service's rollback, to compare with the emulator. | <https://docs.cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration>     |
+| read  | floci-gcp Cloud Run                                             | The floci-gcp maintainers | Says what the emulator supports and what it skips.         | <https://github.com/floci-io/floci-gcp/blob/main/docs/services/cloud-run.md>      |
+| read  | floci-gcp Secret Manager                                        | The floci-gcp maintainers | Says how the emulator stores a key.                        | <https://github.com/floci-io/floci-gcp/blob/main/docs/services/secret-manager.md> |
+
+## Project
+
+Pick one small service of your own. Write its rollback as one command, try it on a safe copy, and save what
+you saw in a short note.
 
 ## Options
 

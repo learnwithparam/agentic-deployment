@@ -1,0 +1,10 @@
+# TODO: run your agent. Give it its key as a secret file. Never put a key in environment.
+services:
+  agent:
+    build: .
+    # secrets:
+    #   - agent_key
+
+# secrets:
+#   agent_key:
+#     file: ./secrets/agent_key.txt

@@ -1,0 +1,11 @@
+services:
+  agent:
+    build: .
+    ports:
+      - "3000:3000"
+    secrets:
+      - agent_key
+
+secrets:
+  agent_key:
+    file: ./secrets/agent_key.txt

@@ -2,15 +2,15 @@
 
 ## The problem
 
-Staff sign in through a stand-in service on port 7003. We built it for this course. A real council runs a
-sign-in system that many teams share.
+Staff sign in through a stand-in service that we built for this course. A real council runs one sign-in system
+that many teams share. For example, Amara Okafor signs in once for every team. Here the desk uses Keycloak, a
+free sign-in system with a prepared realm: a set of users and apps.
 
-In this step the desk signs in with Keycloak, a free sign-in system. It runs in your own compose file. It reads
-a prepared realm: a set of users and apps.
+## Watch it done
 
-For example, Amara Okafor opens the staff queue. The desk sends her to the realm's login page. She comes back
-with a code. The desk swaps the code for a token and checks it with the realm's keys. Then the desk trades
-her token for a smaller one before it calls the validation service. That token fits the service only.
+Before, the desk trusts the stand-in service. After, Amara opens the staff queue. The desk sends her to the
+realm's login page. She comes back with a code. The desk swaps it for a token and checks it with the realm's
+keys. Then it trades her token for a smaller one before it calls the validation service.
 
 ```mermaid
 sequenceDiagram
@@ -28,10 +28,10 @@ sequenceDiagram
   D->>S: narrow token
 ```
 
-## Your challenge
+## Your turn
 
 Work in this folder. The realm file `realm/council-realm.json` is ready. It holds the user `amara.okafor` and
-three apps, called clients: `permit-desk` for the browser, `permit-desk-server` for the desk's server, and `permit-service`.
+three apps, called clients: `permit-desk`, `permit-desk-server` and `permit-service`.
 
 1. Write `compose.yaml` with a `keycloak` service. Use the image `keycloak/keycloak:26.8.2`. Mount `realm/` at
    `/opt/keycloak/data/import`. Run `kc.sh start-dev --import-realm`. Publish port 8080 as 8180. Pass the
@@ -39,8 +39,7 @@ three apps, called clients: `permit-desk` for the browser, `permit-desk-server` 
 2. In `src/desk-auth.ts`, write `startSignIn` and `finishSignIn` with the code flow and PKCE.
 3. Write `verifyToken` with `jose`. It must check the signature, the issuer, the expiry and the audience.
 4. Write `narrowToken`. It uses token exchange to get a token for `permit-service`.
-
-Compare with `../solution/` when you are done. Start Keycloak, then read the realm's discovery document:
+5. Start Keycloak, then read the realm's discovery document.
 
 ```bash
 docker compose up -d --wait
@@ -49,32 +48,43 @@ curl -s http://localhost:8180/realms/council/.well-known/openid-configuration
 
 Expect: JSON that holds `"issuer":"http://localhost:8180/realms/council"`.
 
+6. Run the check, then stop Keycloak.
+
+```bash
+bun run verify sign-in-with-keycloak
+docker compose down -v
+```
+
+Expect: `Done. All 5 rules pass.`
+
+## Do it on your work
+
+Take one service of your own with admin routes. Plan how it checks a token: signature, issuer, expiry and
+audience. Good looks like a token for one audience that other services refuse.
+
 ## Done when
 
 - The realm's discovery page answers. It refuses a sign-in with no PKCE challenge. Keycloak stays under 1 GiB.
 - The desk accepts the officer's token. It refuses an expired token and one for another audience.
 - The service accepts the narrowed token. The desk refuses it.
 
-```bash
-bun run verify sign-in-with-keycloak
-```
+## Solution
 
-Expect: `Done. All 5 rules pass.`
+The after state is a `compose.yaml` with Keycloak and the functions in `src/desk-auth.ts`. See `../solution/`
+for the files and their diff.
 
 ## If you get stuck
 
-- Keycloak takes up to a minute to start. `docker compose logs keycloak` shows when it is ready.
-- `Public client is not allowed to exchange token` means the exchange used the browser client. The desk's
-  server must exchange with its own client and secret.
-- `Requested audience not available` means the user has no role on that client. The realm file gives
+- Keycloak is slow to start. `docker compose logs keycloak` shows when it is ready.
+- Error "Public client is not allowed to exchange token": the exchange used the browser client. Use the
+  desk's server client and secret.
+- Error "Requested audience not available": the user has no role on that client. The realm file gives
   `amara.okafor` the role `validate` on `permit-service`.
-- Run `bun run world` once if `secrets/` is missing.
-- Stop Keycloak with `docker compose down -v` when you are done.
 
 ## Words you will use
 
 - **Realm**: one set of users, clients and keys in Keycloak.
-- **Code flow**: the browser signs in at the realm and brings back a code. The desk swaps it for a token.
+- **Code flow**: the browser signs in and brings back a code. The desk swaps it for a token.
 - **PKCE**: a one-time secret that ties a code to the app that asked for it.
 - **Audience**: the name of the service a token is made for. A service refuses a token for another audience.
 - **Token exchange**: trading one token for a new one that fits fewer services.

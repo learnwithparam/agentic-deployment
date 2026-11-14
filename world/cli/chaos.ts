@@ -214,7 +214,7 @@ async function badCanary() {
     }
     if (Date.now() - start > 180_000) {
       console.log(
-        `No rollback within 3 minutes after ${sent} applications. ` +
+        `No rollback within the wait after ${sent} applications. ` +
           "Check http://localhost:9090/alerts.",
       );
       process.exit(1);

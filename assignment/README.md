@@ -22,10 +22,10 @@ flowchart LR
 The check script `checks/assignment.ts` tests each line and writes `assignment/result.json`. The file holds one
 `pass` or `fail` per line.
 
-- The Compose file runs `floci/floci-gcp:0.12.0` on port 4588.
+- The Compose file runs the pinned floci-gcp image on port 4588.
 - The fake key is in Secret Manager and not in your code.
-- `desk-00001` serves release v1, and `desk-00002` serves release v2.
-- After the rollback, release v1 serves again through `desk-00003`.
+- `desk-00001` serves the first release, and `desk-00002` serves the second release.
+- After the rollback, the first release serves again through `desk-00003`.
 - `CHOICE.md` names the secret volume limit and the traffic limit.
 
 ```bash

@@ -1,22 +1,57 @@
 // biome-ignore-all lint/style/useNamingConvention: environment variable names stay upper case
 // bun run text-audit: start the permit desk and its world on this machine (no Docker), open every
-// page the audit lists in e2e/routes.ts, and check the words on it. See e2e/page-checks.js.
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+// route in a real browser, and run the 10 text checks. See e2e/page-checks.js.
+// A repo with no e2e/routes.ts has no pages yet, so there is nothing to audit.
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { PORTS } from "../e2e/ports";
 import { ROOT } from "./structure";
 
-const work = mkdtempSync(join(tmpdir(), "text-audit-"));
-const secrets = join(work, "secrets");
-mkdirSync(secrets);
-const PASSWORD = "audit-password";
-writeFileSync(join(secrets, "gateway_key"), "audit-key\n");
-writeFileSync(join(secrets, "desk_client_secret"), "audit-secret\n");
-writeFileSync(join(secrets, "passwords"), JSON.stringify({ "amara.okafor": PASSWORD }));
+const routesFile = join(ROOT, "e2e", "routes.ts");
 
-const base = { ...process.env, SECRETS_DIR: secrets };
-const localUrls = {
+if (!existsSync(routesFile)) {
+  console.log("Text audit skipped: e2e/routes.ts does not exist yet.");
+  console.log("Try next: copy e2e/routes.example.ts to e2e/routes.ts when the course has pages.");
+  process.exit(0);
+}
+
+const configFile = join(ROOT, "e2e", "playwright.config.ts");
+const deskFolder = join(ROOT, "world", "finished", "desk");
+
+function installOrStop(command: string[], folder: string, message: string) {
+  const result = Bun.spawnSync(command, { cwd: folder, stdout: "ignore", stderr: "inherit" });
+  if (result.exitCode !== 0) {
+    console.error(message);
+    process.exit(2);
+  }
+}
+
+installOrStop(["bun", "install"], ROOT, "Could not install packages. Try next: run bun install.");
+installOrStop(
+  ["bun", "install"],
+  deskFolder,
+  "Could not install the desk packages. Try next: run bun install in world/finished/desk.",
+);
+// Set PLAYWRIGHT_CHROMIUM to a Chromium path to skip the download, like bun run shots.
+if (!process.env.PLAYWRIGHT_CHROMIUM) {
+  installOrStop(
+    ["bunx", "playwright", "install", "chromium"],
+    ROOT,
+    "Could not get the browser. Try next: run bunx playwright install chromium.",
+  );
+}
+
+const workFolder = mkdtempSync(join(tmpdir(), "text-audit-"));
+const secretsFolder = join(workFolder, "secrets");
+mkdirSync(secretsFolder);
+const auditUser = "amara.okafor";
+const auditPassword = "audit-password";
+writeFileSync(join(secretsFolder, "gateway_key"), "audit-key\n");
+writeFileSync(join(secretsFolder, "desk_client_secret"), "audit-secret\n");
+writeFileSync(join(secretsFolder, "passwords"), JSON.stringify({ [auditUser]: auditPassword }));
+
+const deskUrls = {
   REGISTER_URL: `http://localhost:${PORTS.register}`,
   GATEWAY_URL: `http://localhost:${PORTS.gateway}`,
   IDP_URL: `http://localhost:${PORTS.idp}`,
@@ -26,77 +61,78 @@ const localUrls = {
 const services = [
   {
     file: "world/register/server.ts",
-    env: { REGISTER_DATA: join(work, "register") },
     port: PORTS.register,
+    env: { REGISTER_DATA: join(workFolder, "register") },
   },
-  { file: "world/idp/server.ts", env: { IDP_DATA: join(work, "idp") }, port: PORTS.idp },
+  { file: "world/idp/server.ts", port: PORTS.idp, env: { IDP_DATA: join(workFolder, "idp") } },
   {
     file: "world/traces/server.ts",
-    env: { TRACES_DATA: join(work, "traces") },
     port: PORTS.traces,
+    env: { TRACES_DATA: join(workFolder, "traces") },
   },
   {
     file: "world/finished/desk/src/server.ts",
-    env: {
-      ...localUrls,
-      GATEWAY_KEY_FILE: join(secrets, "gateway_key"),
-      DESK_DATA: join(work, "desk"),
-      RELEASE_FILE: join(ROOT, "world/finished/desk/release.json"),
-      CLIENT_SECRET_FILE: join(secrets, "desk_client_secret"),
-    },
     port: PORTS.desk,
+    env: {
+      ...deskUrls,
+      GATEWAY_KEY_FILE: join(secretsFolder, "gateway_key"),
+      DESK_DATA: join(workFolder, "desk"),
+      RELEASE_FILE: join(deskFolder, "release.json"),
+      CLIENT_SECRET_FILE: join(secretsFolder, "desk_client_secret"),
+    },
   },
 ];
 
-// CI runs this before anything else has installed packages, so install the audit's own first.
-await Bun.spawn(["bun", "install", "--frozen-lockfile"], { cwd: ROOT, stdout: "ignore" }).exited;
-const playwright = join(ROOT, "node_modules", ".bin", "playwright");
-if (!process.env.PLAYWRIGHT_CHROMIUM) {
-  await Bun.spawn([playwright, "install", "chromium"], { cwd: ROOT, stdout: "ignore" }).exited;
-}
-
-// The desk has its own packages, which the Docker build installs. Install them here the same way.
-await Bun.spawn(["bun", "install", "--frozen-lockfile"], {
-  cwd: join(ROOT, "world/finished/desk"),
-  stdout: "ignore",
-}).exited;
-
-const children = services.map((service) =>
+const running = services.map((service) =>
   Bun.spawn(["bun", service.file], {
     cwd: ROOT,
-    env: { ...base, ...service.env, PORT: String(service.port) },
+    env: {
+      ...process.env,
+      SECRETS_DIR: secretsFolder,
+      ...service.env,
+      PORT: String(service.port),
+    },
     stdout: "ignore",
     stderr: "inherit",
   }),
 );
 
-async function waitFor(url: string) {
-  for (let attempt = 0; attempt < 60; attempt++) {
+async function waitForService(url: string) {
+  for (let attempt = 0; attempt < 120; attempt++) {
     try {
       if ((await fetch(url)).status < 500) return;
-    } catch {}
+    } catch {
+      // Not answering yet; try again after a short wait.
+    }
     await Bun.sleep(250);
   }
-  throw new Error(`${url} did not answer. Start the service by hand to see why.`);
+  throw new Error(`${url} did not answer. Try next: start that service by hand to see why.`);
 }
 
-let code = 1;
+let exitCode = 1;
 try {
-  for (const service of services) await waitFor(`http://localhost:${service.port}/`);
-  const audit = Bun.spawn([playwright, "test", "-c", "e2e/playwright.config.ts"], {
+  for (const service of services) await waitForService(`http://localhost:${service.port}/`);
+  const audit = Bun.spawn(["bunx", "playwright", "test", "-c", configFile, "--trace", "off"], {
     cwd: ROOT,
     env: {
       ...process.env,
       AUDIT_URL: `http://localhost:${PORTS.desk}`,
-      AUDIT_USER: "amara.okafor",
-      AUDIT_PASSWORD: PASSWORD,
+      AUDIT_USER: auditUser,
+      AUDIT_PASSWORD: auditPassword,
     },
     stdout: "inherit",
     stderr: "inherit",
   });
-  code = await audit.exited;
+  exitCode = await audit.exited;
+  if (exitCode !== 0) {
+    console.error(
+      "The text audit found problems. Try next: fix the lines marked above, then rerun.",
+    );
+  }
+} catch (error) {
+  console.error((error as Error).message);
 } finally {
-  for (const child of children) child.kill();
-  rmSync(work, { recursive: true, force: true });
+  for (const child of running) child.kill();
+  rmSync(workFolder, { recursive: true, force: true });
 }
-process.exit(code);
+process.exit(exitCode === 0 ? 0 : 1);

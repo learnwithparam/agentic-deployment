@@ -1,0 +1,42 @@
+# Maps each Claude Code feature a learner must use to the step that teaches it.
+# Fill in a step name for each key, then set "ladder": true in package.json.
+# Levels come from standard section 7.
+[features]
+# L0 Ask
+plan-mode = ""
+at-files = ""
+screenshots = ""
+specific-prompt = ""
+# L1 Supervise
+permission-modes = ""
+diff-review = ""
+esc = ""
+rewind = ""
+clear = ""
+# L2 Teach the repo
+init = ""
+claude-md = ""
+rules = ""
+check-to-run = ""
+# L3 Fence it
+hooks = ""
+deny-rules = ""
+sandbox = ""
+skills = ""
+mcp-or-cli-tools = ""
+# L4 Spec and verify
+spec-interview = ""
+goal = ""
+stop-hook-gate = ""
+code-review-subagent = ""
+# L5 Parallel
+subagents = ""
+worktrees = ""
+batch = ""
+reviewer-agent = ""
+# L6 Unattended
+headless = ""
+loop = ""
+schedule = ""
+github-action = ""
+run-contract-and-metrics = ""

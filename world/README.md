@@ -32,7 +32,7 @@ You can ask what is running at any time. This command starts nothing:
 bun run world status
 ```
 
-Expect: the same lines, and how many applications have each status, for example `40 applications: 40 received`.
+Expect: the same lines, and how many applications have each status, for example "40 applications: 40 received".
 
 ## Its data
 

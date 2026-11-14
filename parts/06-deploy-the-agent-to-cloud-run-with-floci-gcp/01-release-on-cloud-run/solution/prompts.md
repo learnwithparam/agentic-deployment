@@ -30,8 +30,8 @@ patch the template back. Tell me which one makes the desk answer v1. Then write 
 
 ## What Claude Code showed
 
-The traffic patch was accepted, but the desk still answered v2. Patching the template back made a new
-revision, `desk-00003`, and it answered v1. So the rollback in `release.ts` is the template patch.
+The traffic patch was accepted, but the desk still answered with the second release. Patching the template back made a new
+revision, `desk-00003`, and it answered with the first release. So the rollback in `release.ts` is the template patch.
 
 ## What you checked
 
