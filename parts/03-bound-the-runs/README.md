@@ -49,6 +49,8 @@ flowchart TD
 | `cap-the-spend`        | 20      | a step limit and a dollar limit per run, and a budget on the desk's gateway key | `bun run chaos runaway`: the run ends `stopped_budget` in under 25 steps and under $0.10 (spend log); a budget refusal from the gateway reaches the resident as `event: error`        |
 | `rate-limit-residents` | 10      | a limit per resident (header `x-resident-id`, else address)                     | 6 requests from one resident inside the window get one 429 with `Retry-After`; another resident still gets 200                                                                        |
 | `survive-a-restart`    | 20      | a run journal and idempotency keys on the register writes                       | `bun run chaos kill --desk`: after the restart the run finishes, the register holds one decision and one letter, and no completed model step is called again (spend log rows per run) |
+| `fall-back-when-a-provider-stalls` | 15 | a timeout on each provider call and a fallback to the next provider | four in-process rules against fake providers: a stall or a 500 moves on, and no spare is asked when the first answers |
+| `hold-the-latency-goal` | 20 | a queue with a limit on runs going, a limit on runs waiting and a longest wait | six in-process rules: order, limits, `too_busy` with a retry time, and a freed slot after an error |
 
 ## Walkthrough
 

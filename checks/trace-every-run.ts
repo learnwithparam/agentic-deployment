@@ -142,7 +142,8 @@ function residentDetails(): string[] {
 
 function holdsNoResidentDetails(run: TracedRun): boolean {
   const details = residentDetails();
-  const spanText = JSON.stringify(run.trace.map((span) => span.attributes));
+  // The whole span counts: its name, its attributes and anything else it carries.
+  const spanText = JSON.stringify(run.trace);
   return run.trace.length > 0 && !details.some((detail) => spanText.includes(detail));
 }
 

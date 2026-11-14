@@ -1,5 +1,6 @@
 // bun run verify <step-name>            check your work on one step, then show progress
 // bun run verify <step-name> solution   check the sample solution instead
+// bun run verify <step-name> <folder>   check a folder of your own, such as your own agent
 // bun run verify part <part-name>      check every step in one part (a deliverable)
 // bun run verify --report               write verify-report.json for cohort grading
 // bun run verify --all                  CI: each check fails on its starter and wrong answers,
@@ -7,7 +8,7 @@
 // Exit codes: 0 pass, 1 fail, 2 the check could not run.
 
 import { existsSync, readdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { allSteps, findStep, type Part, parts, ROOT, type Step } from "./structure";
 
 export type Rule = {
@@ -205,10 +206,12 @@ function listSteps(stepName: string | undefined): never {
   process.exit(1);
 }
 
-async function verifyStep(step: Step, asSolution: boolean): Promise<never> {
+async function verifyStep(step: Step, which: string | undefined): Promise<never> {
+  const asSolution = which === "solution";
+  const ownFolder = which && !asSolution ? resolve(which) : undefined;
   const whose = asSolution ? "sample solution" : "your work";
   console.log(`Checking ${step.name} (${whose}):`);
-  const dir = asSolution ? join(step.dir, "solution") : work(step);
+  const dir = ownFolder ?? (asSolution ? join(step.dir, "solution") : work(step));
   const result = await run(step, dir, true);
   if (result.status === "error") process.exit(2);
   if (result.status === "pass") {
@@ -237,4 +240,4 @@ if (command === "part") {
 }
 const step = command && findStep(command);
 if (!step) listSteps(command);
-await verifyStep(step, which === "solution");
+await verifyStep(step, which);

@@ -1,0 +1,6 @@
+{
+  "id": "v1",
+  "max_steps": 12,
+  "max_cost_usd": 0.05,
+  "timeout_ms": 20000
+}
