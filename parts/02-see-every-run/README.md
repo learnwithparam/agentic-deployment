@@ -141,5 +141,5 @@ You now have a desk that you can see into and put a price on:
 - `GET /v1/runs/:id` answers the status, the number of model calls and the cost of any run.
 
 You can now see how much each run costs. You cannot yet stop a run that costs too much. In Part 3,
-bound the runs, you add brakes: a step limit and a dollar limit per run, a limit per resident, and a
+bound the runs, you add brakes. They are a step limit and a dollar limit per run, a limit per resident, and a
 run journal so a run survives a restart.

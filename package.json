@@ -4,7 +4,7 @@
   "type": "module",
   "packageManager": "bun@1.4.4",
   "scripts": {
-    "check": "bun scripts/readable.ts && bun scripts/plain-english.ts && bun scripts/check.ts && bun scripts/verify.ts --all && bun checks/assignment.ts --prove && bun scripts/text-audit.ts && bun test scripts/prose.test.ts && bun test scripts/dates.test.ts && bun scripts/capstone.ts && bun test scripts/shape.test.ts && bun scripts/picks.ts && bun scripts/ladder.ts && bun test scripts/workfiles.test.ts scripts/picks.test.ts scripts/ladder.test.ts scripts/changed.test.ts",
+    "check": "bun scripts/readable.ts && bun scripts/plain-english.ts && bun scripts/check.ts && bun scripts/verify.ts --all && bun checks/assignment.ts --prove && bun scripts/text-audit.ts && bun test scripts/prose.test.ts && bun test scripts/dates.test.ts && bun scripts/capstone.ts && bun test scripts/shape.test.ts && bun scripts/picks.ts && bun scripts/ladder.ts && bun test scripts/workfiles.test.ts scripts/picks.test.ts scripts/ladder.test.ts scripts/changed.test.ts && bun scripts/learner-clarity.mjs",
     "readable": "bun scripts/readable.ts",
     "format": "biome check --write .",
     "text-audit": "bun scripts/text-audit.ts",

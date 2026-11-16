@@ -3,7 +3,9 @@
 ## The problem
 
 Everything so far used the council's desk. The real test is your own agent. A checklist in your head does not
-prove it. For example, "it works" proves nothing, but pasted output does. This step has no world. The check
+prove it. For example, "it works" proves nothing, but pasted output does.
+
+This step has no world. The check
 reads the folder you give it.
 
 ## Watch it done

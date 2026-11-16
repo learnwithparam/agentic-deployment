@@ -39,8 +39,9 @@ bun run run-application HDC-2026-0142
 Expect: `Run <id> ended: done, cost $0.0141`
 
 For example, HDC-2026-0142 is a real application in `world/data/applications/`. Ines Fenwick wants to turn a
-shop at 55 Kestrel Way into a cafe. She sent all six documents, but she has not paid the fee. The agent
-calls five tools, one by one. It writes `invalid_missing_items` in the register. Then it sends her one letter
+shop at 55 Kestrel Way into a cafe. She sent all six documents, but she has not paid the fee.
+
+The agent calls five tools, one by one. It writes `invalid_missing_items` in the register. Then it sends her one letter
 that asks for the fee. The run cost $0.0141.
 
 ```bash
@@ -130,8 +131,8 @@ At the end you have your own copy of the permit desk, ready for real users, in a
 
 - CI runs the checks against the replay model and passes.
 - A scorecard. `bun run verify --report` writes `verify-report.json`, which shows that every step passed.
-  Next to it, write three numbers from your own runs: the cost of one run (`bun run run-application`), where
-  the runaway run stopped (`bun run chaos runaway`), and how long the rollback took (`bun run chaos
+  Next to it, write three numbers from your own runs. They are the cost of one run (`bun run run-application`),
+  where the runaway run stopped (`bun run chaos runaway`), and how long the rollback took (`bun run chaos
   bad-canary`).
 - A recording of `bun run chaos bad-canary`. The alert fires, the canary goes to 0%, and no one presses a key.
 - `runbook.md`. A runbook is a page of steps to follow when something goes wrong. Every alert points to its
@@ -140,7 +141,9 @@ At the end you have your own copy of the permit desk, ready for real users, in a
 ## Models
 
 One file names every model: [config/models.ts](config/models.ts). Your code asks for a role (`fast`, `smart`,
-`judge`), not a model name. `LLM_PROVIDER` picks the provider. The default is `replay`. Replay needs no key and
+`judge`), not a model name. `LLM_PROVIDER` picks the provider. The default is `replay`.
+
+Replay needs no key and
 gives the same answer every time. You can also pick `anthropic`, `openrouter` or `openai`. Then you put one key
 in a `.env` file that git ignores (see `.env.example`).
 

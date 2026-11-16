@@ -2,7 +2,7 @@
 
 ## The problem
 
-The finance team asks what one validation costs. The gateway prices every call, but the desk never puts the run's total on the root span, and it forgets each run. There is a trap too: when a call has no price, the cost is `null`, and a desk that counts it as 0 reports a free run.
+The finance team asks what one validation costs. The gateway prices every call, but the desk never puts the run's total on the root span, and it forgets each run. There is a trap too. When a call has no price, the cost is `null`. A desk that counts it as 0 reports a free run.
 
 ## Watch it done
 

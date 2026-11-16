@@ -12,7 +12,11 @@ desk signs in with. A folder of your own agent's deploy files, with pasted evide
 
 ## The problem
 
-A canary still sends real residents to the new release. Some changes are too risky even for a small share of them. Also, the desk runs on one machine, and the council wants a public address. For example, a resident sends HDC-2026-0142. The stable release answers and writes to the real register. The shadow gets the same request. Its decision goes to a dry-run register, a practice copy, and its answer is thrown away. Anthropic runs old and new versions of its agents side by side. It moves traffic slowly, because an agent can be mid-work when an update arrives. The same post says agents use about 4 times more tokens than chat. A second copy of every request doubles a bill that is already large ([Anthropic Engineering, "How we built our multi-agent research system"](https://www.anthropic.com/engineering/built-multi-agent-research-system)).
+A canary still sends real residents to the new release. Some changes are too risky even for a small share of them. Also, the desk runs on one machine, and the council wants a public address.
+
+For example, a resident sends HDC-2026-0142. The stable release answers and writes to the real register. The shadow gets the same request. Its decision goes to a dry-run register, which is a practice copy. Its answer is thrown away.
+
+Anthropic runs old and new versions of its agents side by side. It moves traffic slowly, because an agent can be mid-work when an update arrives. The same post says agents use about 4 times more tokens than chat. A second copy of every request doubles a bill that is already large ([Anthropic Engineering, "How we built our multi-agent research system"](https://www.anthropic.com/engineering/built-multi-agent-research-system)).
 
 ```mermaid
 flowchart LR
@@ -126,6 +130,5 @@ on a container host, with its keys in the host's secret store and not in any fil
 For example, a resident checks HDC-2026-0142. Stable asks for the £578 fee and writes one letter. The shadow's
 trace shows that the third release would have asked for it too. That is your evidence before it goes on a canary.
 
-This is the end of the course. Put the scorecard from `bun run verify --report` in your fork's README, with
-the three numbers a reader looks for: the cost of one run, where the runaway run stopped, and how fast the bad
-canary was rolled back.
+This is the end of the course. Put the scorecard from `bun run verify --report` in your fork's README. Add the three numbers a reader looks
+for. They are the cost of one run, where the runaway run stopped, and how fast the bad canary was rolled back.

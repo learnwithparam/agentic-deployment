@@ -18,7 +18,9 @@ Harrowby's validation agent works on one laptop. It answers in one block at the 
 
 Keys that live next to the code leak with the code. Anthropic built its cloud sandboxes with this rule in
 mind. A sandbox is a closed space where code runs with limited access. Secret keys, such as git credentials
-or signing keys, are never inside the sandbox. A proxy holds them outside the sandbox. A proxy is a program that sits between two sides and passes calls on. Anthropic reports that
+or signing keys, are never inside the sandbox. A proxy holds them outside the sandbox.
+
+A proxy is a program that sits between two sides and passes calls on. Anthropic reports that
 sandboxing cut permission prompts by 84% in its own use
 ([Anthropic Engineering, "Beyond permission prompts"](https://www.anthropic.com/engineering/claude-code-sandboxing)).
 

@@ -15,7 +15,13 @@ and a rollback you watched work.
 
 ## The problem
 
-In part 4 you built a release by hand, with your own scripts. A real team often runs the desk on a cloud service such as Google Cloud Run. It keeps the key in a secret store and makes a new revision for every change. It serves one revision at a time. You do not need a cloud account to learn this: [floci-gcp](https://github.com/floci-io/floci-gcp) is a free emulator of Google Cloud that runs as one Docker Compose service on port 4588 and needs no key. For example, you change the desk from the first release to the second. Cloud Run keeps the old revision, starts the new one, and serves it. If the second release is bad, you need a way back that you have already tried. A rollback you have never tried is a hope, not a plan, and the emulator also tells you what it cannot do: it does not apply a traffic setting, and it cannot mount a secret as a file. Its own pages say what it supports: [Cloud Run](https://github.com/floci-io/floci-gcp/blob/main/docs/services/cloud-run.md) and [Secret Manager](https://github.com/floci-io/floci-gcp/blob/main/docs/services/secret-manager.md).
+In part 4 you built a release by hand, with your own scripts. A real team often runs the desk on a cloud service such as Google Cloud Run. It keeps the key in a secret store and makes a new revision for every change. It serves one revision at a time.
+
+You do not need a cloud account to learn this. [floci-gcp](https://github.com/floci-io/floci-gcp) is a free emulator of Google Cloud. It runs as one Docker Compose service on port 4588 and needs no key.
+
+For example, you change the desk from the first release to the second. Cloud Run keeps the old revision, starts the new one, and serves it. If the second release is bad, you need a way back that you have already tried. A rollback you have never tried is a hope, not a plan.
+
+The emulator also tells you what it cannot do. It does not apply a traffic setting. It cannot mount a secret as a file. Its own pages say what it supports: [Cloud Run](https://github.com/floci-io/floci-gcp/blob/main/docs/services/cloud-run.md) and [Secret Manager](https://github.com/floci-io/floci-gcp/blob/main/docs/services/secret-manager.md).
 
 ```mermaid
 flowchart LR

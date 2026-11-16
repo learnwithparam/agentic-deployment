@@ -2,7 +2,9 @@
 
 ## The problem
 
-Application HDC-2026-0177 has an attachment list that never ends. Every page says `"more": true`, so the agent asks for the next page, and the next. Each page is one paid model call. Your desk stops only when the key's whole budget of $2 is gone. An alert tells you after the money is spent. A limit refuses the call before.
+Application HDC-2026-0177 has an attachment list that never ends. Every page says `"more": true`, so the agent asks for the next page, and the next. Each page is one paid model call.
+
+Your desk stops only when the key's whole budget of $2 is gone. An alert tells you after the money is spent. A limit refuses the call before.
 
 ## Watch it done
 

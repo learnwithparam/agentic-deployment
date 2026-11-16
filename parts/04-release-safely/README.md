@@ -10,7 +10,9 @@ A release process for the permit desk, and a `release-note.md` that names the al
 
 ## The problem
 
-The planning team wants a friendlier prompt. The second release reads well, and at first sight its letters look fine. But its prompt tells the agent "a missing fee is fine". For example, HDC-2026-0142 has paid nothing of a £578 fee. The first release asks for "The application fee of £578". The second writes `valid_awaiting_officer`, and its letter says "It has everything we need, and no fee is needed."
+The planning team wants a friendlier prompt. The second release reads well, and at first sight its letters look fine. But its prompt tells the agent "a missing fee is fine".
+
+For example, HDC-2026-0142 has paid nothing of a £578 fee. The first release asks for "The application fee of £578". The second writes `valid_awaiting_officer`, and its letter says "It has everything we need, and no fee is needed."
 
 Today a new prompt goes to every resident at once. The only way back is that someone notices and deploys the old release by hand.
 

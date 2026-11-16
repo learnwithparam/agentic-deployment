@@ -11,7 +11,9 @@ the register, it races stable, and a resident can get the shadow's letter.
 Before, Traefik sends every request to `desk-stable` and nothing else. A resident checks HDC-2026-0142.
 Stable writes `invalid_missing_items` and asks for the £578 fee.
 
-After, the shadow gets a copy. A shadow is a release that gets copies and never answers anyone. It runs the
+After, the shadow gets a copy.
+
+A shadow is a release that gets copies and never answers anyone. It runs the
 same check as a dry run. A dry run reads the register but never writes to it. Its trace shows what the third
 release would have decided. The register holds only stable's decision.
 

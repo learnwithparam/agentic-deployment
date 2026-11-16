@@ -8,7 +8,9 @@ free sign-in system with a prepared realm: a set of users and apps.
 
 ## Watch it done
 
-Before, the desk trusts the stand-in service. After, Amara opens the staff queue. The desk sends her to the
+Before, the desk trusts the stand-in service. After, Amara opens the staff queue.
+
+The desk sends her to the
 realm's login page. She comes back with a code. The desk swaps it for a token and checks it with the realm's
 keys. Then it trades her token for a smaller one before it calls the validation service.
 
@@ -34,7 +36,7 @@ Work in this folder. The realm file `realm/council-realm.json` is ready. It hold
 three apps, called clients: `permit-desk`, `permit-desk-server` and `permit-service`.
 
 1. Write `compose.yaml` with a `keycloak` service. Use the image `keycloak/keycloak:26.8.2`. Mount `realm/` at
-   `/opt/keycloak/data/import`. Run `kc.sh start-dev --import-realm`. Publish port 8080 as 8180. Pass the
+   `/opt/keycloak/data/import`. Run `kc.sh start-dev --import-realm`. Publish port 8080 as 8180, and pass the
    passwords as Compose secrets from `secrets/`, never on a command line.
 2. In `src/desk-auth.ts`, write `startSignIn` and `finishSignIn` with the code flow and PKCE.
 3. Write `verifyToken` with `jose`. It must check the signature, the issuer, the expiry and the audience.

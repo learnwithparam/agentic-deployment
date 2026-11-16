@@ -1,6 +1,7 @@
 # Orientation: meet the council
 
 You work on the permit desk at Harrowby District Council. It is a council in England, and it is not real.
+
 Residents send permit applications to the council. For example, one resident wants to build a house
 extension. Another wants to open a cafe in an old shop. A third wants a new shop sign.
 

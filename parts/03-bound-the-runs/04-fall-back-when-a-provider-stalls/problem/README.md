@@ -2,7 +2,9 @@
 
 ## The problem
 
-A model provider can go quiet. The call does not fail. It never answers. For example, one provider stalls for 4 seconds on every call. The desk waits, the resident watches a blank page, and the run holds its slot. A second provider is ready, but nothing asks it.
+A model provider can go quiet. The call does not fail. It never answers.
+
+For example, one provider stalls for 4 seconds on every call. The desk waits, the resident watches a blank page, and the run holds its slot. A second provider is ready, but nothing asks it.
 
 ## Watch it done
 
@@ -39,7 +41,9 @@ Expect: `Done. All 4 rules pass.`
 
 ## Do it on your work
 
-Open the file where your own agent calls a model. Find the `fetch` call. Does it have a time limit? Add one, and name your second provider. Good looks like this: you point the first provider at a server that never answers, and your agent gives up soon and uses the second one.
+Open the file where your own agent calls a model. Find the `fetch` call. Does it have a time limit? Add one, and name your second provider.
+
+Good looks like this. You point the first provider at a server that never answers. Your agent gives up soon and uses the second one.
 
 ## Done when
 
