@@ -19,8 +19,6 @@ Production means real users depend on it. You will build four things:
 A canary is a new release that only a small share of users get first. In this orientation you set up your
 machine, meet the world, run the finished system, and see the goal.
 
-Here is the finished system. Follow one resident from the left:
-
 ```mermaid
 flowchart LR
   R[Resident] --> T[Traefik :8080]
@@ -33,8 +31,6 @@ flowchart LR
   P --> A[Alertmanager] -->|webhook| RC[Release controller]
   RC -->|canary weight 0| T
 ```
-
-Notice: The loop on the right needs no person. A bad canary is turned off by an alert.
 
 ![The trace of one run in the trace desk](images/trace-desk.png)
 
