@@ -1,23 +1,12 @@
 # AI Agents in Production for Engineers
 
-You have an AI agent that works on your laptop. In this course you make it ready for real users. You learn to
-price each run, stop a run that goes wrong, and roll back a bad release. No person needs to be at the keyboard.
+You have an AI agent that works on your laptop. This course makes it ready for real users. You learn to price each run, stop a run that goes wrong, and roll back a bad release. No one needs to sit at the keyboard.
 
-Everything runs in Docker Compose on your own machine. You do not need a cloud account. You do not need a model
-key to start.
-
-**Who it is for**
-
-- Backend engineers with a first agent and a launch date. You leave with the agent in a container that does not
-  run as root. Its key is outside the image. Every run has a trace and a price. A runaway run stops itself.
-- Platform engineers and SREs who get the alert at night. Every model call goes through one gateway, and each
-  key has a budget. An alert rolls back a bad canary on its own.
-- AI engineers who already trace and test their agents. Your runs survive a crash with one register write and
-  one letter. Prompt, model and config ship together as one release, and a test gate can block it.
+Everything runs in Docker Compose on your own machine. You do not need a cloud account. You do not need a model key to start.
 
 ## Run the finished system first
 
-You need Docker (with a recent Compose) and Bun.
+You need Docker, with a recent Compose, and Bun.
 
 ```bash
 bun install
@@ -38,11 +27,9 @@ bun run run-application HDC-2026-0142
 
 Expect: `Run <id> ended: done, cost $0.0141`
 
-For example, HDC-2026-0142 is a real application in `world/data/applications/`. Ines Fenwick wants to turn a
-shop at 55 Kestrel Way into a cafe. She sent all six documents, but she has not paid the fee.
+For example, HDC-2026-0142 is a real application in `world/data/applications/`. Ines Fenwick wants to turn a shop at 55 Kestrel Way into a cafe. She sent all six documents. She has not paid the fee.
 
-The agent calls five tools, one by one. It writes `invalid_missing_items` in the register. Then it sends her one letter
-that asks for the fee. The run cost $0.0141.
+The agent calls five tools, one at a time. It writes `invalid_missing_items` in the register. Then it sends her one letter that asks for the fee. The run cost $0.0141.
 
 ```bash
 bun run chaos runaway
@@ -50,18 +37,15 @@ bun run chaos runaway
 
 Expect: `The run ended: stopped_budget after 12 model calls, $0.0345` and the message the resident saw.
 
-A runaway run is a run that never ends by itself. Here the agent reads a list that "continues on the next
-page" forever. The finished desk stops it after 12 model calls.
+A runaway run never ends by itself. Here the agent reads a list that "continues on the next page" forever. The finished desk stops it after 12 model calls.
 
 ```bash
 bun run chaos bad-canary
 ```
 
-Expect: `Alert ReleaseDisagreesWithRules fired for the second release. The controller set the canary to 0%.` and how
-many seconds it took, with no one at the keyboard.
+Expect: `Alert ReleaseDisagreesWithRules fired for the second release. The controller set the canary to 0%.` and how many seconds it took, with no one at the keyboard.
 
-A canary is a new release that gets only a small share of users first. Here the second release gets 10% of
-residents. It writes wrong letters, so an alert fires and the system turns it off.
+A canary is a new release that gets only a small share of users first. Here the second release gets 10% of residents. It writes wrong letters. An alert fires, and the system turns it off.
 
 ![The finished permit desk: a resident's application checked and streamed](images/finished-system.png)
 
@@ -73,13 +57,9 @@ Now open these pages in your browser:
 
 ## The world
 
-Harrowby District Council is a council in England. It is not real. Residents send it permit applications.
-Its permit desk checks that each application is complete: the form, the plans, the certificates and the fee.
-Only then does a planning officer look at it.
+Harrowby District Council is a council in England. It is not real. Residents send it permit applications. Its permit desk checks that each application is complete: the form, the plans, the certificates and the fee. Only then does a planning officer look at it.
 
-The agent does this check. It writes the decision in the register and sends the resident one letter. The
-register is the council's official record. The council's word is public, and it spends taxpayers' money.
-Read more in [world/README.md](world/README.md).
+The agent does this check. It writes the decision in the register and sends the resident one letter. The register is the council's official record. Read more in [world/README.md](world/README.md).
 
 ```mermaid
 flowchart LR
@@ -103,7 +83,9 @@ flowchart LR
   REL --> REG
 ```
 
-## Parts
+## The parts
+
+The course has six parts. Part 5 is a stretch part. Part 6 is the closing part.
 
 | Part                                                                                                                         | Steps                                                                              | Minutes | You leave with                                                                             |
 | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------ |
@@ -115,37 +97,32 @@ flowchart LR
 | [5. Go further](parts/05-go-further/README.md) (stretch)                                                                     | `shadow-the-canary`, `deploy-to-the-cloud`, `sign-in-with-keycloak`                | 85      | shadow traffic, the same image on a container host, and a real sign-in provider            |
 | [6. Deploy the agent to Cloud Run with floci-gcp](parts/06-deploy-the-agent-to-cloud-run-with-floci-gcp/README.md) (closing) | `release-on-cloud-run`                                                             | 30      | a secret, a deploy, a second revision and a tested rollback on a local Google Cloud        |
 
-Each step has one command: `bun run verify <step-name>`. It prints what passed, what failed and what to try
-next. `bun run verify part <part-name>` checks a whole part. `bun run verify --report` writes
-`verify-report.json` for a class.
+## How each step works
 
-For example, `bun run verify meet-the-council` prints one `PASS` or `FAIL` line for each rule. A `FAIL` line
-comes with a `Try next:` line. When all rules pass, it prints `Done. All 6 rules pass.`
+1. Read the step page in `parts/`.
+2. Edit the files in the step's `problem/` folder.
+3. Run `bun run verify <step-name>` until every line says `PASS`.
 
-You can do the course in one sitting, over four evenings, or with a class over a longer time. See how the
-parts fit each plan in [schedules.toml](schedules.toml).
+Each step has one command: `bun run verify <step-name>`. It prints what passed, what failed and what to try next. `bun run verify part <part-name>` checks a whole part. `bun run verify --report` writes `verify-report.json` for a class.
+
+For example, `bun run verify meet-the-council` prints one `PASS` or `FAIL` line for each rule. A `FAIL` line comes with a `Try next:` line. When all rules pass, it prints `Done. All 6 rules pass.`
+
+You can do the course in one sitting, over four evenings, or with a class over a longer time. See how the parts fit each plan in [schedules.toml](schedules.toml).
 
 ## The project
 
 At the end you have your own copy of the permit desk, ready for real users, in a public fork:
 
 - CI runs the checks against the replay model and passes.
-- A scorecard. `bun run verify --report` writes `verify-report.json`, which shows that every step passed.
-  Next to it, write three numbers from your own runs. They are the cost of one run (`bun run run-application`),
-  where the runaway run stopped (`bun run chaos runaway`), and how long the rollback took (`bun run chaos
-  bad-canary`).
+- A scorecard. `bun run verify --report` writes `verify-report.json`, which shows that every step passed. Next to it, write three numbers from your own runs. They are the cost of one run (`bun run run-application`), where the runaway run stopped (`bun run chaos runaway`), and how long the rollback took (`bun run chaos bad-canary`).
 - A recording of `bun run chaos bad-canary`. The alert fires, the canary goes to 0%, and no one presses a key.
-- `runbook.md`. A runbook is a page of steps to follow when something goes wrong. Every alert points to its
-  section.
+- `runbook.md`. A runbook is a page of steps to follow when something goes wrong. Every alert points to its section.
 
 ## Models
 
-One file names every model: [config/models.ts](config/models.ts). Your code asks for a role (`fast`, `smart`,
-`judge`), not a model name. `LLM_PROVIDER` picks the provider. The default is `replay`.
+One file names every model: [config/models.ts](config/models.ts). Your code asks for a role (`fast`, `smart`, `judge`), not a model name. `LLM_PROVIDER` picks the provider. The default is `replay`.
 
-Replay needs no key and
-gives the same answer every time. You can also pick `anthropic`, `openrouter` or `openai`. Then you put one key
-in a `.env` file that git ignores (see `.env.example`).
+Replay needs no key. It gives the same answer every time. You can also pick `anthropic`, `openrouter` or `openai`. Then you put one key in a `.env` file that git ignores. See `.env.example`.
 
 ```bash
 bun run models
@@ -155,13 +132,9 @@ Expect: `Every role answers.`
 
 ## Read before you start
 
-1. Anthropic, [A postmortem of three recent issues](https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues).
-   A change in production made answers worse. The post explains why tests now run all the time in production.
-2. OWASP GenAI Security Project, [LLM10 Unbounded Consumption](https://genai.owasp.org/llmrisk/llm102025-unbounded-consumption/).
-   This is the risk that the brakes in Part 3 close.
-3. OpenTelemetry, [semantic-conventions-genai](https://github.com/open-telemetry/semantic-conventions-genai).
-   These are the span and attribute names that the trace checks read. They are still marked Development, so
-   they can change.
+1. Anthropic, [A postmortem of three recent issues](https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues). A change in production made answers worse. The post explains why tests now run all the time in production.
+2. OWASP GenAI Security Project, [LLM10 Unbounded Consumption](https://genai.owasp.org/llmrisk/llm102025-unbounded-consumption/). This is the risk that the brakes in Part 3 close.
+3. OpenTelemetry, [semantic-conventions-genai](https://github.com/open-telemetry/semantic-conventions-genai). These are the span and attribute names that the trace checks read. They are still marked Development, so they can change.
 
 Also useful for each part:
 
@@ -172,6 +145,10 @@ Also useful for each part:
 
 ## How this repo works
 
-Start in [00-orientation](00-orientation/README.md). [STANDARD.md](STANDARD.md) lists the rules that every
-course repo follows, and the check behind each rule. `bun run check` runs them all. Notes on how each part is
-built are in [PARTS.md](PARTS.md).
+Start in [00-orientation](00-orientation/README.md). [STANDARD.md](STANDARD.md) lists the rules that every course repo follows, and the check behind each rule. `bun run check` runs them all.
+
+## Helpful links
+
+- [Fix common errors](00-orientation/troubleshooting.md)
+- [Repo rules](STANDARD.md)
+- [Notes on how each part is built](PARTS.md)

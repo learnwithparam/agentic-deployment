@@ -2,13 +2,13 @@
 
 ## After this part you can
 
-- Package an agent as a container that starts the same way on any machine and says when it is healthy.
+- Package an agent as a container. It starts the same way on any machine and says when it is healthy.
 - Keep a secret key out of an image, and prove it with a command.
 - Let only the right staff use a risky route, and refuse everyone else.
 
 ## You leave with
 
-A permit desk that runs as a container and streams its answer. It holds its own key in a file, and only an officer can validate an application. You also have a short note on one of your own services, from the project below.
+A permit desk that runs as a container and streams its answer. It holds its own key in a file. Only an officer can validate an application. You also have a short note on one of your own services, from the project below.
 
 ## The problem
 
@@ -16,13 +16,9 @@ Harrowby's validation agent works on one laptop. It answers in one block at the 
 
 ## Why it matters
 
-Keys that live next to the code leak with the code. Anthropic built its cloud sandboxes with this rule in
-mind. A sandbox is a closed space where code runs with limited access. Secret keys, such as git credentials
-or signing keys, are never inside the sandbox. A proxy holds them outside the sandbox.
+Keys that live next to the code leak with the code. Anthropic built its cloud sandboxes with this rule in mind. A sandbox is a closed space where code runs with limited access. Secret keys, such as git credentials or signing keys, are never inside the sandbox. A proxy holds them outside the sandbox.
 
-A proxy is a program that sits between two sides and passes calls on. Anthropic reports that
-sandboxing cut permission prompts by 84% in its own use
-([Anthropic Engineering, "Beyond permission prompts"](https://www.anthropic.com/engineering/claude-code-sandboxing)).
+A proxy is a program that sits between two sides and passes calls on. Anthropic reports that sandboxing cut permission prompts by 84% in its own use ([Anthropic Engineering, "Beyond permission prompts"](https://www.anthropic.com/engineering/claude-code-sandboxing)).
 
 The permit desk uses the same shape:
 
@@ -30,9 +26,7 @@ The permit desk uses the same shape:
 - The desk holds only its own key, which has a budget.
 - The sign-in service decides who is an officer.
 
-For example, the starter `Dockerfile` in `move-secrets-out` has the line `ENV GATEWAY_KEY=${GATEWAY_KEY}`. So
-`docker image inspect` shows `GATEWAY_KEY=hdc-admin-...` to anyone who has the image. After this part, the key
-is a file in `/run/secrets/`, and the image holds no key at all.
+For example, the starter `Dockerfile` in `move-secrets-out` has the line `ENV GATEWAY_KEY=${GATEWAY_KEY}`. So `docker image inspect` shows `GATEWAY_KEY=hdc-admin-...` to anyone who has the image. After this part, the key is a file in `/run/secrets/`. The image holds no key at all.
 
 ```mermaid
 flowchart LR
@@ -64,7 +58,11 @@ flowchart LR
 
 ## Project
 
-Pick one small service of your own that has a key in its code, its image or its settings. Move that key into a file that is not in git. Then add one check that refuses a caller who should not get in. Write three lines in `ship-notes.md`: where the key was, where it is now, and the command that shows the key is gone from the image.
+Pick one small service of your own. It has a key in its code, its image or its settings. Move that key into a file that is not in git. Then add one check that refuses a caller who should not get in. Write three lines in `ship-notes.md`:
+
+- where the key was,
+- where it is now,
+- the command that shows the key is gone from the image.
 
 ## Walkthrough
 

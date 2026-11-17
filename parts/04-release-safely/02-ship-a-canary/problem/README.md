@@ -2,7 +2,9 @@
 
 ## The problem
 
-The third release passed the gate, but the gate tests 30 cases and residents send things no case covers. Sent to everyone at once, a flaw reaches every resident. For example, with a 10% canary, 9 of 10 residents reach stable, the release live today. One reaches the canary. Each trace says which one served it, in `release.id`.
+The third release passed the gate. But the gate tests 30 cases, and residents send things no case covers. Sent to everyone at once, a flaw reaches every resident.
+
+For example, with a 10% canary, 9 of 10 residents reach stable, the release live today. One reaches the canary. Each trace says which one served it, in `release.id`.
 
 ## Watch it done
 
@@ -19,7 +21,7 @@ Before, `compose.yaml` runs one service, `desk`, and every resident gets the sam
 
 1. In `compose.yaml`, replace `desk` with two services built from this folder. `desk-stable` has `RELEASE_FILE: /app/release.json`. `desk-canary` has `RELEASE_FILE: /app/releases/v3.json`. Give each its own volume for `/data`, and publish no port.
 2. Add a `traefik` service (image `traefik:v3.7.18`). It owns port 3000 and reads its routes from a folder you mount from `./traefik`.
-3. Write `traefik/dynamic.yml`: a router for every path, and a weighted service. Weight 90 goes to `http://desk-stable:3000` and weight 10 to `http://desk-canary:3000`. Keep these names, because the next steps write the same ones.
+3. Write `traefik/dynamic.yml`: a router for every path, and a weighted service. Weight 90 goes to `http://desk-stable:3000`. Weight 10 goes to `http://desk-canary:3000`. Keep these names, because the next steps write the same ones.
 
 ```mermaid
 flowchart LR
@@ -28,7 +30,7 @@ flowchart LR
   T -->|weight 10| C[desk-canary]
 ```
 
-4. Stop the other desks, which use port 3000 too, then start the canary from the top of the repo.
+4. Stop the other desks, which use port 3000 too. Then start the canary from the top of the repo.
 
 ```bash
 bun run down
@@ -42,7 +44,7 @@ Expect: Traefik and both desks report healthy, like this:
 Container hdc-desk-traefik-1  Healthy
 ```
 
-`--remove-orphans` stops the old `desk` service. Without it, the old desk keeps port 3000 and Traefik fails with this message:
+`--remove-orphans` stops the old `desk` service. Without it, the old desk keeps port 3000, and Traefik fails with this message:
 
 ```text
 port is already allocated
@@ -66,14 +68,14 @@ Expect: `Done. All 5 rules pass.`
 
 ## Do it on your work
 
-Pick one change in your own project, such as a new prompt. Send it to a small share of real use first, and tag every record with the release that served it. Good looks like a count by release that shows the new one on about a tenth of the use.
+Pick one change in your own project, such as a new prompt. Send it to a small share of real use first. Tag every record with the release that served it. Good looks like a count by release that shows the new one on about a tenth of the use.
 
 ## Done when
 
 - `compose.yaml` has the services `traefik`, `desk-stable` and `desk-canary`.
 - http://localhost:3000/healthz answers through Traefik.
 - Out of 200 runs, every trace names its `release.id`.
-- Stable serves between 80% and 99% of the runs, and the canary serves the rest with another release id.
+- Stable serves between 80% and 99% of the runs. The canary serves the rest, with another release id.
 
 ## Solution
 

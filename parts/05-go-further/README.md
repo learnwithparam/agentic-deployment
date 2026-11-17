@@ -2,13 +2,14 @@
 
 ## After this part you can
 
-Copy real requests to a new release with no resident reading its answers. Run the same image on a container
-host with its keys in a secret store. Sign staff in with Keycloak. Deploy your own agent with evidence.
+- Copy real requests to a new release, with no resident reading its answers.
+- Run the same image on a container host, with its keys in a secret store.
+- Sign staff in with Keycloak.
+- Deploy your own agent, with evidence.
 
 ## You leave with
 
-A shadow release with its own dry-run register. A deploy address in `deploy.toml`. A Keycloak realm that the
-desk signs in with. A folder of your own agent's deploy files, with pasted evidence.
+A shadow release with its own dry-run register. A deploy address in `deploy.toml`. A Keycloak realm that the desk signs in with. A folder of your own agent's deploy files, with pasted evidence.
 
 ## The problem
 
@@ -52,13 +53,11 @@ These steps are optional. Docker Compose on your laptop is the only required tar
 
 ## Project
 
-Pick one change to your own service. Write the small plan that would send a copy of its real requests to the
-new version with writes off. Name what you would compare and when you would stop the copy.
+Pick one change to your own service. Write the small plan that would send a copy of its real requests to the new version, with writes off. Name what you would compare, and when you would stop the copy.
 
 ## Walkthrough
 
-Start the world, and stop any desk that is running. The shadow uses the same container names as the other
-desks.
+Start the world, and stop any desk that is running. The shadow uses the same container names as the other desks.
 
 ```bash
 bun run world
@@ -69,7 +68,7 @@ Expect: `The world is running. Model provider: replay.` and `The desks are stopp
 
 ### shadow-the-canary
 
-Work in `01-shadow-the-canary/problem/`. Add `desk-shadow` and turn Traefik's service into a mirror.
+Work in `01-shadow-the-canary/problem/`. Add `desk-shadow`, and turn Traefik's service into a mirror.
 
 ```bash
 cd parts/05-go-further/01-shadow-the-canary/problem
@@ -81,8 +80,7 @@ Expect: a Compose line that says `Healthy` for the shadow container, then `Done.
 
 ### deploy-to-the-cloud
 
-Work in `02-deploy-to-the-cloud/problem/`. Deploy the image to a host, then write its address in
-`deploy.toml`.
+Work in `02-deploy-to-the-cloud/problem/`. Deploy the image to a host, then write its address in `deploy.toml`.
 
 ```bash
 cd ../../02-deploy-to-the-cloud/problem
@@ -94,8 +92,7 @@ Expect: `Done. All 6 rules pass.` once `public_url` answers like the desk on you
 
 ### Sign in with Keycloak
 
-Work in `03-sign-in-with-keycloak/problem/`. Add Keycloak to compose, then write the desk's sign-in code.
-The stand-in sign-in service on port 7003 stays. The earlier steps still use it.
+Work in `03-sign-in-with-keycloak/problem/`. Add Keycloak to compose, then write the desk's sign-in code. The stand-in sign-in service on port 7003 stays. The earlier steps still use it.
 
 ```bash
 cd ../../03-sign-in-with-keycloak/problem
@@ -121,14 +118,10 @@ The passing table looks like this:
       PASS   deploy-to-the-cloud  (6/6 rules)
       PASS   sign-in-with-keycloak  (5/5 rules)
 
-## FINISHED
+## Finished
 
-You can now try a new release on real traffic with no resident reading its answers. The shadow's traces show
-what it would have decided, and the register holds only stable's decisions. You can also run the same image
-on a container host, with its keys in the host's secret store and not in any file.
+You can now try a new release on real traffic with no resident reading its answers. The shadow's traces show what it would have decided. The register holds only stable's decisions. You can also run the same image on a container host. Its keys sit in the host's secret store, not in any file.
 
-For example, a resident checks HDC-2026-0142. Stable asks for the £578 fee and writes one letter. The shadow's
-trace shows that the third release would have asked for it too. That is your evidence before it goes on a canary.
+For example, a resident checks HDC-2026-0142. Stable asks for the £578 fee and writes one letter. The shadow's trace shows that the third release would have asked for it too. That is your evidence before it goes on a canary.
 
-This is the end of the course. Put the scorecard from `bun run verify --report` in your fork's README. Add the three numbers a reader looks
-for. They are the cost of one run, where the runaway run stopped, and how fast the bad canary was rolled back.
+This is the end of the course. Put the scorecard from `bun run verify --report` in your fork's README. Add the three numbers a reader looks for. They are the cost of one run, where the runaway run stopped, and how fast the bad canary was rolled back.

@@ -2,17 +2,13 @@
 
 ## The problem
 
-Everything so far used the council's desk. The real test is your own agent. A checklist in your head does not
-prove it. For example, "it works" proves nothing, but pasted output does.
+Everything so far used the council's desk. The real test is your own agent. A checklist in your head does not prove it. For example, "it works" proves nothing. Pasted output does.
 
-This step has no world. The check
-reads the folder you give it.
+This step has no world. The check reads the folder you give it.
 
 ## Watch it done
 
-Before, a learner says "it works". That is not evidence. After, the learner pastes
-`$ curl -s http://localhost:3000/healthz` and the line it printed. That is evidence: output from a real run,
-with the date.
+Before, a learner says "it works". That is not evidence. After, the learner pastes `$ curl -s http://localhost:3000/healthz` and the line it printed. That is evidence: output from a real run, with the date.
 
 ```mermaid
 flowchart LR
@@ -29,8 +25,7 @@ Copy this `problem/` folder next to your own agent. It holds five files. Fill ea
 2. **`compose.yaml`**: run it, and give it its key as a secret file. No key in `environment`.
 3. **`release.json`**: the release id, `max_steps`, `max_cost_usd` and `timeout_ms`.
 4. **`runbook.md`**: a real command or a real name under Kill switch, Roll back and Who to tell.
-5. **`EVIDENCE.md`**: run the health check, a roll back and the kill switch on your agent. Paste each
-   command after a `$ ` and its output below it. Add the date.
+5. **`EVIDENCE.md`**: run the health check, a roll back and the kill switch on your agent. Paste each command after a `$ ` and its output below it. Add the date.
 6. Run the check on your own folder.
 
 ```bash
@@ -43,12 +38,11 @@ The check proves the shape and that the evidence exists. You prove that it is tr
 
 ## Do it on your work
 
-This whole step is your own work. Run it on the agent you care about most. Good looks like a runbook a
-teammate could follow at night, and evidence you pasted yourself.
+This whole step is your own work. Run it on the agent you care about most. Good looks like a runbook a teammate could follow at night, and evidence you pasted yourself.
 
 ## Done when
 
-- The Dockerfile runs as a user that is not root and has a `HEALTHCHECK`.
+- The Dockerfile runs as a user that is not root, and has a `HEALTHCHECK`.
 - The key is a secret file, and no file holds something that looks like a real key.
 - `release.json` has an id, a step limit, a dollar limit and a timeout.
 - `runbook.md` has three sections, and none is empty.
@@ -56,14 +50,12 @@ teammate could follow at night, and evidence you pasted yourself.
 
 ## Solution
 
-The after state is five filled-in files. See `../solution/` for them and their diff. It is an example of the
-shape, not your agent.
+The after state is five filled-in files. See `../solution/` for them and their diff. It is an example of the shape, not your agent.
 
 ## If you get stuck
 
 - A `TODO` left in a file fails that rule. Search for it.
-- Does the key rule fail? The check looks for text such as `sk-` followed by a long key, and for a key name
-  set in `environment`. Move the value to the secret file.
+- Does the key rule fail? The check looks for text such as `sk-` followed by a long key, and for a key name set in `environment`. Move the value to the secret file.
 
 ## Words you will use
 

@@ -2,11 +2,11 @@
 
 ## The problem
 
-A canary limits harm to 10% of residents, but someone must still notice and move the traffic back. In the evening nobody looks. For example, about 1 in 6 decisions of the second release are wrong, such as HDC-2026-0142 marked `valid_awaiting_officer` while £578 is owed.
+A canary limits harm to 10% of residents. But someone must still notice and move the traffic back. In the evening nobody looks. For example, about 1 in 6 decisions of the second release are wrong. One is HDC-2026-0142, marked `valid_awaiting_officer` while £578 is owed.
 
 ## Watch it done
 
-Before, the register counts decisions by release in `register_decisions_total{release, agrees}`, but no rule reads them and nobody is told. After, you press nothing, and the drill prints:
+Before, the register counts decisions by release in `register_decisions_total{release, agrees}`. But no rule reads them, and nobody is told. After, you press nothing, and the drill prints:
 
 ```text
 Alert ReleaseDisagreesWithRules fired for release v2.
@@ -17,10 +17,14 @@ Rolled back to 0%
 
 ## Your turn
 
-This folder runs the canary from `ship-a-canary`, plus three services. `controller` rolls the canary back to 0% when its webhook, `POST /alert`, gets a firing alert for that release. It logs each change at http://localhost:7010/state. `prometheus` reads the register's counts every 2 seconds. `alertmanager` sends each firing alert on.
+This folder runs the canary from `ship-a-canary`, plus three services.
 
-1. Write `prometheus/alerts.yml`: one rule named `ReleaseDisagreesWithRules`. It fires when more than 5% of a release's decisions disagree with the rules, over at least 3 decisions. Use `sum by (release)`, so the alert carries the release label. The runbook uses this name.
-2. Write `alertmanager/alertmanager.yml`: a receiver with a webhook to the controller, and a route that uses it. Repeat the alert every 10 seconds while it fires.
+- `controller` rolls the canary back to 0% when its webhook, `POST /alert`, gets a firing alert for that release. It logs each change at http://localhost:7010/state.
+- `prometheus` reads the register's counts every 2 seconds.
+- `alertmanager` sends each alert on.
+
+1. Write `prometheus/alerts.yml`. Add one rule named `ReleaseDisagreesWithRules`. It fires when more than 5% of a release's decisions disagree with the rules, over at least 3 decisions. Use `sum by (release)`, so the alert carries the release label. The runbook uses this name.
+2. Write `alertmanager/alertmanager.yml`. Add a receiver with a webhook to the controller, and a route that uses it. Repeat the alert every 10 seconds while it fires.
 
 ```mermaid
 sequenceDiagram
@@ -32,7 +36,7 @@ sequenceDiagram
   RC->>RC: canary weight 0, audit
 ```
 
-3. Start the stack from this folder, then run the drill. It puts a release on a 10% canary and sends runs. You touch nothing.
+3. Start the stack from this folder. Then run the drill. It puts a release on a 10% canary and sends runs. You touch nothing.
 
 ```bash
 docker compose up -d --build --wait
@@ -55,7 +59,7 @@ Expect: `Done. All 5 rules pass.`
 
 ## Do it on your work
 
-Pick one number that shows your agent went wrong, such as the share of answers a check rejects. Alert on it, and send the alert to something that acts. Good looks like a bad change that undoes itself while you watch nothing.
+Pick one number that shows your agent went wrong, such as rejected answers. Alert on it, and send the alert to something that acts. Good looks like a bad change that undoes itself while you watch nothing.
 
 ## Done when
 
@@ -87,4 +91,4 @@ Expect: the lines that changed.
 - **Label**: a name and value on a metric or alert, such as `release="v2"`.
 - **Webhook**: a URL that another program calls when something happens.
 - **Rollback**: sending all traffic back to the release that worked before.
-- **Audit log**: a list of every change, with when and why, that nobody edits.
+- **Audit log**: a list of every change, with when and why. Nobody edits it.

@@ -8,7 +8,7 @@ For example, one provider stalls for 4 seconds on every call. The desk waits, th
 
 ## Watch it done
 
-Before, the check waits the full 4 seconds for the stalled provider and then fails. After, the check passes without Docker, because it starts three small fake providers on your machine:
+Before, the check waits the full 4 seconds for the stalled provider and then fails. After, the check passes without Docker. It starts three small fake providers on your machine:
 
 ```text
 Done. All 4 rules pass.
@@ -30,7 +30,7 @@ Work in `src/ask.ts`. It has one function, `askWithFallback`. It gets a list of 
 1. Set a timeout. Give `fetch` a `signal` made with `AbortSignal.timeout(timeoutMs)`. A call that takes longer is cut off and throws.
 2. Treat a bad answer like a stall. If the provider answers with an error code, throw too.
 3. Try the next provider. Ask the providers one at a time, in order. Keep a short reason for each one that failed.
-4. Give up clearly. When every provider has failed, throw an error whose message starts with `model_unavailable`, and list the reasons.
+4. Give up clearly. When every provider has failed, throw an error whose message starts with `model_unavailable`. List the reasons.
 5. Run the check.
 
 ```bash
@@ -54,7 +54,7 @@ Good looks like this. You point the first provider at a server that never answer
 
 ## Solution
 
-The after state is one function that asks each provider in turn with a timeout and collects the reasons. See `../solution/` for the file. To see the diff, run this in the `problem/` folder:
+The after state is one function. It asks each provider in turn with a timeout, and it collects the reasons. See `../solution/` for the file. To see the diff, run this in the `problem/` folder:
 
 ```bash
 diff -u src/ask.ts ../solution/src/ask.ts

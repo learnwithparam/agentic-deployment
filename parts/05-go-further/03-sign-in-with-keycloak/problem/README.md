@@ -2,17 +2,13 @@
 
 ## The problem
 
-Staff sign in through a stand-in service that we built for this course. A real council runs one sign-in system
-that many teams share. For example, Amara Okafor signs in once for every team. Here the desk uses Keycloak, a
-free sign-in system with a prepared realm: a set of users and apps.
+Staff sign in through a stand-in service that we built for this course. A real council runs one sign-in system that many teams share. For example, Amara Okafor signs in once for every team. Here the desk uses Keycloak, a free sign-in system with a prepared realm. A realm is a set of users and apps.
 
 ## Watch it done
 
-Before, the desk trusts the stand-in service. After, Amara opens the staff queue.
+Before, the desk trusts the stand-in service. After, Amara opens the staff queue. The desk sends her to the realm's login page.
 
-The desk sends her to the
-realm's login page. She comes back with a code. The desk swaps it for a token and checks it with the realm's
-keys. Then it trades her token for a smaller one before it calls the validation service.
+She comes back with a code. The desk swaps the code for a token, and checks the token with the realm's keys. Then it trades her token for a smaller one before it calls the validation service.
 
 ```mermaid
 sequenceDiagram
@@ -32,12 +28,9 @@ sequenceDiagram
 
 ## Your turn
 
-Work in this folder. The realm file `realm/council-realm.json` is ready. It holds the user `amara.okafor` and
-three apps, called clients: `permit-desk`, `permit-desk-server` and `permit-service`.
+The realm file `realm/council-realm.json` is ready. It holds the user `amara.okafor` and three apps, called clients: `permit-desk`, `permit-desk-server` and `permit-service`.
 
-1. Write `compose.yaml` with a `keycloak` service. Use the image `keycloak/keycloak:26.8.2`. Mount `realm/` at
-   `/opt/keycloak/data/import`. Run `kc.sh start-dev --import-realm`. Publish port 8080 as 8180, and pass the
-   passwords as Compose secrets from `secrets/`, never on a command line.
+1. Write `compose.yaml` with a `keycloak` service. Use the image `keycloak/keycloak:26.8.2`. Mount `realm/` at `/opt/keycloak/data/import`. Run `kc.sh start-dev --import-realm`. Publish port 8080 as 8180, and pass the passwords as Compose secrets from `secrets/`, never on a command line.
 2. In `src/desk-auth.ts`, write `startSignIn` and `finishSignIn` with the code flow and PKCE.
 3. Write `verifyToken` with `jose`. It must check the signature, the issuer, the expiry and the audience.
 4. Write `narrowToken`. It uses token exchange to get a token for `permit-service`.
@@ -61,8 +54,7 @@ Expect: `Done. All 5 rules pass.`
 
 ## Do it on your work
 
-Take one service of your own with admin routes. Plan how it checks a token: signature, issuer, expiry and
-audience. Good looks like a token for one audience that other services refuse.
+Take one service of your own with admin routes. Plan how it checks a token: signature, issuer, expiry and audience. Good looks like a token for one audience that other services refuse.
 
 ## Done when
 
@@ -72,16 +64,13 @@ audience. Good looks like a token for one audience that other services refuse.
 
 ## Solution
 
-The after state is a `compose.yaml` with Keycloak and the functions in `src/desk-auth.ts`. See `../solution/`
-for the files and their diff.
+The after state is a `compose.yaml` with Keycloak, and the functions in `src/desk-auth.ts`. See `../solution/` for the files and their diff.
 
 ## If you get stuck
 
 - Keycloak is slow to start. `docker compose logs keycloak` shows when it is ready.
-- Error "Public client is not allowed to exchange token": the exchange used the browser client. Use the
-  desk's server client and secret.
-- Error "Requested audience not available": the user has no role on that client. The realm file gives
-  `amara.okafor` the role `validate` on `permit-service`.
+- Error "Public client is not allowed to exchange token": the exchange used the browser client. Use the desk's server client and secret.
+- Error "Requested audience not available": the user has no role on that client. The realm file gives `amara.okafor` the role `validate` on `permit-service`.
 
 ## Words you will use
 

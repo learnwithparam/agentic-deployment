@@ -2,17 +2,21 @@
 
 ## After this part you can
 
-Block a bad release with a gate of evals. Send a new release to a small share of residents first. Keep each run on the release it started on. Roll a bad canary back with nobody at the keyboard. Hand the person on call a runbook.
+- Block a bad release with a gate of evals.
+- Send a new release to a small share of residents first.
+- Keep each run on the release it started on.
+- Roll a bad canary back with nobody at the keyboard.
+- Hand the person on call a runbook.
 
 ## You leave with
 
-A release process for the permit desk, and a `release-note.md` that names the alert that would roll your release back.
+A release process for the permit desk. You also have a `release-note.md` that names the alert that would roll your release back.
 
 ## The problem
 
 The planning team wants a friendlier prompt. The second release reads well, and at first sight its letters look fine. But its prompt tells the agent "a missing fee is fine".
 
-For example, HDC-2026-0142 has paid nothing of a £578 fee. The first release asks for "The application fee of £578". The second writes `valid_awaiting_officer`, and its letter says "It has everything we need, and no fee is needed."
+For example, HDC-2026-0142 has paid nothing of a £578 fee. The first release asks for "The application fee of £578". The second writes `valid_awaiting_officer`. Its letter says "It has everything we need, and no fee is needed."
 
 Today a new prompt goes to every resident at once. The only way back is that someone notices and deploys the old release by hand.
 
@@ -86,8 +90,7 @@ Expect: `Done. All 5 rules pass.`
 
 ### ship-a-canary
 
-Work in `02-ship-a-canary/problem/`. Split the desk into `desk-stable` and `desk-canary`, and put Traefik in
-front.
+Work in `02-ship-a-canary/problem/`. Split the desk into `desk-stable` and `desk-canary`, and put Traefik in front.
 
 ```bash
 cd ../../02-ship-a-canary/problem
@@ -166,11 +169,11 @@ The passing table looks like this:
 
 ## Project
 
-Gate one real change in your own work. Write 10 fixed cases for one prompt or setting you use, with the answers you expect. Make a script that exits with code 1 when any case fails. Then write a short runbook for it with a kill switch that stops the paid calls.
+Gate one real change in your own work. Write 10 fixed cases for one prompt or setting you use, with the answers you expect. Make a script that exits with code 1 when any case fails. Then write a short runbook for it. Include a kill switch that stops the paid calls.
 
 ## Assignment: ship the third release safely
 
-The planning team wants the third release live. Last time, the second told residents that a missing fee was fine. Show that the third is safe, and that the desk would undo it if it were not.
+The planning team wants the third release live. Last time, the second told residents that a missing fee was fine. Show that the third is safe. Show that the desk would undo it if it were not.
 
 Hand in a branch or pull request on your fork with:
 
@@ -187,15 +190,12 @@ The rubric. Each answer is yes or no.
 4. Does the release note name the alert that would roll the third release back, and link its runbook heading?
 5. Does the runbook's kill switch stop all model calls within 10 seconds when you run it?
 
-## FINISHED
+## Finished
 
-You now have a release process for the permit desk. A new prompt passes 30 fixed cases before it ships. It
-then serves 10% of residents, and every trace says which release served it. If the register disagrees with
-it, an alert sets it back to 0% with nobody at the keyboard. And a runbook tells the person on call what to
-do, with a kill switch that works.
+You now have a release process for the permit desk. A new prompt passes 30 fixed cases before it ships. It then serves 10% of residents, and every trace says which release served it.
 
-For example, the gate blocks the second release with six failing cases. Ship it anyway as a canary, and the
-drill rolls it back within a minute.
+If the register disagrees with it, an alert sets it back to 0% with nobody at the keyboard. A runbook tells the person on call what to do. Its kill switch works.
 
-The last part, `go-further`, is optional. It shows a new release real traffic without letting it answer
-anyone: a shadow. Then it puts the desk on a container host with a public address.
+For example, the gate blocks the second release with six failing cases. Ship it anyway as a canary, and the drill rolls it back within a minute.
+
+The last part, `go-further`, is optional. It shows a new release real traffic without letting it answer anyone. That is called a shadow. Then it puts the desk on a container host with a public address.

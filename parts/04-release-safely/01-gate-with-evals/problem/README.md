@@ -2,11 +2,13 @@
 
 ## The problem
 
-The planning team has two new prompts. The second says "a missing fee is fine", and nothing stops it. For example, HDC-2026-0143 is a cafe that owes £289 and has no ownership certificate. The first release asks for both. The second asks only for the certificate, yet its status is still `invalid_missing_items`.
+The planning team has two new prompts. The second says "a missing fee is fine", and nothing stops it. For example, HDC-2026-0143 is a cafe that owes £289 and has no ownership certificate.
+
+The first release asks for both. The second asks only for the certificate. Yet its status is still `invalid_missing_items`.
 
 ## Watch it done
 
-Before, nothing stops the second release, so the next resident who owes a fee gets a letter that says no fee is needed. After, the gate prints six `FAIL` lines for the second release and ends like this:
+Before, nothing stops the second release. So the next resident who owes a fee gets a letter that says no fee is needed. After, the gate prints six `FAIL` lines for the second release and ends like this:
 
 ```text
 Release v2 is blocked.
@@ -16,9 +18,9 @@ Release v2 is blocked.
 
 ## Your turn
 
-This folder has most of the gate. `evals/cases.json` holds 30 fixed applications, `HDC-2026-0140` to `HDC-2026-0169`, with the right answer for each. `src/evals.ts` runs each case as a dry run, so no letters go out. `gate.ts` prints `PASS` or `FAIL` for each.
+This folder has most of the gate. `evals/cases.json` holds 30 fixed applications, `HDC-2026-0140` to `HDC-2026-0169`. Each has the right answer. `src/evals.ts` runs each case as a dry run, so no letters go out. `gate.ts` prints `PASS` or `FAIL` for each case.
 
-1. In `evals/checks.ts`, fill in `findProblems`. Push one short sentence for each check that fails. The status must be the case's status. The missing items must match, in any order. When a fee is owed, the letter must never say that no fee is needed.
+1. In `evals/checks.ts`, fill in `findProblems`. Write one short sentence for each check that fails. The status must be the case's status. The missing items must match, in any order. When a fee is owed, the letter must never say that no fee is needed.
 2. At the end of `gate.ts`, exit with code 1 when any case fails. A script that ships releases reads the exit code, not the words. Also print `Release <name> is blocked.` or `Release <name> may ship.`
 3. Run the gate on the second release.
 
@@ -38,7 +40,7 @@ Expect: `Done. All 5 rules pass.`
 
 ## Do it on your work
 
-Write 10 fixed cases for your own agent, each with the answer you expect. Add a code check for the part that must never be wrong, and make your release script stop when one case fails. Good looks like one release that passes, one known-bad release that fails with the case ids printed, and an exit code you can read.
+Write 10 fixed cases for your own agent, each with the answer you expect. Add a code check for the part that must never be wrong. Make your release script stop when one case fails. Good looks like one release that passes, one known-bad release that fails with the case ids printed, and an exit code you can read.
 
 ## Done when
 

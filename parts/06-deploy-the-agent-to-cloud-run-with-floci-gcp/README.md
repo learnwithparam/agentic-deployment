@@ -1,23 +1,24 @@
 # Part 6: Deploy the agent to Cloud Run with floci-gcp
 
-This part redoes the course's release with a cloud service, on your own machine. It is optional in the live
-session and expected as homework. Nothing in parts 1 to 5 changes.
+This part does the course's release again, on a cloud service, on your own machine. It is optional in the live session, and it is expected as homework. Nothing in parts 1 to 5 changes.
 
 ## After this part you can
 
-Store a key in a secret manager, deploy a service as numbered revisions, ship a change, and roll back to the
-first release. You do it all on an emulator, with no cloud account.
+- Store a key in a secret manager.
+- Deploy a service as numbered revisions.
+- Ship a change, and roll back to the first release.
+
+You do all of it on an emulator, with no cloud account.
 
 ## You leave with
 
-A working `release.ts` and `docker-compose.yml`, a `CHOICE.md` that says when Cloud Run is the better choice,
-and a rollback you watched work.
+A working `release.ts` and `docker-compose.yml`. A `CHOICE.md` that says when Cloud Run is the better choice. A rollback you watched work.
 
 ## The problem
 
-In part 4 you built a release by hand, with your own scripts. A real team often runs the desk on a cloud service such as Google Cloud Run. It keeps the key in a secret store and makes a new revision for every change. It serves one revision at a time.
+In part 4 you built a release by hand, with your own scripts. A real team often runs the desk on a cloud service such as Google Cloud Run. It keeps the key in a secret store. It makes a new revision for every change, and it serves one revision at a time.
 
-You do not need a cloud account to learn this. [floci-gcp](https://github.com/floci-io/floci-gcp) is a free emulator of Google Cloud. It runs as one Docker Compose service on port 4588 and needs no key.
+You do not need a cloud account to learn this. [floci-gcp](https://github.com/floci-io/floci-gcp) is a free emulator of Google Cloud. It runs as one Docker Compose service on port 4588, and it needs no key.
 
 For example, you change the desk from the first release to the second. Cloud Run keeps the old revision, starts the new one, and serves it. If the second release is bad, you need a way back that you have already tried. A rollback you have never tried is a hope, not a plan.
 
@@ -37,8 +38,7 @@ flowchart LR
 
 ## Steps
 
-You write one Bun script, `release.ts`, that talks to the emulator's Cloud Run Admin API and Secret Manager.
-The desk image is the one from part 5. Only a fake key is used, never a real one.
+You write one Bun script, `release.ts`. It talks to the emulator's Cloud Run Admin API and Secret Manager. The desk image is the one from part 5. Only a fake key is used, never a real one.
 
 | Step                                                              | You make                                                                      | The check reads                                                                     |
 | ----------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
@@ -56,14 +56,13 @@ The desk image is the one from part 5. Only a fake key is used, never a real one
 
 ## Project
 
-Pick one small service of your own. Write its rollback as one command, try it on a safe copy, and save what
-you saw in a short note.
+Pick one small service of your own. Write its rollback as one command. Try it on a safe copy. Save what you saw in a short note.
 
 ## Options
 
 **The desk on Compose only, with scripts from part 4**
 
-- **Choose when** one machine is enough and you want no cloud service to learn.
+- **Choose when** one machine is enough, and you want no cloud service to learn.
 - **Trade-off:** you keep the revisions, the secret store and the rollback yourself.
 
 Cloud Run is the better pick when you want the platform to keep revisions and hold the secrets.

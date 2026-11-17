@@ -15,11 +15,11 @@ Before, the trace desk is empty. For example, the finished desk shows HDC-2026-0
 `src/telemetry.ts` gives you `tracer` and a helper, `inChildSpan(name, attributes, work)`. Use them in `src/agent.ts`.
 
 1. **One root span per run.** In `runAgent`, start a span called `invoke_agent permit-desk` with `tracer.startSpan`. Give it three attributes: `run.id`, `application.id` and `release.id`. End it when the run ends, also on failure.
-2. **Make it the parent.** Run the loop inside `context.with(trace.setSpan(context.active(), runSpan), ...)`. Every span the loop starts then becomes a child of the root span. You cannot `yield` inside that callback, so move the loop into its own generator. Call each `steps.next()` inside `context.with`.
+2. **Make it the parent.** Run the loop inside `context.with(trace.setSpan(context.active(), runSpan), ...)`. Every span the loop starts then becomes a child of the root span. You cannot `yield` inside that callback. So move the loop into its own generator. Call each `steps.next()` inside `context.with`.
 3. **One span per model call.** Wrap each `chat()` call in ``inChildSpan(`chat ${release.role}`, ...)``. Put the token counts on it as `gen_ai.usage.input_tokens` and `gen_ai.usage.output_tokens`. The gateway sends them in `usage.prompt_tokens` and `usage.completion_tokens`, so read them in `src/model.ts`.
 4. **One span per tool call.** Wrap each `runToolCall` in ``inChildSpan(`execute_tool ${name}`, ...)``.
 5. **Keep residents out of spans.** Never put messages, a tool's answer or the letter on a span. They hold the resident's name.
-6. Rebuild your desk and run one application.
+6. Rebuild your desk, and run one application.
 
 ```bash
 bun run up trace-every-run
@@ -30,7 +30,7 @@ Expect: `Run <run id> ended: done, cost $0.0141`, and a trace for HDC-2026-0142 
 
 ## Do it on your work
 
-Take one program of your own. Give each run one root span with its id, and one child span per call. Good looks like this: one run is one tree, and no span holds a name, email or phone number.
+Take one program of your own. Give each run one root span with its id. Give each call one child span. Good looks like this: one run is one tree, and no span holds a name, email or phone number.
 
 ## Done when
 
@@ -48,11 +48,11 @@ Expect: `Done. All 5 rules pass.`
 
 ## Solution
 
-After: a root span with a child span for each model call and tool call. See `../solution/` and compare with `diff -r . ../solution/`.
+After: a root span with a child span for each model call and tool call. See `../solution/`. To compare, run `diff -r . ../solution/`.
 
 ## If you get stuck
 
-- Chat spans in separate traces lost their parent. `tracer.startSpan` does not make a span active, so call `steps.next()` inside `context.with(...)`.
+- Chat spans in separate traces lost their parent. `tracer.startSpan` does not make a span active. So call `steps.next()` inside `context.with(...)`.
 - See what reached the trace desk:
 
 ```bash
@@ -61,7 +61,7 @@ curl -s localhost:7004/api/spans | head -c 600
 
 Expect: JSON spans with names such as `chat fast` and attributes such as `run.id`.
 
-- Compare with `../solution/` when you are done.
+- Compare with `../solution/` when you finish.
 
 ## Words you will use
 
@@ -69,5 +69,5 @@ Expect: JSON spans with names such as `chat fast` and attributes such as `run.id
 - **Span**: one piece of work with a start, an end and attributes. One model call is one span.
 - **Root span**: the span with no parent. Here it is the whole run.
 - **Attribute**: a name and a value on a span, such as `run.id` or `gen_ai.usage.input_tokens`.
-- **Context**: which span is active now, so a new span knows its parent.
+- **Context**: which span is active now. So a new span knows its parent.
 - **OTLP**: how OpenTelemetry sends spans.
