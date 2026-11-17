@@ -2,15 +2,35 @@
 
 ## After this part you can
 
-Stop a runaway run with a step limit and a dollar limit. Limit how many runs one person starts. Resume a killed run without a second letter. Fall back to another provider when one stalls. Keep waits short with a queue.
+- Stop a runaway run with a step limit and a dollar limit.
+- Limit how many runs one person can start.
+- Finish a killed run without sending a second letter.
+- Move to another provider when one stalls.
+- Keep waits short with a queue.
 
 ## You leave with
 
-A desk with brakes and a memory, and a note in `out/bad-night.md` that says which brake fired first on a bad night.
+A desk with brakes and a memory. A note in `out/bad-night.md` says which brake fired first on a bad night.
 
 ## The problem
 
-Application HDC-2026-0177 has a list of attachments that "continues on the next page", forever. The desk keeps reading pages, and every page costs a paid model call. A resident who reloads twenty times starts twenty runs. And when the desk's container is killed after a decision but before the letter, a retry can send two letters, or none. Anthropic reports that agents use about 4 times more tokens than chat, so loops like these cost real money fast.
+Application HDC-2026-0177 has an attachment list that "continues on the next page", forever. The desk keeps reading pages. Every page is one paid model call.
+
+Two more things go wrong on a bad night. A resident who reloads 20 times starts 20 runs. And if the container is killed after the decision but before the letter, a retry can send two letters, or none.
+
+For example, the finished desk has a step limit of 12 in `release.json`. Run `bun run chaos runaway` and it prints this:
+
+```text
+The run ended: stopped_budget after 12 model calls, $0.0345
+```
+
+The resident reads a short message that starts "This check stopped after". Nobody waits forever.
+
+A brake is a limit that stops a run. A run journal saves each finished step. A restarted run carries on from the last saved step.
+
+An alert tells you about spending after it happened. A limit refuses the next call before it happens.
+
+Here is what the desk does with every run:
 
 ```mermaid
 flowchart TD
@@ -24,39 +44,17 @@ flowchart TD
   K[container killed] -.->|restart| J
 ```
 
-## Why it matters
-
-Systems with many agents use about 15 times more tokens than chat. When an error happens, Anthropic does not restart a long run from the beginning. A restart costs a lot, and it annoys users. So Anthropic built systems that resume from where the agent was.
-
-A brake is a limit that stops a run. A run journal saves each finished step, so a restarted run goes on from where it stopped. An alert tells you about spending after it happened. A limit refuses the next call before it happens.
-
-For example, the finished desk has a step limit of 12 in its `release.json` (`"max_steps": 12`). Run `bun run chaos runaway` against it, and it prints this:
-
-```text
-The run ended: stopped_budget after 12 model calls, $0.0345
-```
-
-The resident sees a short message that begins "This check stopped after". The status `stopped_budget` means a limit stopped the run. Nobody waits forever.
+Notice: Every loop checks the limits first. A killed run restarts from the journal, not from the start.
 
 ## Steps
 
-| Step                               | You make                                                                        | The check reads                                                                                                                                                                       |
-| ---------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cap-the-spend`                    | a step limit and a dollar limit per run, and a budget on the desk's gateway key | `bun run chaos runaway`: the run ends `stopped_budget` in under 25 steps and under $0.10 (spend log); a budget refusal from the gateway reaches the resident as `event: error`        |
-| `rate-limit-residents`             | a limit per resident (header `x-resident-id`, else address)                     | 6 requests from one resident inside the window get one 429 with `Retry-After`; another resident still gets 200                                                                        |
-| `survive-a-restart`                | a run journal and idempotency keys on the register writes                       | `bun run chaos kill --desk`: after the restart the run finishes, the register holds one decision and one letter, and no completed model step is called again (spend log rows per run) |
-| `fall-back-when-a-provider-stalls` | a timeout on each provider call and a fallback to the next provider             | four in-process rules against fake providers: a stall or a 500 moves on, and no spare is asked when the first answers                                                                 |
-| `hold-the-latency-goal`            | a queue with a limit on runs going, a limit on runs waiting and a longest wait  | six in-process rules: order, limits, `too_busy` with a retry time, and a freed slot after an error                                                                                    |
-
-## Watch and read
-
-| Kind  | Title                                                       | Made by                                  | Why                                                                           | Link                                                                      |
-| ----- | ----------------------------------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| read  | How we built our multi-agent research system                | Anthropic Engineering                    | Shows why agents cost so much and why a long run must resume, not restart.    | <https://www.anthropic.com/engineering/built-multi-agent-research-system> |
-| video | SE Radio 596: Maxim Fateev on Durable Execution             | Maxim Fateev, who co-created Temporal    | The maker of a durable run engine explains saving each step and resuming.     | <https://www.youtube.com/watch?v=fMh2ZYJST0E>                             |
-| video | Temporal: Open Source Durable Workflows for Apps and Agents | The Temporal team                        | A short tour of runs that survive a crash, with agents as the example.        | <https://www.youtube.com/watch?v=oUZd8tWr6zw>                             |
-| read  | Handling Overload                                           | Google Site Reliability Engineering team | Explains refusing work early, which is the idea behind your queue and limits. | <https://sre.google/sre-book/handling-overload/>                          |
-| read  | Designing robust and predictable APIs with idempotency      | Brandur Leach at Stripe                  | The clearest write-up of idempotency keys, which stop a second letter.        | <https://stripe.com/blog/idempotency>                                     |
+| Step                               | You make                                           | You know it works when                                                  |
+| ---------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------- |
+| `cap-the-spend`                    | A step limit, a dollar limit and a key budget      | The runaway run ends as `stopped_budget`, and the resident sees why     |
+| `rate-limit-residents`             | A limit for each resident                          | The 6th quick request gets a 429. Another resident still gets a 200     |
+| `survive-a-restart`                | A run journal and a key for each register write    | After `bun run chaos kill --desk`: one decision, one letter             |
+| `fall-back-when-a-provider-stalls` | A timeout on each provider, then the next provider | A stall or a 500 moves on. No spare is asked when the first one answers |
+| `hold-the-latency-goal`            | A queue with a limit on runs going and waiting     | A full queue says `too_busy` and gives a retry time                     |
 
 ## Walkthrough
 
@@ -68,7 +66,7 @@ bun run world
 
 Expect: `The world is running. Model provider: replay.`
 
-Step 1: add the step limit and the dollar limit, and turn the gateway's refusal into a clean stop.
+Step 1: add the step limit and the dollar limit. Turn the gateway's refusal into a clean stop.
 
 ```bash
 bun run up cap-the-spend
@@ -132,46 +130,37 @@ Part bound-the-runs:
 Part bound-the-runs is done: 5/5 steps pass.
 ```
 
+## Watch and read
+
+| Kind  | Title                                                       | Made by                                  | Why                                                                           | Link                                                                      |
+| ----- | ----------------------------------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| read  | How we built our multi-agent research system                | Anthropic Engineering                    | Shows why agents cost so much and why a long run must resume, not restart.    | <https://www.anthropic.com/engineering/built-multi-agent-research-system> |
+| video | SE Radio 596: Maxim Fateev on Durable Execution             | Maxim Fateev, who co-created Temporal    | The maker of a durable run engine explains saving each step and resuming.     | <https://www.youtube.com/watch?v=fMh2ZYJST0E>                             |
+| video | Temporal: Open Source Durable Workflows for Apps and Agents | The Temporal team                        | A short tour of runs that survive a crash, with agents as the example.        | <https://www.youtube.com/watch?v=oUZd8tWr6zw>                             |
+| read  | Handling Overload                                           | Google Site Reliability Engineering team | Explains refusing work early, which is the idea behind your queue and limits. | <https://sre.google/sre-book/handling-overload/>                          |
+| read  | Designing robust and predictable APIs with idempotency      | Brandur Leach at Stripe                  | The clearest write-up of idempotency keys, which stop a second letter.        | <https://stripe.com/blog/idempotency>                                     |
+
 ## Project
 
-Add one brake to one real piece of your own work. Pick a loop or a job in your project that calls a paid service. Give it a limit on calls or on money, and make it stop with a clear message. Then kill it once in the middle and check that a restart does not repeat a paid step.
+Picture a bad night at the council. A runaway application loops, and the container is killed in the middle of a run. In the morning there must be no overspend and no second letter.
 
-## Assignment: survive the bad night
-
-Picture a bad night at the council. A runaway application loops, and the desk's container is killed
-in the middle of a run. In the morning there must be no overspend and no second letter.
-
-For example, after `bun run chaos runaway --desk` and `bun run chaos kill --desk`, the spend log shows
-one run stopped at 12 model calls and $0.0345. The register shows 1 decision and 1 letter for
-HDC-2026-0142.
+For example, after `bun run chaos runaway --desk` and `bun run chaos kill --desk`, the spend log shows one run stopped at 12 model calls and $0.0345. The register shows 1 decision and 1 letter for HDC-2026-0142.
 
 1. Run both chaos commands against your desk from `survive-a-restart`.
-2. Write `out/bad-night.md`. Say which brake fired first for HDC-2026-0177: the step limit, the dollar
-   limit or the key's budget. Say why you chose that order of limits.
-3. In the same note, name the idempotency key for the letter and what it is built from.
+2. Write `out/bad-night.md`. Say which brake fired first for HDC-2026-0177: the step limit, the dollar limit or the key's budget. Say why you ordered the limits that way.
+3. In the same note, name the idempotency key for the letter. Say what it is built from.
 
-Hand in your branch and `out/bad-night.md`. It is graded yes or no on each question:
+Hand in your branch and `out/bad-night.md`. Each question is graded yes or no:
 
 - Do `bun run verify cap-the-spend`, `rate-limit-residents` and `survive-a-restart` pass?
 - Did the runaway run end as `stopped_budget`?
 - Is there exactly one letter for the killed application?
 - Does the note name the idempotency key and what it is built from?
 
-Extension: kill the desk at 10 different points in a run, not only before the letter. Show zero
-duplicate letters in all 10.
+Extension: kill the desk at 10 different points in a run, not only before the letter. Show zero duplicate letters in all 10.
 
-## Finished
+Then do the same on your own work. Pick a loop or a job that calls a paid service. Give it a limit on calls or money, and make it stop with a clear message. Kill it once in the middle. Check that a restart does not repeat a paid step.
 
-Your desk now has brakes and a memory:
+## What comes next
 
-- A runaway run stops itself at the step limit or the dollar limit, and the resident reads why.
-- A spent gateway budget ends a run cleanly as `stopped_budget`, never as a hang.
-- One resident cannot start more than 5 runs in 10 seconds, and every other resident is still served.
-- Every run is saved after each step, so a killed run finishes after the restart with no second letter
-  and no model call paid twice.
-- A provider that stalls is given up on, and the next one answers.
-- A rush of runs waits in a short line, and the extra ones are told to try again.
-
-Next is Part 4, release safely. You change the desk's prompt without hurting residents. A gate of
-evals runs before each release. A canary gets a small share of traffic. A bad canary rolls back by
-itself, and a runbook tells the people on call what to do.
+Part 4 is about releasing safely. A gate of evals runs before each release. A canary gets a small share of traffic first. A bad canary rolls back by itself. A runbook tells the people on call what to do.
